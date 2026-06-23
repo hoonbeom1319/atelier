@@ -1,0 +1,123 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 코스 상세 (C6)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; display:flex; flex-direction:column; position:relative; }
+  header.bar{ position:sticky; top:0; z-index:5; background:#fff; padding:12px 14px; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:10px; }
+  header.bar a.back{ text-decoration:none; color:var(--ink); font-size:18px; }
+  header.bar h1{ font-size:16px; margin:0; flex:1; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  main{ flex:1; padding-bottom:96px; }
+  /* 풀블리드 지도 */
+  .map{ height:200px; border-bottom:2px solid var(--ink); background:repeating-linear-gradient(45deg,#f0f0f0 0 10px,#e7e7e7 10px 20px); position:relative; }
+  .map .lbl{ position:absolute; top:8px; left:10px; font-size:11px; color:var(--muted); background:#fff; padding:1px 5px; border-radius:3px; }
+  .body{ padding:16px; }
+  .title{ font-size:20px; font-weight:700; margin:0; }
+  .date{ color:var(--muted); font-size:13px; margin:4px 0 0; }
+  .memo{ font-size:14px; line-height:1.6; margin:12px 0 0; }
+  .tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .chip{ border:1.5px solid var(--line); border-radius:14px; padding:3px 10px; font-size:12px; color:var(--muted); }
+  /* Stop별 사진 인스타처럼 크게 */
+  .stopblock{ margin-top:22px; }
+  .stopblock h2{ font-size:15px; margin:0 0 8px; display:flex; align-items:center; gap:8px; }
+  .stopblock h2 .num{ width:22px; height:22px; border:1.5px solid var(--ink); border-radius:50%; font-size:11px; display:flex; align-items:center; justify-content:center; }
+  .photo{ width:100%; aspect-ratio:4/3; border:1.5px solid var(--line); background:repeating-linear-gradient(45deg,#f2f2f2 0 10px,#e9e9e9 10px 20px); border-radius:10px; margin-bottom:8px; }
+  /* 공유 바 */
+  .foot{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:390px; border-top:2px solid var(--ink); background:#fff; padding:12px 16px; display:flex; gap:10px; align-items:center; }
+  .foot .home{ text-decoration:none; border:2px solid var(--ink); background:#fff; color:var(--ink); border-radius:12px; padding:13px 16px; font-weight:600; }
+  .share{ flex:1; border:2px solid var(--ink); background:var(--ink); color:#fff; border-radius:12px; padding:13px; font-weight:700; cursor:pointer; }
+  .linkbox{ display:none; margin:0 16px; padding:10px 12px; border:1.5px dashed var(--ink); border-radius:10px; font-size:12px; color:var(--muted); align-items:center; gap:8px; }
+  .linkbox.show{ display:flex; }
+  .linkbox a{ color:var(--ink); }
+  .banner{ background:#eee; border-bottom:1.5px solid var(--line); padding:8px 16px; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <a class="back" href="index.html" aria-label="홈으로">←</a>
+    <h1>코스</h1>
+    <span class="tag">C6</span>
+  </header>
+
+  <div class="banner" id="banner">발자취 지도에 합산됐어요.</div>
+
+  <main>
+    <div class="map">
+      <span class="lbl">지도 영역 · 동선(코스 전체)</span>
+      <svg width="100%" height="100%" viewBox="0 0 390 200" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="40,150 130,95 250,120 330,55" fill="none" stroke="#222" stroke-width="2.5" stroke-dasharray="7 5"/>
+        <circle cx="40" cy="150" r="10" fill="#fff" stroke="#222" stroke-width="2"/><text x="40" y="154" font-size="10" text-anchor="middle">1</text>
+        <circle cx="130" cy="95" r="10" fill="#fff" stroke="#222" stroke-width="2"/><text x="130" y="99" font-size="10" text-anchor="middle">2</text>
+        <circle cx="250" cy="120" r="10" fill="#fff" stroke="#222" stroke-width="2"/><text x="250" y="124" font-size="10" text-anchor="middle">3</text>
+        <circle cx="330" cy="55" r="10" fill="#fff" stroke="#222" stroke-width="2"/><text x="330" y="59" font-size="10" text-anchor="middle">4</text>
+      </svg>
+    </div>
+
+    <div class="body">
+      <h1 class="title">전주 한옥마을 가족 나들이</h1>
+      <p class="date">2026.05.17 · 방문지 4곳 · 사진 18장</p>
+      <p class="memo">아이랑 한복 입고 한 바퀴. 경기전 돌담이 제일 좋았다.</p>
+      <div class="tags"><span class="chip">#가족</span><span class="chip">#주말</span><span class="chip">#전주</span></div>
+
+      <div class="stopblock">
+        <h2><span class="num">1</span> 한옥마을 · 10:20</h2>
+        <div class="photo"></div><div class="photo"></div>
+      </div>
+      <div class="stopblock">
+        <h2><span class="num">2</span> 경기전 · 11:05</h2>
+        <div class="photo"></div>
+      </div>
+      <div class="stopblock">
+        <h2><span class="num">3</span> 오목대 · 13:40</h2>
+        <div class="photo"></div>
+      </div>
+      <div class="stopblock">
+        <h2><span class="num">4</span> 풍남문 · 15:10</h2>
+        <div class="photo"></div>
+      </div>
+    </div>
+
+    <div class="linkbox" id="linkbox" role="status" aria-live="polite">
+      🔗 공유 링크 생성됨: <a href="webview.html">balja.chwi/c/ab12cd</a> <span>(앱 없는 사람도 웹으로 열림)</span>
+    </div>
+  </main>
+
+  <div class="foot">
+    <a class="home" href="index.html" aria-label="발자취 홈으로">발자취</a>
+    <button class="share" id="shareBtn" type="button" aria-pressed="false">공유 링크 만들기</button>
+  </div>
+</div>
+
+<script>
+  // 진입 맥락 배너: 샘플 미리보기 vs 방금 완성
+  const params = new URLSearchParams(location.search);
+  const banner = document.getElementById('banner');
+  if(params.get('sample')==='1'){ banner.textContent = '샘플 코스 미리보기 — 이렇게 만들어져요.'; }
+  else if(params.get('from')==='finalize'){ banner.textContent = '코스 완성! 발자취 지도에 합산됐어요.'; }
+
+  // 공유: 링크 생성(관측 가능한 상태 변화)
+  const shareBtn=document.getElementById('shareBtn'), linkbox=document.getElementById('linkbox');
+  shareBtn.addEventListener('click',()=>{
+    const on = shareBtn.getAttribute('aria-pressed')==='true';
+    if(!on){
+      shareBtn.setAttribute('aria-pressed','true');
+      shareBtn.textContent='링크 생성됨 ✓';
+      linkbox.classList.add('show');
+      linkbox.scrollIntoView({behavior:'smooth', block:'center'});
+    } else {
+      shareBtn.setAttribute('aria-pressed','false');
+      shareBtn.textContent='공유 링크 만들기';
+      linkbox.classList.remove('show');
+    }
+  });
+</script>
+</body>
+</html>

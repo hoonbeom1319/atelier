@@ -1,0 +1,349 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 검토·보정 ★ (C4)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; display:flex; flex-direction:column; position:relative; }
+  header.bar{ position:sticky; top:0; z-index:5; background:#fff; padding:12px 14px; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:10px; }
+  header.bar h1{ font-size:16px; margin:0; flex:1; }
+  header.bar a.back{ text-decoration:none; color:var(--ink); font-size:18px; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  .next{ text-decoration:none; border:2px solid var(--ink); background:var(--ink); color:#fff; border-radius:10px; padding:7px 12px; font-size:13px; font-weight:600; }
+  main{ flex:1; padding:12px; padding-bottom:110px; }
+  /* faux map */
+  .maphead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .maphead h2{ font-size:13px; color:var(--muted); margin:0; }
+  .togglebtn{ border:1.5px solid var(--ink); background:#fff; border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; }
+  .map{ border:2px dashed var(--line); background:repeating-linear-gradient(45deg,#f0f0f0 0 10px,#e7e7e7 10px 20px); border-radius:12px; position:relative; height:150px; overflow:hidden; }
+  .map[hidden]{ display:none; }
+  .map .lbl{ position:absolute; top:6px; left:8px; font-size:11px; color:var(--muted); background:#fff; padding:1px 5px; border-radius:3px; }
+  .pin{ position:absolute; width:18px; height:18px; border:2px solid var(--ink); border-radius:50% 50% 50% 0; transform:rotate(-45deg); background:#fff; }
+  .pin b{ display:block; transform:rotate(45deg); text-align:center; line-height:14px; font-size:9px; }
+  /* stop cards */
+  section h2.sec{ font-size:14px; margin:18px 2px 8px; }
+  .stop{ border:1.5px solid var(--ink); border-radius:12px; padding:10px; margin-bottom:10px; }
+  .stop .top{ display:flex; align-items:center; gap:8px; }
+  .stop .num{ width:22px; height:22px; border:1.5px solid var(--ink); border-radius:50%; font-size:11px; display:flex; align-items:center; justify-content:center; }
+  .stop .nm{ font-weight:600; flex:1; }
+  .stop .tm{ font-size:11px; color:var(--muted); }
+  .menubtn{ border:1.5px solid var(--line); background:#fff; border-radius:8px; padding:2px 9px; cursor:pointer; font-size:16px; line-height:1; }
+  .thumbs{ display:flex; gap:5px; margin-top:8px; flex-wrap:wrap; }
+  .thumb{ width:40px; height:40px; border:1.5px solid var(--line); background:repeating-linear-gradient(45deg,#f2f2f2 0 7px,#e9e9e9 7px 14px); border-radius:5px; }
+  .thumb.more{ display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--muted); }
+  .stopmenu{ margin-top:8px; border-top:1px dashed var(--line); padding-top:8px; display:none; gap:8px; }
+  .stopmenu.open{ display:flex; }
+  .stopmenu button{ flex:1; border:1.5px solid var(--ink); background:#fff; border-radius:8px; padding:8px; font-size:12px; cursor:pointer; }
+  /* unclassified */
+  .unc{ border:2px dashed var(--ink); border-radius:12px; padding:10px; }
+  .unc .uhead{ display:flex; align-items:center; justify-content:space-between; }
+  .ucount{ font-weight:700; }
+  .ugrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:8px; }
+  .uph{ aspect-ratio:1; border:1.5px solid var(--line); background:repeating-linear-gradient(45deg,#f2f2f2 0 7px,#e9e9e9 7px 14px); border-radius:6px; position:relative; cursor:pointer; padding:0; }
+  .uph[aria-pressed="true"]{ outline:3px solid var(--ink); outline-offset:-3px; }
+  .uph .chk{ position:absolute; top:3px; right:3px; width:18px; height:18px; border:2px solid var(--ink); border-radius:50%; background:#fff; color:transparent; font-size:11px; line-height:14px; text-align:center; }
+  .uph[aria-pressed="true"] .chk{ background:var(--ink); color:#fff; }
+  .done-note{ color:var(--muted); font-size:13px; padding:10px 2px; }
+  /* selection action bar */
+  .selbar{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:390px; background:#fff; border-top:2px solid var(--ink); padding:12px 14px; display:none; align-items:center; gap:10px; z-index:8; }
+  .selbar.show{ display:flex; }
+  .selbar .c{ flex:1; font-weight:600; font-size:14px; }
+  .selbar button{ border:2px solid var(--ink); background:var(--ink); color:#fff; border-radius:10px; padding:11px 14px; font-weight:600; cursor:pointer; }
+  /* sheet */
+  .scrim{ position:fixed; inset:0; background:rgba(0,0,0,.3); display:none; z-index:20; }
+  .scrim.show{ display:block; }
+  .sheet{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:390px; max-height:80vh; overflow:auto; background:#fff; border:2px solid var(--ink); border-bottom:none; border-radius:16px 16px 0 0; z-index:21; padding:14px; display:none; }
+  .sheet.show{ display:block; }
+  .sheet h3{ margin:0 0 4px; font-size:15px; }
+  .sheet .sub{ font-size:12px; color:var(--muted); margin:0 0 12px; }
+  .reco{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .chip{ border:2px solid var(--ink); background:#fff; border-radius:20px; padding:8px 14px; font-size:13px; cursor:pointer; }
+  .listrow{ display:flex; align-items:center; gap:10px; width:100%; border:1.5px solid var(--line); background:#fff; border-radius:10px; padding:11px; margin-top:7px; cursor:pointer; font-size:14px; text-align:left; }
+  .listrow .n{ width:20px; height:20px; border:1.5px solid var(--ink); border-radius:50%; font-size:10px; display:flex; align-items:center; justify-content:center; }
+  .ghost{ border:1.5px dashed var(--ink); background:#fff; border-radius:10px; padding:11px; width:100%; margin-top:7px; cursor:pointer; font-size:14px; }
+  .search{ margin-top:10px; border-top:1px dashed var(--line); padding-top:10px; display:none; }
+  .search.open{ display:block; }
+  .search input{ width:100%; border:1.5px solid var(--ink); border-radius:10px; padding:11px; font-size:14px; }
+  .pinmode{ display:none; margin-top:8px; border:2px dashed var(--ink); border-radius:10px; padding:10px; text-align:center; }
+  .pinmode.open{ display:block; }
+  .closebtn{ position:absolute; top:12px; right:12px; border:1.5px solid var(--line); background:#fff; border-radius:8px; padding:4px 10px; cursor:pointer; }
+  /* toast */
+  .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:130px; background:var(--ink); color:#fff; padding:9px 16px; border-radius:20px; font-size:13px; z-index:30; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <a class="back" href="assembling.html" aria-label="뒤로">←</a>
+    <h1>검토·보정</h1>
+    <span class="tag">C4 ★</span>
+    <a class="next" href="finalize.html" id="next">다음 →</a>
+  </header>
+
+  <main>
+    <!-- 지도 (접기/펼치기) -->
+    <div class="maphead">
+      <h2>그날의 동선</h2>
+      <button class="togglebtn" id="mapToggle" aria-expanded="true" aria-controls="map">지도 접기</button>
+    </div>
+    <div class="map" id="map">
+      <span class="lbl">지도 영역(동선)</span>
+      <svg id="route" width="100%" height="100%" viewBox="0 0 366 150" preserveAspectRatio="none" aria-hidden="true"></svg>
+    </div>
+
+    <!-- Stop 세로 리스트 -->
+    <section>
+      <h2 class="sec" id="stopsHead">방문지 3곳</h2>
+      <div id="stops"></div>
+    </section>
+
+    <!-- 미분류 -->
+    <section>
+      <h2 class="sec">정리할 사진</h2>
+      <div class="unc">
+        <div class="uhead">
+          <span class="ucount" id="ucount" aria-live="polite">미분류 7장</span>
+          <span class="tag">탭해서 선택</span>
+        </div>
+        <div class="ugrid" id="ugrid" role="group" aria-label="미분류 사진"></div>
+        <p class="done-note" id="uncDone" hidden>미분류 0장 — 모두 정리됐어요. ‘다음 →’으로 진행하세요.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 선택 액션 바 -->
+  <div class="selbar" id="selbar" role="region" aria-label="선택한 사진 지정">
+    <span class="c" id="selcount">0장 선택</span>
+    <button id="assignBtn" type="button">Stop에 지정</button>
+  </div>
+
+  <!-- 지정 시트 -->
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Stop 지정">
+    <button class="closebtn" id="sheetClose" type="button">닫기</button>
+    <h3>어디 사진인가요?</h3>
+    <p class="sub" id="sheetSub">선택한 사진을 넣을 방문지를 고르세요.</p>
+
+    <strong style="font-size:12px; color:var(--muted)">근처 Stop 추천</strong>
+    <div class="reco" id="reco"></div>
+
+    <strong style="font-size:12px; color:var(--muted)">모든 방문지</strong>
+    <div id="sheetStops"></div>
+
+    <button class="ghost" id="newStop" type="button">＋ 새 Stop 만들어 지정</button>
+    <button class="ghost" id="searchToggle" type="button">📍 위치로 검색 (위치 정보 없는 사진)</button>
+
+    <div class="search" id="search">
+      <input id="searchInput" type="text" placeholder="지역명 검색 (예: 풍남문)" aria-label="지역명 검색">
+      <div id="searchResults"></div>
+      <button class="ghost" id="pinToggle" type="button">검색 안 되면 → 핀 직접 이동</button>
+      <div class="pinmode" id="pinmode">
+        <p style="margin:0 0 8px; font-size:13px">faux 지도 위에서 핀을 옮겨 위치를 지정하세요.</p>
+        <button class="chip" id="pinConfirm" type="button">이 위치로 지정</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+/* ===== 상태 ===== */
+let stops = [
+  {id:1, name:'한옥마을', time:'10:20', photos:5},
+  {id:2, name:'경기전',   time:'11:05', photos:4},
+  {id:3, name:'오목대',   time:'13:40', photos:3},
+];
+let unclassified = [1,2,3,4,5,6,7];   // 미분류 사진 id
+const selected = new Set();
+let nextStopId = 100, nextUid = 100;
+
+/* ===== 렌더 ===== */
+const stopsEl=document.getElementById('stops'), ugrid=document.getElementById('ugrid'),
+      ucount=document.getElementById('ucount'), stopsHead=document.getElementById('stopsHead'),
+      uncDone=document.getElementById('uncDone'), selbar=document.getElementById('selbar'),
+      selcount=document.getElementById('selcount');
+
+function renderStops(){
+  stopsHead.textContent = '방문지 '+stops.length+'곳';
+  stopsEl.innerHTML='';
+  stops.forEach((s,i)=>{
+    const card=document.createElement('div'); card.className='stop';
+    let thumbs=''; const show=Math.min(s.photos,4);
+    for(let k=0;k<show;k++) thumbs+='<div class="thumb"></div>';
+    if(s.photos>4) thumbs+='<div class="thumb more">+'+(s.photos-4)+'</div>';
+    card.innerHTML =
+      '<div class="top">'+
+        '<span class="num">'+(i+1)+'</span>'+
+        '<span class="nm">'+s.name+'</span>'+
+        '<span class="tm">'+s.time+' · 사진 '+s.photos+'장</span>'+
+        '<button class="menubtn" type="button" aria-label="방문지 메뉴: '+s.name+'" aria-expanded="false">⋯</button>'+
+      '</div>'+
+      '<div class="thumbs">'+thumbs+'</div>'+
+      '<div class="stopmenu" role="group" aria-label="'+s.name+' 보정">'+
+        '<button type="button" data-act="merge">⬑ 위와 합치기</button>'+
+        '<button type="button" data-act="split">⬍ 쪼개기</button>'+
+      '</div>';
+    const menu=card.querySelector('.stopmenu');
+    const mbtn=card.querySelector('.menubtn');
+    mbtn.addEventListener('click',()=>{
+      const open=menu.classList.toggle('open');
+      mbtn.setAttribute('aria-expanded', open?'true':'false');
+    });
+    menu.querySelector('[data-act="merge"]').addEventListener('click',()=>mergeStop(i));
+    menu.querySelector('[data-act="split"]').addEventListener('click',()=>splitStop(i));
+    stopsEl.appendChild(card);
+  });
+  renderMap();
+}
+
+function renderMap(){
+  const svg=document.getElementById('route'); const n=stops.length;
+  const W=366,H=150; let pts=[], dots='';
+  for(let i=0;i<n;i++){
+    const x = 30 + (n>1 ? i*(W-60)/(n-1) : 0);
+    const y = 30 + ((i%2)? 70 : 20) + (i*6);
+    pts.push(x+','+Math.min(y,H-20));
+  }
+  let poly = '<polyline points="'+pts.join(' ')+'" fill="none" stroke="#222" stroke-width="2" stroke-dasharray="6 4"/>';
+  pts.forEach((p,i)=>{ const [x,y]=p.split(','); dots+='<circle cx="'+x+'" cy="'+y+'" r="9" fill="#fff" stroke="#222" stroke-width="2"/><text x="'+x+'" y="'+(+y+3)+'" font-size="9" text-anchor="middle">'+(i+1)+'</text>'; });
+  svg.innerHTML = poly + dots;
+}
+
+function renderUnc(){
+  ucount.textContent = '미분류 '+unclassified.length+'장';
+  ugrid.innerHTML='';
+  unclassified.forEach(id=>{
+    const b=document.createElement('button'); b.type='button'; b.className='uph';
+    b.setAttribute('aria-pressed', selected.has(id)?'true':'false');
+    b.setAttribute('aria-label','미분류 사진 '+id);
+    b.innerHTML='<span class="chk">✓</span>';
+    b.addEventListener('click',()=>{
+      if(selected.has(id)) selected.delete(id); else selected.add(id);
+      b.setAttribute('aria-pressed', selected.has(id)?'true':'false');
+      renderSel();
+    });
+    ugrid.appendChild(b);
+  });
+  const empty = unclassified.length===0;
+  uncDone.hidden = !empty;
+  ugrid.style.display = empty?'none':'grid';
+}
+
+function renderSel(){
+  const n=selected.size;
+  selcount.textContent = n+'장 선택';
+  selbar.classList.toggle('show', n>0);
+}
+
+/* ===== 보정 동작 ===== */
+function mergeStop(i){
+  if(stops.length<2){ toast('합칠 방문지가 없어요'); return; }
+  const target = i>0 ? i-1 : i+1;
+  stops[target].photos += stops[i].photos;
+  const removed = stops[i].name;
+  stops.splice(i,1);
+  renderStops();
+  toast('‘'+removed+'’ 합쳤어요 · 방문지 '+stops.length+'곳');
+}
+function splitStop(i){
+  if(stops[i].photos<2){ toast('사진이 1장이라 쪼갤 수 없어요'); return; }
+  const half=Math.floor(stops[i].photos/2);
+  const orig=stops[i].photos; stops[i].photos = orig-half;
+  stops.splice(i+1,0,{id:nextStopId++, name:stops[i].name+' (2)', time:stops[i].time, photos:half});
+  renderStops();
+  toast('쪼갰어요 · 방문지 '+stops.length+'곳');
+}
+
+/* ===== 시트(지정) ===== */
+const scrim=document.getElementById('scrim'), sheet=document.getElementById('sheet'),
+      reco=document.getElementById('reco'), sheetStops=document.getElementById('sheetStops'),
+      sheetSub=document.getElementById('sheetSub'), searchPanel=document.getElementById('search'),
+      pinmode=document.getElementById('pinmode'), searchResults=document.getElementById('searchResults');
+
+function openSheet(){
+  if(selected.size===0) return;
+  sheetSub.textContent = '선택한 '+selected.size+'장을 넣을 방문지를 고르세요.';
+  // 근처 추천: 앞 2개 Stop
+  reco.innerHTML='';
+  stops.slice(0,2).forEach(s=>{
+    const c=document.createElement('button'); c.className='chip'; c.type='button';
+    c.textContent=s.name+' (근처)'; c.addEventListener('click',()=>assignTo(s.id));
+    reco.appendChild(c);
+  });
+  // 전체 목록
+  sheetStops.innerHTML='';
+  stops.forEach((s,i)=>{
+    const r=document.createElement('button'); r.className='listrow'; r.type='button';
+    r.innerHTML='<span class="n">'+(i+1)+'</span><span>'+s.name+' · '+s.time+'</span>';
+    r.addEventListener('click',()=>assignTo(s.id));
+    sheetStops.appendChild(r);
+  });
+  // 검색 패널 초기화
+  searchPanel.classList.remove('open'); pinmode.classList.remove('open'); searchResults.innerHTML='';
+  scrim.classList.add('show'); sheet.classList.add('show');
+}
+function closeSheet(){ scrim.classList.remove('show'); sheet.classList.remove('show'); }
+
+function assignTo(stopId){
+  const n=selected.size; if(n===0){ closeSheet(); return; }
+  const s=stops.find(x=>x.id===stopId); if(!s){ return; }
+  s.photos += n;
+  unclassified = unclassified.filter(id=>!selected.has(id));
+  selected.clear();
+  closeSheet(); renderStops(); renderUnc(); renderSel();
+  toast(n+'장을 ‘'+s.name+'’에 넣었어요');
+}
+function createStopAndAssign(name){
+  const n=selected.size; if(n===0) return;
+  const s={id:nextStopId++, name:name, time:'—', photos:n};
+  stops.push(s);
+  unclassified = unclassified.filter(id=>!selected.has(id));
+  selected.clear();
+  closeSheet(); renderStops(); renderUnc(); renderSel();
+  toast('새 방문지 ‘'+name+'’에 '+n+'장 넣었어요');
+}
+
+document.getElementById('assignBtn').addEventListener('click', openSheet);
+document.getElementById('sheetClose').addEventListener('click', closeSheet);
+scrim.addEventListener('click', closeSheet);
+document.getElementById('newStop').addEventListener('click', ()=>createStopAndAssign('새 방문지 '+(stops.length+1)));
+document.getElementById('searchToggle').addEventListener('click', ()=>{
+  searchPanel.classList.toggle('open');
+});
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  const q=e.target.value.trim(); searchResults.innerHTML='';
+  if(!q) return;
+  ['풍남문','전동성당','자만벽화마을'].filter(x=>x.includes(q)||q.length>0).slice(0,3).forEach(name=>{
+    const r=document.createElement('button'); r.className='listrow'; r.type='button';
+    r.innerHTML='<span class="n">＋</span><span>'+name+'</span>';
+    r.addEventListener('click',()=>createStopAndAssign(name));
+    searchResults.appendChild(r);
+  });
+});
+document.getElementById('pinToggle').addEventListener('click', ()=>pinmode.classList.toggle('open'));
+document.getElementById('pinConfirm').addEventListener('click', ()=>createStopAndAssign('직접 지정한 위치'));
+
+/* ===== 지도 접기 ===== */
+const mapToggle=document.getElementById('mapToggle'), mapEl=document.getElementById('map');
+mapToggle.addEventListener('click', ()=>{
+  const open = mapEl.hasAttribute('hidden');
+  if(open){ mapEl.removeAttribute('hidden'); mapToggle.textContent='지도 접기'; mapToggle.setAttribute('aria-expanded','true'); }
+  else { mapEl.setAttribute('hidden',''); mapToggle.textContent='지도 펼치기'; mapToggle.setAttribute('aria-expanded','false'); }
+});
+
+/* ===== toast ===== */
+let toastT; const toastEl=document.getElementById('toast');
+function toast(msg){ toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('show'),1600); }
+
+/* 초기 렌더 */
+renderStops(); renderUnc(); renderSel();
+</script>
+</body>
+</html>

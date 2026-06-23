@@ -1,0 +1,140 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 다 같이 (S2)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; position:relative; display:flex; flex-direction:column; }
+  header.bar{ padding:14px 16px; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:8px; }
+  header.bar h1{ font-size:16px; margin:0; flex:1; }
+  .searchbtn{ border:1.5px solid var(--ink); background:#fff; border-radius:10px; padding:6px 10px; font-size:12px; text-decoration:none; color:var(--ink); white-space:nowrap; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  main{ flex:1; padding:14px 16px 96px; }
+  .toprow{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .unread{ font-weight:700; font-size:14px; }
+  .ghostbtn{ border:1.5px dashed var(--ink); background:#fff; border-radius:10px; padding:6px 10px; font-size:12px; cursor:pointer; }
+  /* feed card */
+  .feed{ display:flex; flex-direction:column; gap:12px; }
+  .fcard{ border:1.5px solid var(--ink); border-radius:14px; padding:12px; }
+  .fcard .who{ display:flex; align-items:center; gap:9px; }
+  .fcard .who .person{ display:flex; align-items:center; gap:9px; flex:1; text-decoration:none; color:inherit; }
+  .fcard .ava{ width:30px; height:30px; border:1.5px solid var(--ink); border-radius:50%; background:repeating-linear-gradient(45deg,#f2f2f2 0 6px,#e9e9e9 6px 12px); }
+  .fcard .nm{ font-weight:600; font-size:14px; }
+  .fcard .dot{ width:10px; height:10px; border-radius:50%; background:var(--ink); }
+  .fcard .dot[hidden]{ display:none; }
+  .fcard .when{ font-size:11px; color:var(--muted); }
+  .fcard .mini{ height:90px; margin:10px 0 8px; border:1.5px solid var(--line); border-radius:8px; background:repeating-linear-gradient(45deg,#f2f2f2 0 9px,#e9e9e9 9px 18px); position:relative; }
+  .fcard .mini svg{ position:absolute; inset:0; }
+  .fcard .ct{ font-size:14px; font-weight:600; }
+  .fcard .actions{ display:flex; gap:8px; margin-top:10px; }
+  .fcard .read{ flex:1; border:1.5px solid var(--ink); background:#fff; border-radius:9px; padding:9px; font-size:13px; cursor:pointer; }
+  .fcard .open{ flex:1; text-align:center; text-decoration:none; color:#fff; background:var(--ink); border:2px solid var(--ink); border-radius:9px; padding:8px; font-size:13px; font-weight:600; }
+  .allread{ color:var(--muted); font-size:13px; padding:8px 2px; }
+  /* empty state */
+  .empty{ display:none; flex-direction:column; align-items:center; text-align:center; gap:14px; padding:40px 24px; }
+  .empty.show{ display:flex; }
+  .empty .ill{ width:90px; height:90px; border:2px dashed var(--ink); border-radius:50%; }
+  .feedwrap.hide{ display:none; }
+  /* tab shell */
+  .tabbar{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:390px; height:64px; border-top:2px solid var(--ink); background:#fff; display:flex; align-items:center; justify-content:space-around; }
+  .tabbar a{ font-size:11px; color:var(--muted); text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:3px; position:relative; }
+  .tabbar a[aria-current]{ color:var(--ink); font-weight:700; }
+  .tabbar .ic{ width:22px; height:22px; border:1.5px solid currentColor; border-radius:5px; }
+  .tabbar .badge{ position:absolute; top:-4px; right:6px; min-width:16px; height:16px; border:1.5px solid var(--ink); background:#fff; border-radius:9px; font-size:9px; line-height:13px; text-align:center; padding:0 3px; }
+  .tabbar .badge[hidden]{ display:none; }
+  .fab{ width:52px; height:52px; border-radius:50%; border:2px solid var(--ink); background:#fff; font-size:24px; margin-top:-20px; text-decoration:none; color:var(--ink); display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <h1>다 같이</h1>
+    <a class="searchbtn" href="search.html" aria-label="사람 찾기">🔍 사람 찾기</a>
+    <span class="tag">S2 · 묶음2</span>
+  </header>
+
+  <main>
+    <div class="toprow">
+      <span class="unread" id="unread" aria-live="polite">안 읽음 3개</span>
+      <button class="ghostbtn" id="emptyToggle" type="button" aria-pressed="false">팔로우 0명 상태 보기</button>
+    </div>
+
+    <!-- 정상: 팔로우 피드 -->
+    <div class="feedwrap" id="feedwrap">
+      <div class="feed" id="feed"></div>
+      <p class="allread" id="allread" hidden>다 읽었어요. 새 코스가 올라오면 알려줄게요.</p>
+    </div>
+
+    <!-- 빈 상태: 팔로우 0명 -->
+    <div class="empty" id="empty" role="region" aria-label="팔로우 0명 빈 상태">
+      <div class="ill" aria-hidden="true"></div>
+      <p style="margin:0; font-weight:600">아직 팔로우한 사람이 없어요</p>
+      <p style="margin:0; color:var(--muted); font-size:13px; line-height:1.6">친구를 팔로우하면 여기 뜨고,<br>누가 새 코스를 올리면 알려줘요.</p>
+      <a class="open" href="search.html" style="display:inline-block; padding:11px 18px" aria-label="사람 찾기">사람 찾기 →</a>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="주요 탭">
+    <a href="home.html" aria-label="발자취"><span class="ic"></span>발자취</a>
+    <a href="together.html" aria-current="page"><span class="ic"></span>다 같이<span class="badge" id="tabBadge">3</span></a>
+    <a href="picker.html" class="fab" aria-label="새 코스">＋</a>
+    <a href="profile.html" aria-label="프로필"><span class="ic"></span>프로필</a>
+  </nav>
+</div>
+
+<script>
+  // 팔로우 피드 — 각 카드 안읽음. '읽음'으로 표시하면 배지 -1 (관측 가능한 상태 변화)
+  const data = [
+    {nm:'민지', when:'2시간 전', ct:'남산 야경 산책', unread:true},
+    {nm:'재호', when:'어제',     ct:'양양 서피비치',   unread:true},
+    {nm:'수아', when:'3일 전',   ct:'제주 오름 투어',   unread:true},
+  ];
+  const feed=document.getElementById('feed'), unreadEl=document.getElementById('unread'),
+        tabBadge=document.getElementById('tabBadge'), allread=document.getElementById('allread');
+
+  function render(){
+    feed.innerHTML='';
+    data.forEach((d,i)=>{
+      const c=document.createElement('div'); c.className='fcard';
+      c.innerHTML =
+        '<div class="who">'+
+          '<a class="person" href="user.html?of='+encodeURIComponent(d.nm)+'&from=together" aria-label="'+d.nm+' 프로필 보기">'+
+            '<span class="ava"></span><span class="nm">'+d.nm+'</span>'+
+          '</a>'+
+          '<span class="dot" '+(d.unread?'':'hidden')+' aria-label="안 읽음"></span>'+
+          '<span class="when">'+d.when+'</span>'+
+        '</div>'+
+        '<div class="mini"><svg viewBox="0 0 330 90" preserveAspectRatio="none"><polyline points="20,60 100,30 200,50 300,25" fill="none" stroke="#222" stroke-width="2" stroke-dasharray="5 4"/></svg></div>'+
+        '<div class="ct">'+d.ct+'</div>'+
+        '<div class="actions">'+
+          '<button class="read" type="button" '+(d.unread?'':'disabled')+' aria-label="'+d.nm+' 코스 읽음 표시">'+(d.unread?'읽음으로 표시':'읽음')+'</button>'+
+          '<a class="open" href="course.html" aria-label="'+d.nm+' 코스 보기">코스 보기 →</a>'+
+        '</div>';
+      const rb=c.querySelector('.read');
+      rb.addEventListener('click',()=>{ if(!d.unread) return; d.unread=false; render(); });
+      feed.appendChild(c);
+    });
+    const n = data.filter(d=>d.unread).length;
+    unreadEl.textContent = n>0 ? ('안 읽음 '+n+'개') : '모두 읽음';
+    if(n>0){ tabBadge.textContent=n; tabBadge.hidden=false; } else { tabBadge.hidden=true; }
+    allread.hidden = n>0;
+  }
+  render();
+
+  // 빈 상태(팔로우 0명) 토글
+  const et=document.getElementById('emptyToggle'), empty=document.getElementById('empty'), feedwrap=document.getElementById('feedwrap');
+  et.addEventListener('click',()=>{
+    const on = et.getAttribute('aria-pressed')==='true';
+    et.setAttribute('aria-pressed', on?'false':'true');
+    empty.classList.toggle('show', !on);
+    feedwrap.classList.toggle('hide', !on);
+    et.textContent = on ? '팔로우 0명 상태 보기' : '팔로우 있는 상태 보기';
+  });
+</script>
+</body>
+</html>

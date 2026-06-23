@@ -1,0 +1,79 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 내 프로필 (S3)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; position:relative; display:flex; flex-direction:column; }
+  header.bar{ padding:14px 16px; border-bottom:2px solid var(--ink); display:flex; align-items:center; justify-content:space-between; }
+  header.bar h1{ font-size:16px; margin:0; }
+  header.bar .right{ display:flex; align-items:center; gap:8px; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  .iconbtn{ border:1.5px solid var(--ink); background:#fff; border-radius:9px; padding:5px 9px; font-size:13px; cursor:pointer; text-decoration:none; color:var(--ink); }
+  main{ flex:1; padding-bottom:96px; }
+  .head{ padding:22px 16px; display:flex; align-items:center; gap:14px; border-bottom:1.5px dashed var(--line); }
+  .ava{ width:64px; height:64px; border:2px solid var(--ink); border-radius:50%; background:repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px); }
+  .head .info{ flex:1; }
+  .head .nm{ font-size:18px; font-weight:700; margin:0; }
+  .head .stat{ font-size:12px; color:var(--muted); margin:5px 0 0; }
+  .gridhead{ padding:14px 16px 8px; font-size:14px; font-weight:600; }
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:0 16px; }
+  .gtile{ aspect-ratio:1; border:1.5px solid var(--line); background:repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px); border-radius:6px; position:relative; text-decoration:none; }
+  .gtile svg{ position:absolute; inset:0; }
+  .gtile .lk{ position:absolute; bottom:3px; right:4px; font-size:9px; color:var(--muted); background:#fff; border-radius:3px; padding:0 3px; }
+  .tabbar{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:390px; height:64px; border-top:2px solid var(--ink); background:#fff; display:flex; align-items:center; justify-content:space-around; }
+  .tabbar a{ font-size:11px; color:var(--muted); text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .tabbar a[aria-current]{ color:var(--ink); font-weight:700; }
+  .tabbar .ic{ width:22px; height:22px; border:1.5px solid currentColor; border-radius:5px; }
+  .fab{ width:52px; height:52px; border-radius:50%; border:2px solid var(--ink); background:#fff; font-size:24px; margin-top:-20px; text-decoration:none; color:var(--ink); display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <h1>내 프로필</h1>
+    <div class="right">
+      <a class="iconbtn" id="settingsLink" href="settings.html" aria-label="설정 열기">⚙ 설정</a>
+      <span class="tag">S3 · 묶음3</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="head">
+      <div class="ava"></div>
+      <div class="info">
+        <p class="nm">나 (훈범)</p>
+        <p class="stat">내 코스 5 · 팔로잉 3 · 팔로워 4</p>
+      </div>
+    </div>
+
+    <div class="gridhead">내 코스</div>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <nav class="tabbar" aria-label="주요 탭">
+    <a href="home.html" aria-label="발자취"><span class="ic"></span>발자취</a>
+    <a href="together.html" aria-label="다 같이"><span class="ic"></span>다 같이</a>
+    <a href="picker.html" class="fab" aria-label="새 코스">＋</a>
+    <a href="profile.html" aria-current="page"><span class="ic"></span>프로필</a>
+  </nav>
+</div>
+
+<script>
+  // 내 코스 그리드 → 코스 상세
+  const grid=document.getElementById('grid');
+  const mine=['전주 한옥마을','서울숲 봄나들이','남이섬','속초 바다','경주 야경'];
+  for(let i=0;i<6;i++){
+    const a=document.createElement('a'); a.className='gtile'; a.href='course.html';
+    a.setAttribute('aria-label','내 코스 '+(i+1)+' 보기');
+    a.innerHTML='<svg viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="15,70 45,40 70,55 90,25" fill="none" stroke="#222" stroke-width="2" stroke-dasharray="4 3"/></svg>'+(i%2===0?'<span class="lk">공개</span>':'<span class="lk">비공개</span>');
+    grid.appendChild(a);
+  }
+</script>
+</body>
+</html>

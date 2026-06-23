@@ -1,0 +1,68 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 설정 (S6)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; display:flex; flex-direction:column; }
+  header.bar{ padding:12px 16px; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:10px; }
+  header.bar a.back{ text-decoration:none; color:var(--ink); font-size:18px; }
+  header.bar h1{ font-size:16px; margin:0; flex:1; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  main{ flex:1; padding:14px 0; }
+  .group{ margin-bottom:18px; }
+  .group .gt{ font-size:12px; color:var(--muted); padding:6px 18px; }
+  .row{ display:flex; align-items:center; gap:12px; padding:15px 18px; border-top:1.5px solid #eee; border-bottom:1.5px solid #eee; background:#fff; }
+  .row + .row{ border-top:none; }
+  .row .k{ flex:1; font-size:15px; }
+  .row .v{ font-size:13px; color:var(--muted); }
+  .row.disabled .k{ color:var(--line); }
+  .oos{ font-size:10px; border:1px dashed var(--line); border-radius:5px; padding:1px 6px; color:var(--muted); }
+  .logout{ display:block; width:calc(100% - 36px); margin:8px 18px 0; text-align:center; text-decoration:none; border:2px solid var(--ink); background:#fff; color:var(--ink); border-radius:12px; padding:14px; font-weight:700; cursor:pointer; }
+  .ver{ text-align:center; font-size:11px; color:var(--muted); margin-top:18px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <a class="back" href="profile.html" aria-label="프로필로">←</a>
+    <h1>설정</h1>
+    <span class="tag">S6 · 묶음3</span>
+  </header>
+
+  <main>
+    <div class="group">
+      <div class="gt">계정</div>
+      <div class="row">
+        <span class="k">이메일</span>
+        <span class="v">hoonbeom@example.com</span>
+      </div>
+      <div class="row">
+        <span class="k">닉네임</span>
+        <span class="v">훈범</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="gt">알림 · 개인정보</div>
+      <div class="row disabled">
+        <span class="k">푸시 알림</span>
+        <span class="oos">[범위 밖] Later</span>
+      </div>
+      <div class="row disabled">
+        <span class="k">집·민감 장소 가리기</span>
+        <span class="oos">[범위 밖] Later</span>
+      </div>
+    </div>
+
+    <a class="logout" id="logout" href="login.html" aria-label="로그아웃">로그아웃</a>
+    <p class="ver">발자취 v0.1 (MVP)</p>
+  </main>
+</div>
+</body>
+</html>

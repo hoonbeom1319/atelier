@@ -1,0 +1,112 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 빈 상태 (C1)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  /* ---- C1 빈 상태(홈) 전용 ---- */
+  main{ padding:8px var(--pad) 28px; }
+
+  .brandrow{ display:flex; align-items:baseline; gap:8px; }
+  .brandrow .sub{ font-size:var(--fs-small); color:var(--color-text-muted); }
+
+  /* 진입 한 줄 설명 */
+  .lede{
+    margin:6px 0 0; font-size:var(--fs-h2); line-height:var(--lh-normal);
+    font-weight:var(--fw-medium); letter-spacing:var(--ls-tight);
+    color:var(--color-text);
+  }
+  .lede .accent{ color:var(--color-text); font-weight:var(--fw-bold); }
+
+  .eyebrow{
+    font-size:var(--fs-caption); color:var(--color-text-muted);
+    font-weight:var(--fw-semibold); margin:26px 2px 10px; letter-spacing:var(--ls-tight);
+  }
+
+  /* 샘플 코스 카드 */
+  .sample{ display:block; text-decoration:none; color:inherit; transition:transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .sample:hover{ transform:translateY(-2px); box-shadow:var(--shadow-pop); }
+  .sample:active{ transform:translateY(0) scale(.995); }
+  .sample .map{ height:152px; }
+  .sample .meta{ padding:13px 14px 14px; }
+  .sample .meta h3{ margin:0 0 4px; font-size:var(--fs-h2); font-weight:var(--fw-bold); letter-spacing:var(--ls-tight); }
+  .sample .meta p{ margin:0; font-size:var(--fs-caption); color:var(--color-text-muted); }
+  .sample .meta .go{ float:right; color:var(--color-primary); font-weight:var(--fw-bold); font-size:var(--fs-caption); margin-top:2px; }
+
+  /* CTA 영역 */
+  .cta-wrap{ margin-top:22px; }
+  .cta-wrap .btn{ padding:16px 20px; font-size:var(--fs-h2); border-radius:var(--r-lg); box-shadow:var(--shadow-primary); }
+  .cta-wrap .btn:hover{ box-shadow:var(--shadow-primary); }
+  .cta-note{ text-align:center; margin:12px 0 0; font-size:var(--fs-small); color:var(--color-text-muted); }
+
+  /* 잔잔한 진입 폴리시 */
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{ opacity:0; transform:translateY(10px); animation:reveal .5s var(--ease-out) forwards; }
+    .d1{ animation-delay:.04s; } .d2{ animation-delay:.12s; } .d3{ animation-delay:.20s; } .d4{ animation-delay:.28s; }
+  }
+  @keyframes reveal{ to{ opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <div class="brandrow">
+      <h1>발자취</h1>
+    </div>
+    <span class="scope-tag">C1</span>
+  </header>
+
+  <main>
+    <p class="lede reveal d1">다녀온 곳 <span class="accent">사진</span>을 올리면<br>지도에 <span class="accent">코스</span>가 그려져요.</p>
+
+    <!-- 완성 예시(샘플 코스) — 탭하면 코스 상세 미리보기 -->
+    <p class="eyebrow reveal d2">이런 코스가 만들어져요</p>
+    <a class="card sample reveal d2" href="course.html?sample=1" aria-label="샘플 코스 — 전주 한옥마을 가족 나들이 미리보기">
+      <div class="map draw" id="sampleMap">
+        <span class="map-label">지도 영역 · 동선</span>
+        <svg width="100%" height="100%" viewBox="0 0 390 152" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="route" points="48,112 138,72 250,96 322,46"/>
+          <g class="pin"><circle cx="48"  cy="112" r="12"/><text x="48"  y="116">1</text></g>
+          <g class="pin"><circle cx="138" cy="72"  r="12"/><text x="138" y="76">2</text></g>
+          <g class="pin"><circle cx="250" cy="96"  r="12"/><text x="250" y="100">3</text></g>
+          <g class="pin"><circle cx="322" cy="46"  r="12"/><text x="322" y="50">4</text></g>
+        </svg>
+      </div>
+      <div class="meta">
+        <span class="go" aria-hidden="true">미리보기 →</span>
+        <h3>전주 한옥마을 가족 나들이</h3>
+        <p>2026.05.17 · 4곳 · 사진 18장</p>
+      </div>
+    </a>
+
+    <div class="cta-wrap reveal d3">
+      <a class="btn btn-primary btn-block" href="picker.html">＋ 첫 코스 만들기</a>
+      <p class="cta-note">사진 몇 장이면 충분해요. 긴 설정은 없어요.</p>
+    </div>
+  </main>
+
+  <!-- 하단 탭 셸: 발자취=현재 -->
+  <nav class="tabbar" aria-label="주요 탭">
+    <a href="index.html" aria-current="page"><span class="ic"></span>발자취</a>
+    <a href="together.html" aria-label="다 같이"><span class="ic"></span>다 같이</a>
+    <a href="picker.html" class="tab-fab" aria-label="새 코스">＋</a>
+    <a href="profile.html" aria-label="프로필"><span class="ic"></span>프로필</a>
+  </nav>
+</div>
+
+<script>
+  /* 진입 시 동선 그리기 애니메이션 한 번 재생 (review.html과 동일한 .map.draw 패턴) */
+  (function(){
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    const m = document.getElementById('sampleMap');
+    // app.css가 .map.draw에 1회성 keyframe을 부여 — 이미 draw 클래스가 있어 진입 시 자동 재생.
+    // 사용자가 카드를 다시 보면(재진입) 가볍게 한 번 더 그려지도록 살짝 지연 후 보장.
+    if(m && !m.classList.contains('draw')) m.classList.add('draw');
+  })();
+</script>
+</body>
+</html>

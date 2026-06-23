@@ -1,0 +1,126 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 내 프로필 (S3)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  /* ---- S3 내 프로필 전용 (콘텐츠 우선·잔잔) ---- */
+  main{ padding:0 0 96px; }
+
+  /* 프로필 헤더 */
+  .phead{ display:flex; align-items:center; gap:14px; padding:22px var(--pad) 20px; border-bottom:1px solid var(--color-border); }
+  .ava{
+    width:68px; height:68px; flex:none; border-radius:50%;
+    background:linear-gradient(135deg,#e9e6df,#f3f1ec);
+    border:1px solid var(--color-border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:26px; color:var(--color-text-muted); box-shadow:var(--shadow-sm);
+  }
+  .pinfo{ flex:1; min-width:0; }
+  .pname{ font-size:var(--fs-title); font-weight:var(--fw-bold); letter-spacing:var(--ls-tight); margin:0; }
+  .pstat{ font-size:var(--fs-caption); color:var(--color-text-muted); margin:6px 0 0; }
+
+  /* "내 코스" 섹션 헤더 */
+  .gridhead{ display:flex; align-items:baseline; justify-content:space-between; padding:18px var(--pad) 10px; }
+  .gridhead h2{ font-size:var(--fs-h2); font-weight:var(--fw-bold); letter-spacing:var(--ls-tight); margin:0; }
+  .gridhead .cnt{ font-size:var(--fs-caption); color:var(--color-text-muted); font-weight:var(--fw-medium); }
+
+  /* 사진 그리드 (3열) */
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:3px; padding:0 var(--pad); }
+  .gtile{
+    position:relative; aspect-ratio:1; display:block; border-radius:var(--r-sm); overflow:hidden;
+    border:1px solid var(--color-border); text-decoration:none; color:inherit;
+    transition:transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  }
+  .gtile:hover{ transform:translateY(-2px); box-shadow:var(--shadow-card); z-index:1; }
+  .gtile:active{ transform:translateY(0) scale(.99); }
+  .gtile .mini{ position:absolute; inset:0; border-radius:0; }
+  .gtile .mini .map-label{ display:none; }
+  /* 공개/비공개 lock 칩 — 중립(코랄 금지) */
+  .lk{
+    position:absolute; left:6px; bottom:6px; z-index:2;
+    display:inline-flex; align-items:center; gap:3px;
+    font-size:var(--fs-tiny); font-weight:var(--fw-semibold);
+    border-radius:var(--r-pill); padding:2px 8px;
+    border:1px solid var(--color-border-strong); color:var(--color-text-muted);
+    background:color-mix(in srgb, var(--color-surface) 88%, transparent);
+    backdrop-filter:blur(4px); box-shadow:var(--shadow-sm);
+  }
+  .lk--public{ color:var(--color-success); border-color:color-mix(in srgb,var(--color-success) 38%,var(--color-border-strong)); }
+
+  /* 잔잔한 진입 폴리시 */
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{ opacity:0; transform:translateY(10px); animation:reveal .5s var(--ease-out) forwards; }
+    .d1{ animation-delay:.04s; } .d2{ animation-delay:.12s; }
+  }
+  @keyframes reveal{ to{ opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <h1>내 프로필</h1>
+    <a class="iconbtn" id="settingsLink" href="settings.html" aria-label="설정 열기">⚙</a>
+  </header>
+
+  <main>
+    <div class="phead reveal d1">
+      <div class="ava" aria-hidden="true">🙂</div>
+      <div class="pinfo">
+        <p class="pname">나 (훈범)</p>
+        <p class="pstat">내 코스 5 · 팔로잉 3 · 팔로워 4</p>
+      </div>
+    </div>
+
+    <div class="gridhead reveal d2">
+      <h2>내 코스</h2>
+      <span class="cnt">사진을 따라 다닌 길</span>
+    </div>
+    <div class="grid reveal d2" id="grid"></div>
+  </main>
+
+  <nav class="tabbar" aria-label="주요 탭">
+    <a href="home.html" aria-label="발자취"><span class="ic"></span>발자취</a>
+    <a href="together.html" aria-label="다 같이"><span class="ic"></span>다 같이</a>
+    <a href="picker.html" class="tab-fab" aria-label="새 코스">＋</a>
+    <a href="profile.html" aria-current="page"><span class="ic"></span>프로필</a>
+  </nav>
+</div>
+
+<script>
+  // 내 코스 그리드 → 코스 상세. 각 타일은 작은 faux-map(동선) + 공개/비공개 칩.
+  // 동선 모양을 타일마다 살짝 다르게(같아 보이지 않게).
+  const routes = [
+    '16,70 44,42 70,56 92,28',
+    '14,30 42,58 70,36 94,62',
+    '18,64 40,30 68,52 90,38',
+    '14,52 46,68 72,34 92,58',
+    '16,38 44,62 68,28 94,50',
+    '18,72 42,44 70,60 92,30'
+  ];
+  const grid = document.getElementById('grid');
+  for(let i=0;i<6;i++){
+    const a = document.createElement('a');
+    a.className = 'gtile';
+    a.href = 'course.html';
+    a.setAttribute('aria-label', '내 코스 ' + (i+1) + ' 보기');
+    const pub = i % 2 === 0;
+    const pts = routes[i].split(' ');
+    const pins = pts.map(p => { const [x,y]=p.split(','); return '<g class="pin"><circle cx="'+x+'" cy="'+y+'" r="4.5"/></g>'; }).join('');
+    a.innerHTML =
+      '<div class="map mini" aria-hidden="true">' +
+        '<span class="map-label"></span>' +
+        '<svg width="100%" height="100%" viewBox="0 0 108 96" preserveAspectRatio="none">' +
+          '<polyline class="route" style="stroke-width:3" points="' + routes[i] + '"/>' + pins +
+        '</svg>' +
+      '</div>' +
+      '<span class="lk' + (pub ? ' lk--public' : '') + '">' + (pub ? '공개' : '🔒 비공개') + '</span>';
+    grid.appendChild(a);
+  }
+</script>
+</body>
+</html>

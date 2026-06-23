@@ -1,0 +1,259 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 컴포넌트</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--color-bg); font-family:var(--font-sans); color:var(--color-text); padding:24px; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:840px; margin:0 auto; }
+  h1{ font-size:var(--fs-title); margin:0 0 4px; }
+  .sub{ color:var(--color-text-muted); font-size:var(--fs-caption); margin:0 0 8px; }
+  h2{ font-size:var(--fs-h2); margin:34px 0 14px; border-top:1px solid var(--color-border); padding-top:18px; }
+  .note{ font-size:var(--fs-small); color:var(--color-text-muted); margin:-6px 0 14px; }
+  .demo{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+  .panel{ background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--r-lg); padding:16px; box-shadow:var(--shadow-card); }
+  .col{ display:flex; flex-direction:column; gap:12px; }
+  .cap{ font-size:var(--fs-tiny); color:var(--color-text-muted); }
+
+  /* ---------- 버튼 ---------- */
+  .btn{ font-family:inherit; font-size:var(--fs-body); font-weight:var(--fw-semibold); border-radius:var(--r-md);
+        padding:13px 20px; border:1.5px solid transparent; cursor:pointer; transition:transform var(--dur-fast) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .btn:active{ transform:translateY(1px); }
+  .btn-primary{ background:var(--color-primary); color:var(--color-on-primary); box-shadow:var(--shadow-sm); }
+  .btn-primary:hover{ background:var(--color-primary-strong); }
+  .btn-secondary{ background:var(--color-surface); color:var(--color-text); border-color:var(--color-border-strong); }
+  .btn-secondary:hover{ background:var(--color-bg); }
+  .btn-ghost{ background:transparent; color:var(--color-primary); border:1.5px dashed var(--color-primary); }
+  .btn-disabled{ background:var(--color-border); color:var(--color-text-muted); cursor:not-allowed; box-shadow:none; }
+  .btn-block{ display:block; width:100%; text-align:center; }
+
+  /* ---------- FAB ---------- */
+  .fab{ width:60px; height:60px; border-radius:50%; background:var(--color-primary); color:#fff; border:none;
+        font-size:28px; box-shadow:var(--shadow-primary); cursor:pointer; transition:transform var(--dur) var(--ease-spring); }
+  .fab:active{ transform:scale(.92); }
+
+  /* ---------- 탭바 ---------- */
+  .tabbar{ width:330px; height:var(--tabbar-h); background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--r-lg);
+           display:flex; align-items:center; justify-content:space-around; box-shadow:var(--shadow-card); position:relative; }
+  .tabitem{ background:none; border:none; font-family:inherit; font-size:var(--fs-tiny); color:var(--color-text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; position:relative; }
+  .tabitem .ic{ width:22px; height:22px; border-radius:6px; border:2px solid currentColor; }
+  .tabitem[aria-selected="true"]{ color:var(--color-primary); font-weight:var(--fw-bold); }
+  .tabitem .badge{ position:absolute; top:-5px; right:2px; min-width:16px; height:16px; background:var(--color-primary); color:#fff; border-radius:9px; font-size:9px; line-height:16px; text-align:center; padding:0 3px; box-shadow:0 0 0 2px var(--color-surface); }
+  .tab-fab{ width:48px; height:48px; border-radius:50%; background:var(--color-primary); color:#fff; border:none; font-size:24px; margin-top:-18px; box-shadow:var(--shadow-primary); cursor:pointer; }
+
+  /* ---------- 토글 스위치 ---------- */
+  .switch{ width:52px; height:30px; border-radius:var(--r-pill); background:var(--color-border-strong); border:none; position:relative; cursor:pointer; transition:background var(--dur) var(--ease); }
+  .switch .knob{ position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:var(--shadow-sm); transition:left var(--dur) var(--ease-spring); }
+  .switch[aria-pressed="true"]{ background:var(--color-primary); }
+  .switch[aria-pressed="true"] .knob{ left:25px; }
+
+  /* ---------- 팔로우 버튼 ---------- */
+  .follow{ font-family:inherit; font-weight:var(--fw-bold); font-size:var(--fs-caption); border-radius:var(--r-md); padding:9px 18px; cursor:pointer;
+           background:var(--color-primary); color:#fff; border:1.5px solid var(--color-primary); transition:all var(--dur) var(--ease); }
+  .follow[aria-pressed="true"]{ background:var(--color-surface); color:var(--color-text); border-color:var(--color-border-strong); }
+
+  /* ---------- 칩/태그 ---------- */
+  .chip{ display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-caption); border-radius:var(--r-pill); padding:6px 12px; border:1px solid var(--color-border-strong); color:var(--color-text-muted); background:var(--color-surface); }
+  .chip-removable button{ border:none; background:none; cursor:pointer; color:var(--color-text-muted); font-size:13px; line-height:1; }
+  .chip-reco{ border:1.5px solid var(--color-primary); color:var(--color-primary); background:var(--color-primary-tint); font-weight:var(--fw-semibold); cursor:pointer; }
+
+  /* ---------- 배지 ---------- */
+  .reddot{ width:10px; height:10px; border-radius:50%; background:var(--color-primary); display:inline-block; }
+  .countbadge{ min-width:20px; height:20px; background:var(--color-primary); color:#fff; border-radius:10px; font-size:var(--fs-tiny); font-weight:var(--fw-bold); display:inline-flex; align-items:center; justify-content:center; padding:0 6px; }
+
+  /* ---------- 인풋 ---------- */
+  .field{ width:280px; font-family:inherit; font-size:var(--fs-body); border:1.5px solid var(--color-border-strong); border-radius:var(--r-md); padding:12px 14px; background:var(--color-surface); color:var(--color-text); transition:border var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .field:focus{ outline:none; border-color:var(--color-primary); box-shadow:0 0 0 3px var(--color-focus-ring); }
+  .field::placeholder{ color:var(--color-text-muted); }
+
+  /* ---------- 진행바 ---------- */
+  .pbar{ width:280px; height:10px; background:var(--color-border); border-radius:var(--r-pill); overflow:hidden; }
+  .pbar > i{ display:block; height:100%; width:62%; background:var(--color-primary); border-radius:var(--r-pill); }
+
+  /* ---------- 카드 ---------- */
+  .ccard{ width:300px; border:1px solid var(--color-border); border-radius:var(--r-lg); overflow:hidden; background:var(--color-surface); box-shadow:var(--shadow-card); }
+  .ccard .map{ height:120px; position:relative; background:linear-gradient(135deg,#EAF0EC,#E3EAE5); }
+  .ccard .m{ padding:12px 14px; }
+  .ccard .t{ font-size:var(--fs-label); font-weight:var(--fw-semibold); display:flex; align-items:center; gap:6px; }
+  .ccard .d{ font-size:var(--fs-small); color:var(--color-text-muted); margin-top:3px; }
+  .lock{ font-size:var(--fs-tiny); border:1px solid var(--color-border-strong); border-radius:var(--r-pill); padding:1px 8px; color:var(--color-text-muted); }
+  .lock.pub{ color:var(--color-success); border-color:#BFD6C8; }
+
+  .stopcard{ width:300px; border:1px solid var(--color-border); border-radius:var(--r-md); padding:12px; background:var(--color-surface); box-shadow:var(--shadow-sm); }
+  .stopcard .top{ display:flex; align-items:center; gap:8px; }
+  .num{ width:24px; height:24px; border-radius:50%; background:var(--color-primary); color:#fff; font-size:var(--fs-small); font-weight:var(--fw-bold); display:flex; align-items:center; justify-content:center; }
+  .stopcard .nm{ font-weight:var(--fw-semibold); flex:1; }
+  .stopcard .tm{ font-size:var(--fs-small); color:var(--color-text-muted); }
+  .thumbs{ display:flex; gap:6px; margin-top:10px; }
+  .thumb{ width:46px; height:46px; border-radius:var(--r-sm); background:linear-gradient(135deg,#e9e6df,#f3f1ec); border:1px solid var(--color-border); }
+
+  /* ---------- faux-map ---------- */
+  .mapbox{ width:300px; height:160px; border-radius:var(--r-lg); border:1px solid var(--color-border); position:relative; overflow:hidden; background:linear-gradient(135deg,#EAF0EC,#E3EAE5); }
+  .mapbox .lbl{ position:absolute; top:8px; left:10px; font-size:var(--fs-small); color:var(--color-text-muted); background:#fff; padding:2px 7px; border-radius:6px; }
+
+  /* ---------- 사진 썸네일 선택 ---------- */
+  .ph{ width:74px; height:74px; border-radius:var(--r-sm); background:linear-gradient(135deg,#e9e6df,#f3f1ec); border:1px solid var(--color-border); position:relative; cursor:pointer; }
+  .ph .chk{ position:absolute; top:5px; right:5px; width:22px; height:22px; border-radius:50%; background:#fff; border:1.5px solid var(--color-border-strong); display:flex; align-items:center; justify-content:center; color:transparent; font-size:13px; }
+  .ph[aria-pressed="true"]{ box-shadow:0 0 0 3px var(--color-primary) inset; }
+  .ph[aria-pressed="true"] .chk{ background:var(--color-primary); border-color:var(--color-primary); color:#fff; }
+
+  /* ---------- 시트 ---------- */
+  .sheet{ width:300px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--r-xl) var(--r-xl) 0 0; box-shadow:var(--shadow-pop); padding:16px; }
+  .sheet .grab{ width:38px; height:4px; border-radius:2px; background:var(--color-border-strong); margin:0 auto 12px; }
+  .sheet h3{ margin:0 0 4px; font-size:var(--fs-h2); }
+  .sheet .ssub{ margin:0 0 12px; font-size:var(--fs-small); color:var(--color-text-muted); }
+  .listrow{ display:flex; align-items:center; gap:10px; padding:11px; border:1px solid var(--color-border); border-radius:var(--r-md); margin-top:8px; font-size:var(--fs-body); cursor:pointer; }
+
+  /* ---------- 토스트 ---------- */
+  .toast{ display:inline-flex; align-items:center; gap:8px; background:var(--color-text); color:#fff; padding:10px 16px; border-radius:var(--r-pill); font-size:var(--fs-caption); box-shadow:var(--shadow-pop); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>컴포넌트</h1>
+  <p class="sub">토큰(tokens.css) 위에서. 모든 variant/state를 나열한다. UI는 미니멀, 코랄은 핵심 액션·동선·선택에만.</p>
+
+  <h2>버튼</h2>
+  <div class="demo">
+    <button class="btn btn-primary">코스 완성</button>
+    <button class="btn btn-secondary">취소</button>
+    <button class="btn btn-ghost">＋ 위치로 검색</button>
+    <button class="btn btn-disabled" disabled>완료</button>
+  </div>
+  <p class="note">primary=코랄 채움(주요 액션) · secondary=외곽선 · ghost=점선(보조 진입) · disabled=회색. 누르면 살짝 가라앉음.</p>
+  <div class="demo" style="margin-top:12px"><div style="width:300px"><button class="btn btn-primary btn-block">＋ 첫 코스 만들기</button></div></div>
+
+  <h2>플로팅 액션(＋ 새 코스)</h2>
+  <div class="demo"><button class="fab" aria-label="새 코스">＋</button><span class="cap">가장 눈에 띄는 핵심 액션 — 코랄 + 그림자.</span></div>
+
+  <h2>하단 탭바</h2>
+  <div class="demo">
+    <div class="tabbar" role="tablist">
+      <button class="tabitem" role="tab" aria-selected="true"><span class="ic"></span>발자취</button>
+      <button class="tabitem" role="tab" aria-selected="false"><span class="ic"></span>다 같이<span class="badge">3</span></button>
+      <button class="tab-fab" aria-label="새 코스">＋</button>
+      <button class="tabitem" role="tab" aria-selected="false"><span class="ic"></span>프로필</button>
+    </div>
+  </div>
+  <p class="note">활성 탭=코랄 채움 아이콘+볼드. 안 읽음 배지는 코랄. 탭을 눌러보면 활성이 옮겨갑니다.</p>
+
+  <h2>토글 · 팔로우</h2>
+  <div class="demo">
+    <div class="panel col" style="gap:10px"><span class="cap">공개 여부 (기본 비공개)</span>
+      <button class="switch" aria-pressed="false" aria-label="공개 토글"><span class="knob"></span></button>
+    </div>
+    <div class="panel col" style="gap:10px"><span class="cap">일방 팔로우</span>
+      <div class="demo"><button class="follow" aria-pressed="false">팔로우</button><button class="follow" aria-pressed="true">팔로잉 ✓</button></div>
+    </div>
+  </div>
+
+  <h2>칩 · 태그</h2>
+  <div class="demo">
+    <span class="chip">#가족</span>
+    <span class="chip chip-removable">#주말 <button aria-label="태그 삭제">✕</button></span>
+    <span class="chip chip-reco">경기전 (근처)</span>
+  </div>
+
+  <h2>배지</h2>
+  <div class="demo">
+    <span class="cap">안 읽음 점</span> <span class="reddot"></span>
+    <span class="cap" style="margin-left:20px">개수</span> <span class="countbadge">3</span>
+    <span class="countbadge">12</span>
+  </div>
+
+  <h2>인풋</h2>
+  <div class="demo col" style="align-items:flex-start">
+    <input class="field" type="text" placeholder="코스 제목">
+    <input class="field" type="search" placeholder="🔍 닉네임으로 검색">
+    <textarea class="field" rows="3" placeholder="짧은 글 (비워도 완성)"></textarea>
+  </div>
+
+  <h2>진행바 (자동 조립 로딩)</h2>
+  <div class="demo"><div class="pbar"><i></i></div><span class="cap">62%</span></div>
+
+  <h2>코스 카드</h2>
+  <div class="demo">
+    <div class="ccard">
+      <div class="map"><svg width="100%" height="100%" viewBox="0 0 300 120" preserveAspectRatio="none"><polyline points="30,90 110,55 200,72 270,35" fill="none" stroke="var(--color-primary)" stroke-width="3.5" stroke-linecap="round"/><circle cx="30" cy="90" r="7" fill="#fff" stroke="var(--color-primary)" stroke-width="3"/><circle cx="270" cy="35" r="7" fill="#fff" stroke="var(--color-primary)" stroke-width="3"/></svg></div>
+      <div class="m"><div class="t">전주 한옥마을 가족 나들이 <span class="lock">비공개</span></div><div class="d">2026.05.17 · 4곳 · 18장</div></div>
+    </div>
+    <div class="ccard">
+      <div class="map"><svg width="100%" height="100%" viewBox="0 0 300 120" preserveAspectRatio="none"><polyline points="40,40 120,70 210,48 268,72" fill="none" stroke="var(--color-primary)" stroke-width="3.5" stroke-linecap="round"/></svg></div>
+      <div class="m"><div class="t">서울숲 봄나들이 <span class="lock pub">공개</span></div><div class="d">2026.04.12 · 3곳 · 11장</div></div>
+    </div>
+  </div>
+
+  <h2>Stop 카드 (검토·보정)</h2>
+  <div class="demo">
+    <div class="stopcard">
+      <div class="top"><span class="num">2</span><span class="nm">경기전</span><span class="tm">11:05 · 4장</span></div>
+      <div class="thumbs"><span class="thumb"></span><span class="thumb"></span><span class="thumb"></span><span class="thumb"></span></div>
+    </div>
+  </div>
+
+  <h2>faux-map (동선 + 번호 핀)</h2>
+  <div class="demo">
+    <div class="mapbox"><span class="lbl">그날의 동선</span>
+      <svg width="100%" height="100%" viewBox="0 0 300 160" preserveAspectRatio="none">
+        <polyline points="40,120 110,70 190,95 255,45" fill="none" stroke="var(--color-primary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <g font-size="10" font-weight="700" text-anchor="middle">
+          <circle cx="40" cy="120" r="11" fill="#fff" stroke="var(--color-primary)" stroke-width="3"/><text x="40" y="124" fill="var(--color-primary)">1</text>
+          <circle cx="110" cy="70" r="11" fill="#fff" stroke="var(--color-primary)" stroke-width="3"/><text x="110" y="74" fill="var(--color-primary)">2</text>
+          <circle cx="190" cy="95" r="11" fill="#fff" stroke="var(--color-primary)" stroke-width="3"/><text x="190" y="99" fill="var(--color-primary)">3</text>
+          <circle cx="255" cy="45" r="11" fill="#fff" stroke="var(--color-primary)" stroke-width="3"/><text x="255" y="49" fill="var(--color-primary)">4</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <h2>사진 썸네일 (선택 상태)</h2>
+  <div class="demo" id="phRow">
+    <button class="ph" aria-pressed="false" aria-label="사진 1"><span class="chk">✓</span></button>
+    <button class="ph" aria-pressed="true" aria-label="사진 2"><span class="chk">✓</span></button>
+    <button class="ph" aria-pressed="false" aria-label="사진 3"><span class="chk">✓</span></button>
+  </div>
+  <p class="note">선택되면 코랄 외곽선 + 체크. 탭해서 토글됩니다.</p>
+
+  <h2>바텀 시트 (Stop 지정)</h2>
+  <div class="demo">
+    <div class="sheet">
+      <div class="grab"></div>
+      <h3>어디 사진인가요?</h3>
+      <p class="ssub">선택한 2장을 넣을 방문지를 고르세요.</p>
+      <div class="demo" style="gap:8px"><span class="chip chip-reco">한옥마을 (근처)</span><span class="chip chip-reco">경기전 (근처)</span></div>
+      <div class="listrow"><span class="num">1</span> 한옥마을 · 10:20</div>
+      <div class="listrow"><span class="num">3</span> 오목대 · 13:40</div>
+    </div>
+  </div>
+
+  <h2>토스트</h2>
+  <div class="demo"><span class="toast">✓ 2장을 ‘경기전’에 넣었어요</span></div>
+</div>
+
+<script>
+  // 토글
+  document.querySelectorAll('.switch, .follow, .ph').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const on = el.getAttribute('aria-pressed')==='true';
+      el.setAttribute('aria-pressed', on?'false':'true');
+      if(el.classList.contains('follow')) el.textContent = on ? '팔로우' : '팔로잉 ✓';
+    });
+  });
+  // 탭
+  document.querySelectorAll('[role="tab"]').forEach(t=>{
+    t.addEventListener('click',()=>{
+      t.parentElement.querySelectorAll('[role="tab"]').forEach(x=>x.setAttribute('aria-selected','false'));
+      t.setAttribute('aria-selected','true');
+    });
+  });
+  // 칩 삭제
+  document.querySelectorAll('.chip-removable button').forEach(b=>{
+    b.addEventListener('click',()=>b.parentElement.remove());
+  });
+</script>
+</body>
+</html>

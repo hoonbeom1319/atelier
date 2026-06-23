@@ -1,0 +1,84 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 설정 (S6)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  /* ---- S6 설정 전용 ---- */
+  main{ padding:14px 0 40px; }
+
+  .group{ margin-bottom:26px; }
+  .group:last-of-type{ margin-bottom:18px; }
+
+  /* iOS식 섹션 헤더 */
+  .gt{ font-size:var(--fs-small); font-weight:var(--fw-semibold); color:var(--color-text-muted);
+       letter-spacing:.02em; padding:0 var(--pad) 8px; }
+
+  /* 카드형 리스트(한 그룹 = 한 카드) */
+  .rows{ background:var(--color-surface); border-top:1px solid var(--color-border);
+         border-bottom:1px solid var(--color-border); }
+  .row{ display:flex; align-items:center; gap:12px; min-height:54px; padding:14px var(--pad);
+        background:var(--color-surface); }
+  .row + .row{ border-top:1px solid var(--color-border); }
+  .row .k{ flex:1; font-size:var(--fs-body); color:var(--color-text); }
+  .row .v{ font-size:var(--fs-caption); color:var(--color-text-muted); text-align:right;
+           max-width:62%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* 범위 밖 행 — 비활성/뉴트럴(코랄 금지) */
+  .row.disabled{ background:var(--color-bg); }
+  .row.disabled .k{ color:var(--color-text-muted); }
+  .oos{ flex:none; font-size:var(--fs-tiny); color:var(--color-text-muted);
+        border:1px dashed var(--color-border-strong); border-radius:var(--r-sm); padding:2px 7px; }
+
+  /* 로그아웃 — secondary/outlined */
+  .logout{ margin:4px var(--pad) 0; }
+
+  .ver{ text-align:center; font-size:var(--fs-tiny); color:var(--color-text-muted); margin-top:22px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <a class="iconbtn" href="profile.html" aria-label="프로필로">←</a>
+    <h1>설정</h1>
+  </header>
+
+  <main>
+    <section class="group" aria-label="계정">
+      <div class="gt">계정</div>
+      <div class="rows">
+        <div class="row">
+          <span class="k">이메일</span>
+          <span class="v">hoonbeom@example.com</span>
+        </div>
+        <div class="row">
+          <span class="k">닉네임</span>
+          <span class="v">훈범</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="group" aria-label="알림 · 개인정보">
+      <div class="gt">알림 · 개인정보</div>
+      <div class="rows">
+        <div class="row disabled" aria-disabled="true">
+          <span class="k">푸시 알림</span>
+          <span class="oos">[범위 밖] Later</span>
+        </div>
+        <div class="row disabled" aria-disabled="true">
+          <span class="k">집·민감 장소 가리기</span>
+          <span class="oos">[범위 밖] Later</span>
+        </div>
+      </div>
+    </section>
+
+    <a class="btn btn-secondary btn-block logout" id="logout" href="login.html" aria-label="로그아웃">로그아웃</a>
+    <p class="ver">발자취 v0.1 (MVP)</p>
+  </main>
+</div>
+</body>
+</html>

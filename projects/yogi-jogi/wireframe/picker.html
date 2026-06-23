@@ -1,0 +1,77 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 사진 선택 (C2)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; display:flex; flex-direction:column; }
+  header.bar{ padding:14px 16px; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:12px; }
+  header.bar a.back{ text-decoration:none; color:var(--ink); font-size:18px; }
+  header.bar h1{ font-size:16px; margin:0; flex:1; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  main{ flex:1; padding:12px; padding-bottom:90px; }
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .ph{ aspect-ratio:1; border:1.5px solid var(--line); background:repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px); position:relative; cursor:pointer; padding:0; }
+  .ph .chk{ position:absolute; top:6px; right:6px; width:22px; height:22px; border:2px solid var(--ink); border-radius:50%; background:#fff; font-size:13px; line-height:18px; text-align:center; color:transparent; }
+  .ph[aria-pressed="true"]{ outline:3px solid var(--ink); outline-offset:-3px; }
+  .ph[aria-pressed="true"] .chk{ background:var(--ink); color:#fff; }
+  .ph .no{ position:absolute; left:6px; bottom:4px; font-size:10px; color:var(--muted); }
+  /* footer action */
+  .foot{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:390px; border-top:2px solid var(--ink); background:#fff; padding:12px 16px; display:flex; align-items:center; gap:12px; }
+  .count{ font-size:14px; font-weight:600; flex:1; }
+  .btn{ text-decoration:none; border:2px solid var(--ink); border-radius:12px; padding:12px 20px; font-weight:600; background:var(--ink); color:#fff; cursor:pointer; }
+  .btn[aria-disabled="true"]{ background:#fff; color:var(--line); border-color:var(--line); pointer-events:none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <a class="back" href="index.html" aria-label="뒤로(빈 상태로)">←</a>
+    <h1>사진 선택</h1>
+    <span class="tag">C2</span>
+  </header>
+
+  <main>
+    <p style="font-size:13px; color:var(--muted); margin:4px 4px 12px">갤러리에서 다녀온 곳 사진을 한 번에 고르세요. (탭하면 선택/해제)</p>
+    <div class="grid" id="grid" role="group" aria-label="사진 그리드"></div>
+  </main>
+
+  <div class="foot">
+    <span class="count" id="count" aria-live="polite">선택 0장</span>
+    <a class="btn" id="done" href="assembling.html" aria-disabled="true">완료</a>
+  </div>
+</div>
+
+<script>
+  // 24장의 더미 썸네일 — 탭하면 선택 토글(실제 상태 변화)
+  const grid = document.getElementById('grid');
+  const countEl = document.getElementById('count');
+  const doneEl = document.getElementById('done');
+  const N = 24;
+  for(let i=1;i<=N;i++){
+    const b = document.createElement('button');
+    b.className='ph'; b.type='button'; b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-label','사진 '+i);
+    b.innerHTML = '<span class="chk">✓</span><span class="no">IMG_'+String(i).padStart(3,'0')+'</span>';
+    b.addEventListener('click', ()=>{
+      const on = b.getAttribute('aria-pressed')==='true';
+      b.setAttribute('aria-pressed', on?'false':'true');
+      update();
+    });
+    grid.appendChild(b);
+  }
+  function update(){
+    const n = grid.querySelectorAll('[aria-pressed="true"]').length;
+    countEl.textContent = '선택 '+n+'장';
+    doneEl.setAttribute('aria-disabled', n>0?'false':'true');
+    // 다음 화면에 선택 개수 전달(데모)
+    doneEl.setAttribute('href','assembling.html?n='+n);
+  }
+</script>
+</body>
+</html>

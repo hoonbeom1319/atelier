@@ -1,0 +1,93 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 사람 찾기 (S7)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; display:flex; flex-direction:column; }
+  header.bar{ padding:12px 16px; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:10px; }
+  header.bar a.back{ text-decoration:none; color:var(--ink); font-size:18px; }
+  header.bar h1{ font-size:16px; margin:0; flex:1; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  .searchwrap{ padding:14px 16px; border-bottom:1.5px dashed var(--line); }
+  .searchwrap input{ width:100%; border:1.5px solid var(--ink); border-radius:12px; padding:12px 14px; font-size:15px; }
+  main{ flex:1; padding:8px 0; }
+  .hint{ text-align:center; color:var(--muted); font-size:13px; padding:40px 24px; line-height:1.6; }
+  .hint[hidden]{ display:none; }
+  .row{ display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid #eee; }
+  .row .person{ display:flex; align-items:center; gap:12px; flex:1; text-decoration:none; color:inherit; }
+  .ava{ width:42px; height:42px; border:1.5px solid var(--ink); border-radius:50%; background:repeating-linear-gradient(45deg,#f2f2f2 0 7px,#e9e9e9 7px 14px); }
+  .row .nm{ font-weight:600; font-size:15px; }
+  .row .sub{ font-size:12px; color:var(--muted); }
+  .fbtn{ border:2px solid var(--ink); background:var(--ink); color:#fff; border-radius:10px; padding:8px 14px; font-weight:700; font-size:13px; cursor:pointer; }
+  .fbtn[aria-pressed="true"]{ background:#fff; color:var(--ink); }
+  .noresult{ text-align:center; color:var(--muted); font-size:13px; padding:40px 24px; }
+  .noresult[hidden]{ display:none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <a class="back" href="together.html" aria-label="뒤로(다 같이)">←</a>
+    <h1>사람 찾기</h1>
+    <span class="tag">S7 · 묶음3</span>
+  </header>
+
+  <div class="searchwrap">
+    <input id="q" type="search" placeholder="닉네임으로 검색 (예: 민지)" aria-label="닉네임 검색">
+  </div>
+
+  <main>
+    <p class="hint" id="hint">팔로우하고 싶은 사람의 닉네임을 검색하세요.<br>다 같이는 <b>이미 팔로우한</b> 사람들의 코스를 보는 곳이에요.</p>
+    <div id="results" role="list" aria-label="검색 결과"></div>
+    <p class="noresult" id="noresult" hidden>일치하는 사람이 없어요.</p>
+  </main>
+</div>
+
+<script>
+  const ALL = [
+    {nm:'민지', sub:'코스 8 · 팔로워 20'},
+    {nm:'재호', sub:'코스 5 · 팔로워 9'},
+    {nm:'수아', sub:'코스 6 · 팔로워 12'},
+    {nm:'지우', sub:'코스 3 · 팔로워 5'},
+    {nm:'현우', sub:'코스 11 · 팔로워 33'},
+  ];
+  const q=document.getElementById('q'), results=document.getElementById('results'),
+        hint=document.getElementById('hint'), noresult=document.getElementById('noresult');
+
+  function render(list){
+    results.innerHTML='';
+    list.forEach(p=>{
+      const r=document.createElement('div'); r.className='row'; r.setAttribute('role','listitem');
+      r.innerHTML =
+        '<a class="person" href="user.html?of='+encodeURIComponent(p.nm)+'&from=search" aria-label="'+p.nm+' 프로필 보기">'+
+          '<span class="ava"></span>'+
+          '<span><span class="nm">'+p.nm+'</span><br><span class="sub">'+p.sub+'</span></span>'+
+        '</a>'+
+        '<button class="fbtn" type="button" aria-pressed="false" aria-label="'+p.nm+' 팔로우">팔로우</button>';
+      const b=r.querySelector('.fbtn');
+      b.addEventListener('click',()=>{
+        const on=b.getAttribute('aria-pressed')==='true';
+        b.setAttribute('aria-pressed', on?'false':'true');
+        b.textContent = on ? '팔로우' : '팔로잉 ✓';
+      });
+      results.appendChild(r);
+    });
+  }
+
+  q.addEventListener('input', ()=>{
+    const v=q.value.trim();
+    if(!v){ hint.hidden=false; noresult.hidden=true; results.innerHTML=''; return; }
+    hint.hidden=true;
+    const list=ALL.filter(p=>p.nm.includes(v));
+    noresult.hidden = list.length>0;
+    render(list);
+  });
+</script>
+</body>
+</html>

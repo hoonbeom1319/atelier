@@ -1,0 +1,115 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 사진 선택 (C2)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  /* ---- C2 사진 선택 전용 ---- */
+  main{ padding:10px var(--pad) 110px; }
+
+  .lead{ font-size:var(--fs-caption); color:var(--color-text-muted); line-height:var(--lh-normal); margin:6px 2px 14px; }
+
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+
+  /* 타일에 옅은 사진 톤 다양성을 주어 갤러리 느낌(코랄은 선택에만) */
+  .grid .photo-pick{ overflow:hidden; }
+  .grid .photo-pick .no{
+    position:absolute; left:6px; bottom:5px; z-index:1;
+    font-size:var(--fs-tiny); color:var(--gray-600);
+    background:color-mix(in srgb, var(--color-surface) 78%, transparent);
+    padding:1px 6px; border-radius:var(--r-pill); letter-spacing:var(--ls-tight);
+    opacity:0; transform:translateY(3px); transition:opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+  .grid .photo-pick[aria-pressed="true"] .no{ opacity:1; transform:none; }
+  /* 선택 시 살짝 가라앉으며 코랄 링이 도드라지게(app.css가 ring/check 담당) */
+  .grid .photo-pick[aria-pressed="true"]{ transform:scale(.96); }
+  .grid .photo-pick .check{ transform:scale(.6); opacity:0; transition:transform var(--dur) var(--ease-spring), opacity var(--dur) var(--ease), background var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+  .grid .photo-pick[aria-pressed="true"] .check{ transform:scale(1); opacity:1; }
+
+  /* 진입 시 타일이 부드럽게 떠오름 */
+  .grid .photo-pick{ opacity:0; animation:tileIn var(--dur-slow) var(--ease-out) forwards; }
+  @keyframes tileIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+
+  /* ---- 하단 액션 바 (카운터 + 완료) ---- */
+  .actionbar{
+    position:absolute; left:0; right:0; bottom:0; z-index:30;
+    display:flex; align-items:center; gap:12px;
+    padding:12px var(--pad) max(14px, env(safe-area-inset-bottom));
+    background:color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter:blur(10px);
+    border-top:1px solid var(--color-border);
+    box-shadow:0 -6px 20px rgba(43,43,43,.06);
+  }
+  .actionbar .count{ flex:1; font-size:var(--fs-body); font-weight:var(--fw-semibold); color:var(--color-text); }
+  .actionbar .count b{ color:var(--color-primary); font-weight:var(--fw-bold); }
+  .actionbar .btn-primary{ padding:13px 26px; }
+  /* 카운터가 변할 때 살짝 튀어 피드백 */
+  .actionbar .count.bump{ animation:countBump var(--dur) var(--ease-spring); }
+  @keyframes countBump{ 0%{ transform:scale(1); } 40%{ transform:scale(1.12); } 100%{ transform:scale(1); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <a class="iconbtn" href="index.html" aria-label="뒤로(빈 상태로)">←</a>
+    <h1>사진 선택</h1>
+    <span class="scope-tag">C2</span>
+  </header>
+
+  <main>
+    <p class="lead">갤러리에서 다녀온 곳 사진을 한 번에 고르세요. 탭하면 선택/해제돼요.</p>
+    <div class="grid" id="grid" role="group" aria-label="사진 그리드"></div>
+  </main>
+
+  <div class="actionbar">
+    <span class="count" id="count" aria-live="polite">선택 <b>0</b>장</span>
+    <a class="btn btn-primary" id="done" href="assembling.html" aria-disabled="true">완료</a>
+  </div>
+</div>
+
+<script>
+  // 24장의 더미 썸네일 — 탭하면 선택 토글(실제 상태 변화). 와이어 로직 보존.
+  const grid    = document.getElementById('grid');
+  const countEl = document.getElementById('count');
+  const doneEl  = document.getElementById('done');
+  const N = 24;
+
+  // 코랄 외엔 따뜻한 무채색 그라데이션으로 타일마다 결을 약간 다르게(갤러리 느낌)
+  const tones = [
+    'linear-gradient(135deg,#e9e6df,#f3f1ec)',
+    'linear-gradient(135deg,#eceae3,#e2ded5)',
+    'linear-gradient(160deg,#f1efe9,#e7e3da)',
+    'linear-gradient(120deg,#e6e2d9,#f0ede7)'
+  ];
+
+  for(let i=1;i<=N;i++){
+    const b = document.createElement('button');
+    b.className='photo-pick'; b.type='button'; b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-label','사진 '+i);
+    b.style.background = tones[i % tones.length];
+    b.style.animationDelay = Math.min(i*18, 360) + 'ms';
+    b.innerHTML = '<span class="check">✓</span><span class="no">IMG_'+String(i).padStart(3,'0')+'</span>';
+    b.addEventListener('click', ()=>{
+      const on = b.getAttribute('aria-pressed')==='true';
+      b.setAttribute('aria-pressed', on?'false':'true');
+      update();
+    });
+    grid.appendChild(b);
+  }
+
+  function update(){
+    const n = grid.querySelectorAll('[aria-pressed="true"]').length;
+    countEl.innerHTML = '선택 <b>'+n+'</b>장';
+    doneEl.setAttribute('aria-disabled', n>0?'false':'true');
+    // 다음 화면에 선택 개수 전달(데모)
+    doneEl.setAttribute('href','assembling.html?n='+n);
+    // 카운터 변화 피드백
+    countEl.classList.remove('bump'); void countEl.offsetWidth; countEl.classList.add('bump');
+  }
+</script>
+</body>
+</html>

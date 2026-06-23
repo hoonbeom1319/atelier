@@ -1,0 +1,114 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발자취 — 마무리 (C5)</title>
+<style>
+  :root{ --ink:#222; --line:#999; --muted:#777; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:#cfcfcf; font-family:-apple-system,system-ui,sans-serif; color:var(--ink); }
+  .app{ width:390px; min-height:100vh; margin:0 auto; background:#fff; display:flex; flex-direction:column; }
+  header.bar{ padding:12px 14px; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:10px; }
+  header.bar a.back{ text-decoration:none; color:var(--ink); font-size:18px; }
+  header.bar h1{ font-size:16px; margin:0; flex:1; }
+  .tag{ display:inline-block; border:1px dashed var(--line); border-radius:4px; padding:1px 6px; font-size:11px; color:var(--muted); }
+  main{ flex:1; padding:16px; padding-bottom:96px; }
+  label.fld{ display:block; font-size:13px; font-weight:600; margin:18px 0 6px; }
+  input[type=text], textarea{ width:100%; border:1.5px solid var(--ink); border-radius:10px; padding:12px; font-size:14px; font-family:inherit; }
+  textarea{ min-height:80px; resize:vertical; }
+  .tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .chip{ border:1.5px solid var(--ink); border-radius:16px; padding:5px 10px 5px 12px; font-size:13px; display:inline-flex; align-items:center; gap:6px; }
+  .chip button{ border:none; background:none; cursor:pointer; font-size:14px; line-height:1; color:var(--muted); }
+  .addtag{ display:flex; gap:6px; margin-top:8px; }
+  .addtag input{ flex:1; }
+  .addtag button{ border:1.5px solid var(--ink); background:#fff; border-radius:10px; padding:0 14px; cursor:pointer; font-weight:600; }
+  /* 공개 토글 */
+  .toggle{ display:flex; align-items:center; gap:12px; border:1.5px solid var(--ink); border-radius:12px; padding:14px; margin-top:10px; }
+  .toggle .txt{ flex:1; }
+  .toggle .txt b{ display:block; font-size:14px; }
+  .toggle .txt small{ color:var(--muted); font-size:12px; }
+  .switch{ width:52px; height:30px; border:2px solid var(--ink); border-radius:16px; background:#fff; position:relative; cursor:pointer; padding:0; }
+  .switch .knob{ position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:var(--ink); transition:left .15s; }
+  .switch[aria-pressed="true"]{ background:var(--ink); }
+  .switch[aria-pressed="true"] .knob{ left:26px; background:#fff; }
+  .pubnote{ font-size:12px; margin-top:8px; }
+  .foot{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:390px; border-top:2px solid var(--ink); background:#fff; padding:12px 16px; }
+  .btn{ display:block; text-align:center; text-decoration:none; border:2px solid var(--ink); border-radius:12px; padding:14px; font-weight:700; background:var(--ink); color:#fff; }
+  .btn[aria-disabled="true"]{ background:#fff; color:var(--line); border-color:var(--line); pointer-events:none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <a class="back" href="review.html" aria-label="뒤로(검토)">←</a>
+    <h1>마무리</h1>
+    <span class="tag">C5</span>
+  </header>
+
+  <main>
+    <label class="fld" for="title">코스 제목</label>
+    <input id="title" type="text" placeholder="예: 전주 한옥마을 가족 나들이" value="전주 한옥마을 가족 나들이">
+
+    <label class="fld" for="memo">짧은 글 (선택)</label>
+    <textarea id="memo" placeholder="비워도 코스는 완성돼요."></textarea>
+
+    <label class="fld">태그 (선택)</label>
+    <div class="tags" id="tags" aria-label="태그 목록"></div>
+    <div class="addtag">
+      <input id="tagInput" type="text" placeholder="태그 입력 후 추가" aria-label="태그 입력">
+      <button id="addTag" type="button">추가</button>
+    </div>
+
+    <label class="fld">공개 설정</label>
+    <div class="toggle">
+      <div class="txt">
+        <b id="pubLabel">비공개</b>
+        <small id="pubDesc">나만 봐요. 공개로 켜야 공유·노출돼요.</small>
+      </div>
+      <button class="switch" id="pubSwitch" type="button" aria-pressed="false" aria-label="공개 여부 토글">
+        <span class="knob"></span>
+      </button>
+    </div>
+    <p class="pubnote" id="pubNote" style="color:var(--muted)">위치 정보가 담기므로 기본은 비공개예요.</p>
+  </main>
+
+  <div class="foot">
+    <a class="btn" id="finish" href="course.html?from=finalize">코스 완성</a>
+  </div>
+</div>
+
+<script>
+  /* 태그 추가/삭제 */
+  const tagsEl=document.getElementById('tags'), tagInput=document.getElementById('tagInput');
+  let tags=['가족','주말'];
+  function renderTags(){
+    tagsEl.innerHTML='';
+    tags.forEach((t,i)=>{
+      const c=document.createElement('span'); c.className='chip';
+      c.innerHTML='#'+t+' <button type="button" aria-label="태그 '+t+' 삭제">✕</button>';
+      c.querySelector('button').addEventListener('click',()=>{ tags.splice(i,1); renderTags(); });
+      tagsEl.appendChild(c);
+    });
+  }
+  function addTag(){
+    const v=tagInput.value.trim().replace(/^#/,''); if(!v) return;
+    tags.push(v); tagInput.value=''; renderTags();
+  }
+  document.getElementById('addTag').addEventListener('click', addTag);
+  tagInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(); }});
+  renderTags();
+
+  /* 공개 토글 — 실제 상태 변화(aria-pressed) */
+  const sw=document.getElementById('pubSwitch'), pl=document.getElementById('pubLabel'),
+        pd=document.getElementById('pubDesc'), pn=document.getElementById('pubNote');
+  sw.addEventListener('click',()=>{
+    const on = sw.getAttribute('aria-pressed')==='true';
+    sw.setAttribute('aria-pressed', on?'false':'true');
+    if(!on){ pl.textContent='공개'; pd.textContent='링크가 있는 사람이 볼 수 있어요.'; pn.textContent='공개됨 — 공유 링크로 누구나 열람 가능.'; }
+    else  { pl.textContent='비공개'; pd.textContent='나만 봐요. 공개로 켜야 공유·노출돼요.'; pn.textContent='위치 정보가 담기므로 기본은 비공개예요.'; }
+  });
+</script>
+</body>
+</html>
