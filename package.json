@@ -1,0 +1,23 @@
+{
+  "name": "atelier",
+  "version": "1.0.0",
+  "description": "> 터미널 안의 디자인 아틀리에",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoonbeom1319/atelier.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hoonbeom1319/atelier/issues"
+  },
+  "homepage": "https://github.com/hoonbeom1319/atelier#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.61.0"
+  }
+}
