@@ -1,0 +1,226 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>family-todo · Components</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body { margin:0; font-family:var(--font-sans); background:var(--color-bg); background-image:var(--gradient-bg); background-attachment:fixed; min-height:100vh; color:var(--color-text);
+         transition: background var(--dur-base), color var(--dur-base); }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 20px 80px; }
+  .top { display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--color-bg); padding:12px 0; z-index:5; }
+  h1 { font-size:var(--fs-xl); margin:0; }
+  h2 { font-size:var(--fs-md); margin:30px 0 4px; }
+  .cap { color:var(--color-text-muted); font-size:var(--fs-sm); margin:0 0 14px; }
+  .toggle { border:1px solid var(--color-border-strong); background:var(--color-surface); color:var(--color-text); border-radius:var(--r-full); padding:8px 14px; font-size:var(--fs-sm); cursor:pointer; }
+  .panel { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--r-lg); padding:18px; box-shadow:var(--shadow-1); }
+  .panel + .panel { margin-top:12px; }
+  .pile { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .tag { font:11px monospace; color:var(--color-text-subtle); }
+
+  /* 버튼 */
+  .btn { border:none; border-radius:var(--r-md); font-size:var(--fs-base); font-weight:var(--fw-medium); padding:11px 18px; cursor:pointer;
+         transition: transform var(--dur-fast) var(--ease-spring), background var(--dur-fast), box-shadow var(--dur-fast); }
+  .btn:active { transform: scale(.95); }
+  .btn.primary { background:var(--gradient-primary); color:var(--color-on-primary); box-shadow:var(--shadow-primary); }
+  .btn.primary:hover { filter:brightness(1.06); }
+  .btn.secondary { background:var(--color-surface-2); color:var(--color-text); border:1px solid var(--color-border); }
+  .btn.ghost { background:none; color:var(--color-primary); }
+  .btn.danger { background:none; color:var(--color-danger); border:1px solid var(--color-danger); }
+  .btn:disabled { background:var(--color-border); color:var(--color-text-subtle); box-shadow:none; cursor:not-allowed; }
+  .fab { width:56px; height:56px; border-radius:var(--r-full); background:var(--gradient-primary); color:var(--color-on-primary); border:none; font-size:26px; box-shadow:var(--shadow-primary); cursor:pointer; transition:transform var(--dur-fast) var(--ease-spring); }
+  .fab:active { transform:scale(.9) rotate(90deg); }
+
+  /* 입력 */
+  .input { width:100%; padding:12px 14px; font-size:var(--fs-base); border:1px solid var(--color-border-strong); border-radius:var(--r-md); background:var(--color-surface-2); color:var(--color-text); }
+  .input:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 0 3px var(--color-primary-soft); }
+  .addbar { display:flex; gap:8px; }
+  .addbar .input { flex:1; }
+
+  /* 체크박스 (둥근, 체크 시 스프링) */
+  .cb { width:22px; height:22px; border:2px solid var(--color-border-strong); border-radius:50%; background:var(--color-surface);
+        display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--color-on-primary); font-size:13px;
+        transition: background var(--dur-fast), border-color var(--dur-fast), transform var(--dur-base) var(--ease-spring); }
+  .cb[aria-checked="true"] { background:var(--color-primary); border-color:var(--color-primary); transform:scale(1.06); }
+  .cb .tick { transform:scale(0); transition:transform var(--dur-base) var(--ease-spring); }
+  .cb[aria-checked="true"] .tick { transform:scale(1); }
+
+  /* 할 일 항목 행 */
+  .item { display:flex; align-items:center; gap:13px; padding:13px 4px; border-bottom:1px solid var(--color-border); }
+  .item .body { flex:1; min-width:0; }
+  .item .txt { font-size:var(--fs-base); transition:color var(--dur-base); }
+  .item.done .txt { text-decoration:line-through; color:var(--color-text-subtle); }
+  .item .del { border:none; background:none; color:var(--color-danger); font-size:var(--fs-sm); cursor:pointer; padding:6px; opacity:.8; }
+  .badge { display:inline-flex; align-items:center; gap:4px; margin-top:5px; font-size:var(--fs-xs);
+           background:var(--color-accent-warm-soft); color:var(--color-accent-warm); border-radius:var(--r-full); padding:3px 9px; }
+
+  /* 토글 스위치 */
+  .sw { width:48px; height:28px; border-radius:var(--r-full); background:var(--color-border-strong); position:relative; cursor:pointer; border:none; transition:background var(--dur-fast); }
+  .sw[aria-pressed="true"] { background:var(--color-primary); }
+  .sw .knob { position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; box-shadow:var(--shadow-1); transition:left var(--dur-base) var(--ease-spring); }
+  .sw[aria-pressed="true"] .knob { left:23px; }
+
+  /* 완료됨 접이식 헤더 */
+  .secToggle { display:flex; align-items:center; gap:8px; width:100%; text-align:left; background:none; border:none; cursor:pointer;
+               font:var(--fw-medium) var(--fs-sm)/1 var(--font-sans); color:var(--color-text-muted); padding:12px 4px; }
+  .secToggle .chev { transition:transform var(--dur-base) var(--ease-standard); }
+  .secToggle[aria-expanded="true"] .chev { transform:rotate(90deg); }
+
+  /* 빈 상태 */
+  .empty { text-align:center; padding:36px 20px; color:var(--color-text-muted); }
+  .empty .big { font-size:44px; }
+  .empty .cap2 { margin-top:10px; font-size:var(--fs-base); line-height:var(--lh-base); }
+
+  /* 배너 / 스켈레톤 */
+  .banner { background:var(--color-warn-soft); color:var(--color-warn-text); border-radius:var(--r-md); padding:10px 14px; font-size:var(--fs-sm); }
+  .skel div { height:16px; background:var(--color-surface-2); border-radius:6px; margin:10px 0;
+              background-image:linear-gradient(90deg, var(--color-surface-2), var(--color-border), var(--color-surface-2));
+              background-size:200% 100%; animation:sheen 1.2s linear infinite; }
+  @keyframes sheen { to { background-position:-200% 0; } }
+
+  /* PIN */
+  .pin { width:160px; text-align:center; letter-spacing:10px; font-size:var(--fs-xl); padding:12px; border:1px solid var(--color-border-strong); border-radius:var(--r-md); background:var(--color-surface-2); color:var(--color-text); }
+
+  /* 토스트 */
+  .toast { display:inline-block; background:var(--color-text); color:var(--color-bg); padding:10px 16px; border-radius:var(--r-full); font-size:var(--fs-sm); box-shadow:var(--shadow-2); }
+
+  /* 바텀시트 (S3) */
+  .sheetDemo { position:relative; height:300px; border:1px solid var(--color-border); border-radius:var(--r-lg); overflow:hidden; background:var(--color-bg); }
+  .scrim { position:absolute; inset:0; background:rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity var(--dur-base); }
+  .scrim.show { opacity:1; pointer-events:auto; }
+  .sheet { position:absolute; left:0; right:0; bottom:0; background:var(--color-surface); border-radius:var(--r-xl) var(--r-xl) 0 0;
+           padding:16px 18px 20px; box-shadow:var(--shadow-3); transform:translateY(100%); transition:transform var(--dur-sheet) var(--ease-emphasized); }
+  .sheet.show { transform:translateY(0); }
+  .sheet .grab { width:40px; height:4px; border-radius:var(--r-full); background:var(--color-border-strong); margin:0 auto 14px; }
+  .sheet label { display:block; font-size:var(--fs-xs); color:var(--color-text-muted); margin:12px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>Components</h1><button class="toggle" id="tg">🌗 다크 토글</button></div>
+  <p class="cap">모두 semantic 토큰만 참조. variant·state·모션 포함. 인터랙티브 항목은 눌러보세요.</p>
+
+  <h2>버튼</h2>
+  <div class="panel pile">
+    <button class="btn primary">추가</button>
+    <button class="btn secondary">취소</button>
+    <button class="btn ghost">완료 비우기</button>
+    <button class="btn danger">삭제</button>
+    <button class="btn primary" disabled>저장</button>
+    <button class="fab" title="새 할 일">＋</button>
+    <span class="tag">primary / secondary / ghost / danger / disabled / FAB</span>
+  </div>
+
+  <h2>입력 · 빠른 추가 바</h2>
+  <div class="panel">
+    <div class="addbar">
+      <input class="input" placeholder="할 일 빠르게 추가…">
+      <button class="btn primary">추가</button>
+    </div>
+  </div>
+
+  <h2>체크박스 · 날짜 토글</h2>
+  <div class="panel pile">
+    <div class="cb" role="checkbox" aria-checked="false" tabindex="0"><span class="tick">✓</span></div>
+    <div class="cb" role="checkbox" aria-checked="true" tabindex="0"><span class="tick">✓</span></div>
+    <span class="tag">체크박스 (탭)</span>
+    <button class="sw" role="switch" aria-pressed="false" style="margin-left:20px"><span class="knob"></span></button>
+    <span class="tag">날짜 추가 토글 (탭)</span>
+  </div>
+
+  <h2>할 일 항목 (state)</h2>
+  <div class="panel">
+    <div class="item">
+      <div class="cb" role="checkbox" aria-checked="false" tabindex="0"><span class="tick">✓</span></div>
+      <div class="body"><div class="txt">기저귀 주문하기</div></div>
+      <button class="del">삭제</button>
+    </div>
+    <div class="item">
+      <div class="cb" role="checkbox" aria-checked="false" tabindex="0"><span class="tick">✓</span></div>
+      <div class="body"><div class="txt">관리비 납부</div><span class="badge">📅 6월 25일</span></div>
+      <button class="del">삭제</button>
+    </div>
+    <div class="item done">
+      <div class="cb" role="checkbox" aria-checked="true" tabindex="0"><span class="tick">✓</span></div>
+      <div class="body"><div class="txt">분리수거 내놓기</div></div>
+      <button class="del">삭제</button>
+    </div>
+    <span class="tag">진행 중 / 날짜 있음 / 완료(취소선)</span>
+  </div>
+
+  <h2>완료됨 접이식 + 날짜 배지</h2>
+  <div class="panel">
+    <button class="secToggle" aria-expanded="false"><span class="chev">▸</span> 완료됨 · 흔적 12개</button>
+    <span class="tag">접힘(개수만) — 누르면 ▾ 펼침 + ‘완료 비우기’</span>
+  </div>
+
+  <h2>빈 상태 · 배너 · 로딩</h2>
+  <div class="panel">
+    <div class="empty"><div class="big">🏠</div><div class="cap2">아직 우리집 할 일이 없어요.<br>아래에 첫 할 일을 남겨보세요.</div></div>
+  </div>
+  <div class="panel"><div class="banner">⚠ 오프라인 — 연결되면 자동으로 맞춰져요</div></div>
+  <div class="panel skel"><div></div><div style="width:70%"></div><div style="width:85%"></div></div>
+
+  <h2>PIN 입력 · 토스트</h2>
+  <div class="panel pile">
+    <input class="pin" inputmode="numeric" maxlength="4" placeholder="••••">
+    <span class="toast">저장됐어요 ✓</span>
+  </div>
+
+  <h2>바텀시트 (S3 추가·편집)</h2>
+  <p class="cap">3층 결정으로 S3는 hi-fi에서 바텀시트. 아래 데모를 눌러보세요.</p>
+  <div class="panel">
+    <button class="btn primary" id="openSheet">시트 열기</button>
+    <div class="sheetDemo" style="margin-top:14px">
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet" id="sheet">
+        <div class="grab"></div>
+        <div style="font-weight:var(--fw-bold); font-size:var(--fs-md)">할 일 편집</div>
+        <label>내용</label>
+        <input class="input" value="기저귀·물티슈 주문">
+        <label>날짜 (선택)</label>
+        <div class="pile">
+          <button class="sw" role="switch" aria-pressed="true"><span class="knob"></span></button>
+          <span class="tag">날짜 있음</span>
+        </div>
+        <div class="pile" style="margin-top:16px">
+          <button class="btn primary" id="closeSheet">저장</button>
+          <button class="btn secondary" id="cancelSheet">취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 토글 가능한 모든 체크박스/스위치
+  document.querySelectorAll('[role=checkbox], [role=switch]').forEach(function(el){
+    var attr = el.getAttribute('role')==='switch' ? 'aria-pressed' : 'aria-checked';
+    el.addEventListener('click', function(){ el.setAttribute(attr, el.getAttribute(attr)==='true'?'false':'true'); });
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } });
+  });
+  // 접이식 헤더 데모
+  document.querySelectorAll('.secToggle').forEach(function(b){
+    b.addEventListener('click', function(){
+      var open=b.getAttribute('aria-expanded')==='true';
+      b.setAttribute('aria-expanded', open?'false':'true'); // chev는 CSS가 회전
+    });
+  });
+  // 바텀시트
+  var sheet=document.getElementById('sheet'), scrim=document.getElementById('scrim');
+  function open(){ sheet.classList.add('show'); scrim.classList.add('show'); }
+  function close(){ sheet.classList.remove('show'); scrim.classList.remove('show'); }
+  document.getElementById('openSheet').addEventListener('click', open);
+  document.getElementById('closeSheet').addEventListener('click', close);
+  document.getElementById('cancelSheet').addEventListener('click', close);
+  scrim.addEventListener('click', close);
+  // 다크 토글
+  document.getElementById('tg').addEventListener('click', function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  });
+</script>
+</body>
+</html>

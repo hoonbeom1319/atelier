@@ -1,0 +1,194 @@
+/* family-todo · 디자인 토큰 (표준 2단: primitive → semantic) ─────────────────────
+   - primitive: 팔레트 원시값 (색은 값이지 이름이 아니다)
+   - semantic : 역할 별칭 — 컴포넌트·화면은 semantic만 참조 (primitive 직접 참조 금지)
+   - 다크모드: prefers-color-scheme + [data-theme] 수동 오버라이드 둘 다 지원
+   - 모션: 강조 방향(00-flow) — dur/ease 토큰을 넉넉히
+   ------------------------------------------------------------------------------- */
+
+:root {
+  /* ── 1. PRIMITIVE: 파랑 (primary 팔레트, 부드럽고 친근한 파랑) ── */
+  --blue-50:  #eef4ff;
+  --blue-100: #dbe7ff;
+  --blue-200: #bcd2ff;
+  --blue-300: #93b4ff;
+  --blue-400: #6090fb;
+  --blue-500: #3b73f0;   /* primary */
+  --blue-600: #2b5bd4;
+  --blue-700: #2347a8;
+  --blue-800: #1f3c85;
+  --blue-900: #1b3268;
+
+  /* ── PRIMITIVE: 중립 (warm gray 램프 — 따뜻함 위해 살짝 웜틴트) ── */
+  --gray-0:   #ffffff;
+  --gray-50:  #f8f7f6;
+  --gray-100: #f0efed;
+  --gray-200: #e4e2df;
+  --gray-300: #d0cdc8;
+  --gray-400: #a8a49d;
+  --gray-500: #807b73;
+  --gray-600: #5d584f;
+  --gray-700: #423e37;
+  --gray-800: #2a2722;
+  --gray-900: #1a1813;
+
+  /* ── PRIMITIVE: 따뜻한 액센트 (우리집 정서 포인트 — 흔적·빈상태에만 소량) ── */
+  --amber-300: #ffd27a;
+  --amber-400: #f6b950;
+  --amber-500: #e89c2b;
+
+  /* ── PRIMITIVE: 상태색 (쓰는 단계만) ── */
+  --green-500: #2faa6a;
+  --amber-warn-500: #d9962a;
+  --red-500: #e0543e;
+  --red-600: #c8412d;
+
+  /* ── 2. SEMANTIC (역할) — 라이트 기본값 ── */
+  --color-primary:        var(--blue-500);
+  --color-primary-hover:  var(--blue-600);
+  --color-primary-soft:   var(--blue-50);    /* 옅은 배경 강조 */
+  --color-on-primary:     #ffffff;
+
+  --color-bg:             var(--gray-50);     /* 앱 바탕 */
+  --color-surface:        var(--gray-0);      /* 카드·시트·바 */
+  --color-surface-2:      var(--gray-100);    /* 입력칸·옅은 면 */
+  --color-text:           var(--gray-900);
+  --color-text-muted:     var(--gray-500);
+  --color-text-subtle:    var(--gray-400);
+  --color-border:         var(--gray-200);
+  --color-border-strong:  var(--gray-300);
+
+  --color-accent-warm:    var(--amber-500);   /* 흔적/우리집 터치 */
+  --color-accent-warm-soft: #fff5e0;
+
+  --color-success:        var(--green-500);
+  --color-warn:           var(--amber-warn-500);
+  --color-warn-soft:      #fff3cd;
+  --color-warn-text:      #6b4e02;
+  --color-danger:         var(--red-500);
+  --color-danger-hover:   var(--red-600);
+
+  /* ── 그라데이션 (평면색 위 미묘한 깊이 — bg는 상단 글로우, primary는 대각 입체) ── */
+  --gradient-bg:      radial-gradient(125% 85% at 50% -8%, var(--blue-50) 0%, var(--color-bg) 42%);
+  --gradient-primary: linear-gradient(135deg, var(--blue-400) 0%, var(--blue-600) 100%);
+
+  /* ── 타이포 ── */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
+               "Segoe UI", Roboto, "Noto Sans KR", system-ui, sans-serif;
+  --fs-xs:   12px;
+  --fs-sm:   13px;
+  --fs-base: 15px;
+  --fs-md:   17px;
+  --fs-lg:   20px;
+  --fs-xl:   24px;
+  --fs-2xl:  30px;
+  --lh-tight: 1.25;
+  --lh-base:  1.5;
+  --fw-regular: 400;
+  --fw-medium:  550;
+  --fw-bold:    700;
+
+  /* ── 간격 (4px 스케일) ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+
+  /* ── 모서리 ── */
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   18px;
+  --r-xl:   24px;
+  --r-full: 999px;
+
+  /* ── 그림자 ── */
+  --shadow-1: 0 1px 2px rgba(26,24,19,.06), 0 1px 3px rgba(26,24,19,.04);
+  --shadow-2: 0 4px 12px rgba(26,24,19,.10), 0 2px 4px rgba(26,24,19,.06);
+  --shadow-3: 0 12px 32px rgba(26,24,19,.18), 0 4px 8px rgba(26,24,19,.08);
+  --shadow-primary: 0 6px 18px rgba(59,115,240,.35);
+
+  /* ── 모션 (강조 — 전환·마이크로 인터랙션) ── */
+  --dur-instant: 90ms;
+  --dur-fast:    160ms;
+  --dur-base:    240ms;
+  --dur-slow:    360ms;
+  --dur-sheet:   420ms;     /* 바텀시트 진입 */
+  --ease-standard:   cubic-bezier(.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(.2, 0, 0, 1.0);
+  --ease-spring:     cubic-bezier(.34, 1.56, .64, 1);   /* 체크·추가 통통 */
+  --ease-in:         cubic-bezier(.4, 0, 1, 1);
+}
+
+/* ── DARK: 수동 토글 ── */
+[data-theme="dark"] {
+  --color-primary:        var(--blue-400);
+  --color-primary-hover:  var(--blue-300);
+  --color-primary-soft:   #16244a;
+  --color-on-primary:     #0e1830;
+
+  --color-bg:             #131210;
+  --color-surface:        #1d1b18;
+  --color-surface-2:      #272420;
+  --color-text:           #f3f1ee;
+  --color-text-muted:     #a8a39a;
+  --color-text-subtle:    #6f6a61;
+  --color-border:         #322e29;
+  --color-border-strong:  #423d36;
+
+  --color-accent-warm:    var(--amber-400);
+  --color-accent-warm-soft: #2c2415;
+
+  --color-warn-soft:      #3a3115;
+  --color-warn-text:      #f0d79a;
+
+  --gradient-bg:      radial-gradient(125% 85% at 50% -8%, #1a2742 0%, var(--color-bg) 46%);
+  --gradient-primary: linear-gradient(135deg, var(--blue-300) 0%, var(--blue-500) 100%);
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-2: 0 4px 14px rgba(0,0,0,.5);
+  --shadow-3: 0 14px 36px rgba(0,0,0,.6);
+  --shadow-primary: 0 6px 20px rgba(96,144,251,.4);
+}
+
+/* ── DARK: 시스템 설정 따라가기 (수동 미지정 시) ── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-primary:        var(--blue-400);
+    --color-primary-hover:  var(--blue-300);
+    --color-primary-soft:   #16244a;
+    --color-on-primary:     #0e1830;
+
+    --color-bg:             #131210;
+    --color-surface:        #1d1b18;
+    --color-surface-2:      #272420;
+    --color-text:           #f3f1ee;
+    --color-text-muted:     #a8a39a;
+    --color-text-subtle:    #6f6a61;
+    --color-border:         #322e29;
+    --color-border-strong:  #423d36;
+
+    --color-accent-warm:    var(--amber-400);
+    --color-accent-warm-soft: #2c2415;
+    --color-warn-soft:      #3a3115;
+    --color-warn-text:      #f0d79a;
+
+    --gradient-bg:      radial-gradient(125% 85% at 50% -8%, #1a2742 0%, var(--color-bg) 46%);
+    --gradient-primary: linear-gradient(135deg, var(--blue-300) 0%, var(--blue-500) 100%);
+
+    --shadow-1: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-2: 0 4px 14px rgba(0,0,0,.5);
+    --shadow-3: 0 14px 36px rgba(0,0,0,.6);
+    --shadow-primary: 0 6px 20px rgba(96,144,251,.4);
+  }
+}
+
+/* 접근성: 모션 줄이기 선호 시 전환 최소화 (강조하되 존중) */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 1ms; --dur-fast: 1ms; --dur-base: 1ms;
+    --dur-slow: 1ms; --dur-sheet: 1ms;
+  }
+}

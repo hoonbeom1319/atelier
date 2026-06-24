@@ -1,0 +1,132 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>family-todo · S3 추가·편집 (wire)</title>
+<style>
+  :root { --w: 390px; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, sans-serif; background:#bbb; color:#111; }
+  .phone { width:var(--w); min-height:100vh; margin:0 auto; background:#fff; border-left:1px solid #999; border-right:1px solid #999; display:flex; flex-direction:column; }
+  .wirebar { font:11px/1.4 monospace; background:#eee; border-bottom:1px solid #ccc; padding:4px 8px; color:#555; }
+  .wirebar a { color:#357; }
+  header.app { padding:16px 18px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between; }
+  header.app .h { font-size:17px; font-weight:700; }
+  header.app a { font:12px monospace; color:#357; text-decoration:none; }
+  .pad { padding:20px 18px; flex:1; }
+  label { display:block; font-size:12px; color:#444; margin:18px 0 6px; }
+  label:first-child { margin-top:0; }
+  textarea#text { width:100%; min-height:80px; font-size:16px; padding:12px; border:1px solid #888; resize:vertical; font-family:inherit; }
+  .daterow { display:flex; align-items:center; gap:10px; }
+  .toggle { width:46px; height:26px; border:2px solid #444; border-radius:14px; background:#fff; position:relative; cursor:pointer; flex:0 0 auto; }
+  .toggle[aria-pressed="true"] { background:#444; }
+  .toggle .knob { position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#444; transition:left .15s; }
+  .toggle[aria-pressed="true"] .knob { left:22px; background:#fff; }
+  input[type=date] { margin-top:10px; width:100%; padding:11px; font-size:15px; border:1px solid #888; }
+  input[type=date][hidden] { display:none; }
+  .err { color:#900; font-size:12px; min-height:16px; margin-top:8px; }
+  .actions { border-top:1px solid #ddd; padding:14px 18px; display:flex; gap:10px; }
+  .actions .save { flex:1; padding:13px; border:1px solid #111; background:#111; color:#fff; font-size:15px; cursor:pointer; }
+  .actions .save:disabled { background:#bbb; border-color:#bbb; cursor:not-allowed; }
+  .actions .del { padding:13px 16px; border:1px solid #a00; background:#fff; color:#a00; cursor:pointer; }
+  .actions .del[hidden] { display:none; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="wirebar">WIRE · S3 추가·편집 · <a href="list.html">← 목록</a></div>
+
+  <header class="app">
+    <a href="list.html">취소</a>
+    <div class="h" id="mode">새 할 일</div>
+    <span style="width:34px"></span>
+  </header>
+
+  <div class="pad">
+    <label for="text">할 일 내용</label>
+    <textarea id="text" placeholder="무엇을 할까요?"></textarea>
+    <div class="err" id="err"></div>
+
+    <label>날짜 (선택)</label>
+    <div class="daterow">
+      <div class="toggle" id="dateToggle" role="button" aria-pressed="false" tabindex="0" aria-label="날짜 추가"><span class="knob"></span></div>
+      <span id="dateLabel" style="font-size:13px;color:#666">날짜 없음 (메모형)</span>
+    </div>
+    <input type="date" id="date" hidden>
+  </div>
+
+  <div class="actions">
+    <button class="save" id="save">저장</button>
+    <button class="del" id="del" hidden>삭제</button>
+  </div>
+</div>
+
+<script>
+  var KEY = 'ft_tasks';
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+  function save(t){ localStorage.setItem(KEY, JSON.stringify(t)); }
+  function nextId(t){ var m=0; t.forEach(function(x){ if(x.id>m)m=x.id; }); return m+1; }
+
+  var tasks = load();
+  var params = new URLSearchParams(location.search);
+  var editId = params.get('id') ? parseInt(params.get('id'),10) : null;
+  var current = editId ? tasks.find(function(x){ return x.id===editId; }) : null;
+
+  var textEl = document.getElementById('text');
+  var dateEl = document.getElementById('date');
+  var toggle = document.getElementById('dateToggle');
+  var dateLabel = document.getElementById('dateLabel');
+  var saveBtn = document.getElementById('save');
+  var err = document.getElementById('err');
+
+  // 모드 세팅
+  if (current) {
+    document.getElementById('mode').textContent = '할 일 편집';
+    textEl.value = current.text;
+    document.getElementById('del').hidden = false;
+    if (current.date) { setDateOn(true); dateEl.value = current.date; }
+  }
+
+  function setDateOn(on) {
+    toggle.setAttribute('aria-pressed', on ? 'true':'false');
+    dateEl.hidden = !on;
+    dateLabel.textContent = on ? '날짜 있음 (일정형)' : '날짜 없음 (메모형)';
+    if (!on) dateEl.value = '';
+  }
+  toggle.addEventListener('click', function(){ setDateOn(toggle.getAttribute('aria-pressed') !== 'true'); validate(); });
+  toggle.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle.click(); } });
+
+  function validate(){
+    var ok = (textEl.value || '').trim().length > 0;
+    saveBtn.disabled = !ok;
+    if (ok) err.textContent = '';
+    return ok;
+  }
+  textEl.addEventListener('input', validate);
+
+  saveBtn.addEventListener('click', function(){
+    if (!validate()) { err.textContent = '내용을 입력해 주세요'; return; }
+    var date = (toggle.getAttribute('aria-pressed')==='true') ? (dateEl.value || '') : '';
+    if (current) {
+      current.text = textEl.value.trim();
+      current.date = date;
+    } else {
+      tasks.unshift({ id: nextId(tasks), text: textEl.value.trim(), date: date, done:false, doneAt:0 });
+    }
+    save(tasks);
+    location.href = 'list.html';
+  });
+
+  document.getElementById('del').addEventListener('click', function(){
+    if (!current) return;
+    tasks = tasks.filter(function(x){ return x.id !== current.id; });
+    save(tasks);
+    location.href = 'list.html';
+  });
+
+  validate();
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!-- @dsCard group="Foundation" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>family-todo · Foundation — 색</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { margin:0; font-family:var(--font-sans); background:var(--color-bg); background-image:var(--gradient-bg); background-attachment:fixed; min-height:100vh; color:var(--color-text);
+         transition: background var(--dur-base) var(--ease-standard), color var(--dur-base) var(--ease-standard); }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 20px 64px; }
+  .top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  h1 { font-size:var(--fs-xl); margin:0; }
+  h2 { font-size:var(--fs-md); margin:32px 0 12px; color:var(--color-text); }
+  p.note { color:var(--color-text-muted); font-size:var(--fs-sm); margin:4px 0 0; }
+  .toggle { border:1px solid var(--color-border-strong); background:var(--color-surface); color:var(--color-text);
+            border-radius:var(--r-full); padding:8px 14px; font-size:var(--fs-sm); cursor:pointer; }
+  .ramp { display:grid; grid-template-columns:repeat(10,1fr); gap:6px; }
+  .ramp.warm, .ramp.state { grid-template-columns:repeat(5,1fr); max-width:50%; }
+  .sw { border-radius:var(--r-sm); overflow:hidden; border:1px solid var(--color-border); }
+  .sw .chip { height:52px; }
+  .sw .lab { font-size:10px; padding:4px 5px; background:var(--color-surface); color:var(--color-text-muted); }
+  .roles { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  .role { border:1px solid var(--color-border); border-radius:var(--r-md); overflow:hidden; }
+  .role .chip { height:44px; }
+  .role .meta { padding:7px 9px; background:var(--color-surface); }
+  .role .meta b { font-size:var(--fs-xs); display:block; }
+  .role .meta span { font-size:10px; color:var(--color-text-subtle); }
+  .pair { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .demo { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--r-md); padding:16px; box-shadow:var(--shadow-1); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>색 · Foundation</h1>
+    <button class="toggle" id="tg">🌗 다크 토글</button>
+  </div>
+  <p class="note">primitive(값) → semantic(역할). 컴포넌트는 <b>semantic만</b> 참조. 토글로 라이트/다크 확인.</p>
+
+  <h2>Primitive — 파랑 (primary 팔레트)</h2>
+  <div class="ramp" id="blue"></div>
+
+  <h2>Primitive — 중립 (warm gray)</h2>
+  <div class="ramp" id="gray"></div>
+
+  <h2>Primitive — 따뜻한 액센트 / 상태</h2>
+  <div class="ramp warm" id="warm"></div>
+  <div class="ramp state" id="state" style="margin-top:10px"></div>
+
+  <h2>Semantic — 역할 (화면·컴포넌트는 이것만 쓴다)</h2>
+  <div class="roles" id="roles"></div>
+
+  <h2>그라데이션 — 역할 (평면색 위 미묘한 깊이)</h2>
+  <div class="pair">
+    <div style="flex:1; min-width:170px; height:92px; border-radius:var(--r-md); background:var(--gradient-bg); border:1px solid var(--color-border); display:flex; align-items:flex-end; padding:8px; font-size:10px; color:var(--color-text-muted)">--gradient-bg · 앱 바탕 상단 글로우</div>
+    <div style="flex:1; min-width:170px; height:92px; border-radius:var(--r-md); background:var(--gradient-primary); display:flex; align-items:flex-end; padding:8px; font-size:10px; color:#fff">--gradient-primary · 버튼·FAB</div>
+  </div>
+
+  <h2>적용 미리보기</h2>
+  <div class="demo">
+    <div style="font-size:var(--fs-md); font-weight:var(--fw-bold)">우리집 🏠</div>
+    <div style="color:var(--color-text-muted); font-size:var(--fs-sm); margin:4px 0 12px">진행 중 2 · 완료됨 1</div>
+    <div class="pair">
+      <button style="background:var(--color-primary); color:var(--color-on-primary); border:none; border-radius:var(--r-md); padding:10px 16px; font-size:var(--fs-base); box-shadow:var(--shadow-primary)">추가</button>
+      <button style="background:var(--color-surface-2); color:var(--color-text); border:1px solid var(--color-border); border-radius:var(--r-md); padding:10px 16px; font-size:var(--fs-base)">취소</button>
+      <span style="align-self:center; background:var(--color-accent-warm-soft); color:var(--color-accent-warm); border-radius:var(--r-full); padding:5px 12px; font-size:var(--fs-xs)">📅 6/25</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function ramp(id, name, n){ var el=document.getElementById(id); var h='';
+    n.forEach(function(s){ h+='<div class="sw"><div class="chip" style="background:var(--'+name+'-'+s+')"></div><div class="lab">'+s+'</div></div>'; });
+    el.innerHTML=h; }
+  ramp('blue','blue',[50,100,200,300,400,500,600,700,800,900]);
+  ramp('gray','gray',[50,100,200,300,400,500,600,700,800,900]);
+  ramp('warm','amber',[300,400,500]);
+  document.getElementById('state').innerHTML =
+    ['--green-500','--amber-warn-500','--red-500','--red-600'].map(function(v){
+      return '<div class="sw"><div class="chip" style="background:var('+v+')"></div><div class="lab">'+v.replace('--','')+'</div></div>'; }).join('');
+
+  var roles = [
+    ['--color-primary','primary'],['--color-primary-hover','primary-hover'],['--color-primary-soft','primary-soft'],
+    ['--color-bg','bg'],['--color-surface','surface'],['--color-surface-2','surface-2'],
+    ['--color-text','text'],['--color-text-muted','text-muted'],['--color-border','border'],
+    ['--color-accent-warm','accent-warm'],['--color-success','success'],['--color-danger','danger']
+  ];
+  document.getElementById('roles').innerHTML = roles.map(function(r){
+    return '<div class="role"><div class="chip" style="background:var('+r[0]+')"></div><div class="meta"><b>'+r[1]+'</b><span>'+r[0]+'</span></div></div>';
+  }).join('');
+
+  // 다크 토글 (수동 → [data-theme])
+  var tg=document.getElementById('tg');
+  tg.addEventListener('click', function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  });
+</script>
+</body>
+</html>
