@@ -92,10 +92,10 @@ PRD를 `projects/<name>/PRD.md`에 넣어두고:
 |---|---|---|
 | ① 인테이크 | `00-flow.md` (화면·플로우 합의) | 사용자 OK |
 | ② 와이어프레임 | `wireframe/*.html` (클릭됨·상태 변함) | 사용자 OK |
-| ③ 흐름·기능 검증 | Playwright spec | **기계 green** + 사람 판단 |
+| ③ 흐름·기능 검증 | Playwright spec | **자동 green** + 사람 판단 |
 | ④ 디자인 시스템 | `foundation/tokens.css` + 컴포넌트 | 사용자 OK |
 | ⑤ 하이파이 | `screens/*.html` (토큰·모션 입힘) | 사용자 느낌 OK |
-| ⑥ 인터랙션 검증 | 같은 spec 재실행 | **기계 green** + 사람 느낌 |
+| ⑥ 인터랙션 검증 | 같은 spec 재실행 | **자동 green** + 사람 느낌 |
 | ⑦ handoff | `handoff/` 패키지 + `hand-off.md` | 대상 지정 |
 
 > 🚦 **단계마다 OK를 받고 넘어간다.** 한 번에 다 쏟지 않는다 — 앞 단계가 검증돼야 뒤 단계 품질이 오른다.
