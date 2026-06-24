@@ -9,11 +9,11 @@
 
 | 도구 | 용도 | 확인 |
 |---|---|---|
-| **Claude Code** | `/plan`·`/design` 하니스를 구동 | `claude --version` |
+| **Claude Code** | `/plan`·`/design` harness를 구동 | `claude --version` |
 | **Node.js** (18+) | 와이어/하이파이 동작 검증(Playwright) | `node -v` |
 | **Git** | 버전 관리·handoff 전달 | `git --version` |
 
-> 🔑 `claude.ai` 로그인은 **필요 없다.** 로컬 생성만 한다. (선택적으로 `/design-sync`로 웹 업로드할 때만 계정이 필요.)
+> 🔑 외부 계정·로그인이 **필요 없다.** 전부 **로컬에서, 터미널만으로** 돈다.
 
 ---
 

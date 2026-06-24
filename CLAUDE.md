@@ -1,7 +1,7 @@
-# Atelier — 로컬 claude.ai/design 작업장
+# Atelier — 로컬 기획·디자인 작업장 (plan · design harness)
 
-이 폴더는 `claude.ai/design`을 **로컬 터미널에서 그대로 대체**하는 작업장이다.
-웹에 들어가지 않고 여기서 PRD를 받아 디자인 산출물을 단계별로 만들고, 완성본을 다른 Claude Code 프로젝트에 넘긴다.
+이 폴더(**아틀리에**)는 터미널에서 아이디어를 **PRD로 굳히고**(plan harness) → 그 PRD로 **디자인 산출물을 단계별로 짓는**(design harness) 작업장이다.
+완성본은 *인계 패키지*로 묶어 다른 Claude Code 프로젝트에 넘긴다.
 
 > **이 폴더는 단일 프로젝트가 아니라 여러 프로젝트를 담는 "작업장"이다.**
 > 실제 디자인 작업물은 전부 `projects/<프로젝트명>/` 안에서 일어난다.
@@ -12,9 +12,9 @@
 ## 폴더 구조
 
 ```
-atelier/                            # 작업장 루트 (= 로컬 claude.ai/design. 로컬 폴더명은 달라도 무관)
+atelier/                            # 아틀리에 루트 (로컬 폴더명은 달라도 무관)
 ├── CLAUDE.md                       # 이 파일 — 작업장 공통 규칙
-├── .claude/skills/design/          # /design 스킬 (파이프라인 구동 하니스)
+├── .claude/skills/design/          # /design 스킬 (파이프라인 구동 harness)
 └── projects/
     ├── my-first-app/
     │   ├── PRD.md                  # 입력
@@ -29,7 +29,7 @@ atelier/                            # 작업장 루트 (= 로컬 claude.ai/desig
 ```
 
 - **프로젝트는 서로 독립.** 토큰·산출물을 공유하지 않는다.
-- **`STATUS.md`가 프로젝트의 "현재 위치"다.** 파일 존재 여부만으로는 알 수 없는 것(예: "흐름 테스트를 사용자가 통과시켰는가")을 여기에 기록한다. 작업장에 들어오면 이 파일들이 곧 claude.ai/design의 프로젝트 목록 역할을 한다.
+- **`STATUS.md`가 프로젝트의 "현재 위치"다.** 파일 존재 여부만으로는 알 수 없는 것(예: "흐름 테스트를 사용자가 통과시켰는가")을 여기에 기록한다. 작업장에 들어오면 이 STATUS.md들이 곧 프로젝트 목록(대시보드) 역할을 한다.
 
 ---
 
@@ -65,7 +65,7 @@ atelier/                            # 작업장 루트 (= 로컬 claude.ai/desig
 
 ---
 
-## 결과물 형식 (claude.ai/design과 동일하게)
+## 결과물 형식
 
 - 화면·컴포넌트마다 **외부 의존성(외부 라이브러리) 없는 독립 실행 HTML 1개.** 브라우저로 바로 열려야 한다. (상태 변화용 **인라인 JS는 허용** — 금지는 외부 의존성이지 JS가 아니다.)
 - 각 파일 첫 줄에 카드 마커: `<!-- @dsCard group="Wireframe|Foundation|Components|Screens" -->`
@@ -92,5 +92,5 @@ atelier/                            # 작업장 루트 (= 로컬 claude.ai/desig
 
 ## 참고
 
-- `@dsCard` 마커가 호환되므로, 원하면 `/design-sync`로 claude.ai/design에 업로드 가능하다.
-- 로컬 생성만 할 거면 claude.ai 로그인/계정은 필요 없다.
+- 산출물 첫 줄 `@dsCard group="…"` 마커는 카드 그룹(Wireframe/Foundation/Components/Screens) 표식이다 — 산출물 분류·탐색용.
+- 외부 계정·로그인 없이 전부 로컬에서 돈다.
