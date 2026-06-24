@@ -1,7 +1,7 @@
 {
   "name": "atelier",
   "version": "1.0.0",
-  "description": "> 터미널 안의 디자인 아틀리에",
+  "description": "터미널 안의 아틀리에 — 아이디어를 받아 PRD부터 개발에 넘길 디자인까지 (/plan + /design 하니스)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
