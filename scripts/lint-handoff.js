@@ -73,14 +73,17 @@ const notEmbedded = screens.filter((s) => !indexHtml.includes(s) && !indexHtml.i
 if (notEmbedded.length) errors.push(`비주얼 문서(index.html)에 안 실린 chosen 화면: ${notEmbedded.join(', ')} (스크린샷/임베드 누락)`);
 else if (screens.length) ok.push(`chosen(${chosen}) 화면 ${screens.length}개 전부 비주얼 문서에 실림`);
 
-// 4) semantic 토큰이 매핑표에 빠졌나 (primitive = --word-숫자 는 제외)
+// 4) semantic 토큰이 매핑표에 빠졌나
+// 판정은 화이트리스트가 아니라 블랙리스트로 한다(게이트엔 블랙리스트가 안전):
+//   primitive(= --word-숫자, 다단어 허용: --coral-500·--gray-50·--blue-gray-900·--sp-2)는 *값*이라 매핑 불필요 → 제외.
+//   그 외 foundation 토큰은 전부 매핑 대상. (접두사 화이트리스트는 --elevation-low·--gap-card 같은
+//   비표준 이름의 semantic 토큰을 조용히 빠뜨려 게이트를 못 믿게 했다 — 그래서 뒤집었다.)
 const tokensCss = read(path.join(PROJ, 'foundation', 'tokens.css'));
 const tokensMap = read(path.join(HO, 'token-mapping.md')) || '';
 if (tokensCss) {
   const all = [...new Set([...tokensCss.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]))];
-  const isPrimitive = (t) => /^--[a-z]+-\d+$/.test(t);                       // --coral-500, --gray-900 …
-  const isSemantic = (t) => !isPrimitive(t) && /^--(color|fs|sp|space|r|radius|shadow|dur|ease|font|fw|lh|z|breakpoint)\b|-/.test(t) && /^--(color|fs|sp|space|r|radius|shadow|dur|ease|font|fw|lh|z)/.test(t);
-  const semantic = all.filter(isSemantic);
+  const isPrimitive = (t) => /^--[a-z]+(-[a-z]+)*-\d+$/.test(t);             // --coral-500, --gray-50, --blue-gray-900, --sp-2 …
+  const semantic = all.filter((t) => !isPrimitive(t));
   const missing = semantic.filter((t) => !tokensMap.includes(t));
   if (missing.length) errors.push(`매핑표(token-mapping.md)에 빠진 semantic 토큰 ${missing.length}개: ${missing.slice(0, 12).join(', ')}${missing.length > 12 ? ' …' : ''}`);
   else if (semantic.length) ok.push(`semantic 토큰 ${semantic.length}개 전부 매핑표에 있음`);

@@ -1,0 +1,17 @@
+/* @smoke tokens — a11y 검사기 검증용. 일부러 통과쌍 1 + 미달쌍 1을 섞었다. */
+:root {
+  /* primitive */
+  --gray-900: #1a1a1a;
+  --gray-50:  #fafafa;
+  --gray-300: #cccccc;
+  --coral-500: #e8533f;
+  --white: #ffffff;
+
+  /* semantic */
+  --color-text: var(--gray-900);          /* on bg → 통과(고대비) */
+  --color-bg: var(--gray-50);
+  --color-surface: var(--white);
+  --color-primary: var(--coral-500);
+  --color-on-primary: var(--white);
+  --color-text-muted: var(--gray-300);    /* on bg → 미달(저대비, a11y가 잡아야) */
+}

@@ -1,0 +1,27 @@
+<!-- @dsCard group="Wireframe" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>smoke · list</title></head>
+<body>
+  <h1>목록</h1>
+
+  <!-- 와이어드(aria): 토글 → aria-pressed 뒤집힘 -->
+  <button id="toggle" aria-pressed="false"
+    onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed')==='true'?'false':'true')">
+    알림 토글
+  </button>
+
+  <!-- 와이어드(dom): 카운터 → 본문 텍스트 변함 -->
+  <button id="add" onclick="var c=document.getElementById('cnt');c.textContent=(+c.textContent+1)">담기</button>
+  <span>담긴 수: <span id="cnt">0</span></span>
+
+  <!-- 와이어드(nav): 링크 → 이동 -->
+  <a href="detail.html">상세 보기</a>
+
+  <!-- ★ 죽은 컨트롤: 아무 일도 안 함 (controls.js가 잡아야 함) -->
+  <button id="dead">죽은 버튼</button>
+
+  <!-- 범위 밖: 면제돼야 함 -->
+  <button data-scope="out">결제 [범위 밖]</button>
+
+  <p><a href="index.html">홈으로</a></p>
+</body></html>
