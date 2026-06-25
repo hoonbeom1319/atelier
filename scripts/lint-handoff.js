@@ -52,7 +52,10 @@ for (const f of ['hand-off.md', 'index.html', 'token-mapping.md', 'component-inv
 // 2) hand-off.md placeholder 잔존
 const handoffMd = read(path.join(HO, 'hand-off.md'));
 if (handoffMd) {
-  const leftover = [...handoffMd.matchAll(/<(대상|atelier|chosen|name|[A-Za-z가-힣]{2,20})>/g)].map((m) => m[0]);
+  // 알려진 placeholder(<대상…>·<atelier>·<chosen>·<name>) + 한글이 든 <…>만 잡는다.
+  // 과거의 catch-all([A-Za-z가-힣]{2,20})은 <div>·<button>·<a href> 같은 정상 HTML 태그까지 오탐해 게이트를 못 믿게 만들었다.
+  // (atelier/chosen/name은 뒤에 '>'가 즉시 와야 매치 → <filename>·<atelier-root> 등은 안 걸린다.)
+  const leftover = [...handoffMd.matchAll(/<(대상[^>]*|atelier|chosen|name|[^>]*[가-힣][^>]*)>/g)].map((m) => m[0]);
   const uniq = [...new Set(leftover)];
   if (uniq.length) errors.push(`hand-off.md에 안 채운 placeholder 잔존: ${uniq.join(', ')} — 실제 경로/이름으로 채우세요.`);
   else ok.push('hand-off.md placeholder 모두 채워짐');

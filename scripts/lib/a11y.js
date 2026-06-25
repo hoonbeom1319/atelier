@@ -91,11 +91,32 @@ function checkTokenContrast({ cssPath, pairs = DEFAULT_PAIRS }) {
 
 // 보일러플레이트 없이 토큰 대비 검사를 건다.
 //   defineTokenContrastTest(test, expect, { cssPath: path.join(__dirname, 'foundation/tokens.css') });
+// 건너뛴 쌍은 조용히 넘기지 않는다(노출). 검사가 한 쌍도 실행되지 않으면 게이트가 공허하므로 실패시킨다
+// (토큰명이 표준과 다르거나 전부 누락 → "0쌍 검사하고 green"을 막는다). minEvaluated로 최소 실행 쌍 수 조정.
 function defineTokenContrastTest(test, expect, opts) {
+  const minEvaluated = (opts && opts.minEvaluated) || 1;
   test(`자동 a11y: 토큰 대비비 WCAG AA`, () => {
     const results = checkTokenContrast(opts);
-    const failed = results.filter((r) => r.pass === false)
+    const evaluated = results.filter((r) => typeof r.pass === 'boolean');
+    const skipped = results.filter((r) => r.skipped);
+    const failed = evaluated.filter((r) => r.pass === false)
       .map((r) => `${r.fg} on ${r.bg}: ${r.ratio} < ${r.min}`);
+
+    // 건너뛴 쌍 노출 — annotation + 콘솔(부분 skip은 통과시키되 침묵하지 않는다).
+    if (skipped.length) {
+      const msg = `토큰 대비 검사 건너뜀 ${skipped.length}쌍: ${skipped.map((r) => `${r.fg} on ${r.bg}(${r.reason})`).join(' / ')}`;
+      try { test.info().annotations.push({ type: 'a11y-contrast-skip', description: msg }); } catch {}
+      console.warn(`  ⚠ ${msg}`);
+    }
+
+    // 한 쌍도 실행되지 않으면(공허한 게이트) 통과시키지 않는다.
+    expect(
+      evaluated.length >= minEvaluated,
+      `토큰 대비 검사가 ${evaluated.length}/${results.length}쌍만 실행됨(최소 ${minEvaluated} 필요). ` +
+        `semantic 토큰명이 표준(--color-text/-bg/-surface/-primary/-on-primary …)과 다르거나 누락. ` +
+        `tokens.css 토큰명을 맞추거나 opts.pairs로 검사 쌍을 명시하세요.`,
+    ).toBe(true);
+
     expect(failed, `대비 미달(WCAG AA): ${failed.join(' / ')}`).toEqual([]);
   });
 }
