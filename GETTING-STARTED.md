@@ -31,23 +31,21 @@ npx playwright install chromium   # 검증용 브라우저 (1회)
 
 ---
 
-## 👀 3. 5분 둘러보기 — `/forge`가 뽑은 결과물부터
+## 👀 3. 무엇이 나오나 — `/forge` 한 번의 산출물
 
-`projects/household-ledger/`(부부·가족 공유 가계부)는 **`/forge`로 아이디어부터 인계 패키지까지 통째로 생성된** 실제 예시다. 무엇이 나오는지 먼저 눈으로 보자.
+`/forge`를 한 번 돌리면 `projects/<name>/` 아래에 이런 게 생긴다(브라우저로 바로 열린다):
 
 ```bash
-# 최종 인계 패키지(비주얼 문서) — 실제 화면이 임베드돼 클릭된다
-start "" "projects\household-ledger\handoff\index.html"      # Windows
-# open projects/household-ledger/handoff/index.html          # macOS
-
-# 하이파이 화면 직접 진입 (chosen final)
-start "" "projects\household-ledger\screens-refined\index.html"
+# 최종 인계 패키지(비주얼 문서) — 화면이 임베드돼 클릭된다
+start "" "projects\<name>\handoff\index.html"      # Windows
+# open projects/<name>/handoff/index.html          # macOS
 ```
 
-열어볼 것:
+핵심 산출물:
 - `handoff/hand-off.md` — 받는 쪽에 붙여넣는 **인계 프롬프트**(이게 최종 결과물)
+- `handoff/` — 비주얼 문서·토큰 매핑표·컴포넌트 인벤토리
 - `plan-decisions.md` — 시장조사가 기획 질문에 **무슨 근거로** 답했나(출처 URL)
-- `design-critique.md` — 트렌드 전문가 감정: **71→리디자인→86 PASS**
+- `design-critique.md` — 트렌드 전문가 감정 점수·지적(미달 시 리디자인 기록)
 - `STATUS.md` — `0 기획 → 7 handoff`까지 어떻게 흘러갔는지 한눈에
 
 ---
@@ -110,14 +108,14 @@ start "" "projects\household-ledger\screens-refined\index.html"
 
 ```bash
 # 한 프로젝트의 특정 spec
-node scripts/test-project.js household-ledger projects/household-ledger/refined.spec.js
+node scripts/test-project.js <name> projects/<name>/screens.spec.js
 
 # 증빙 리포트 열기 (pass/fail + 스크린샷 + 클릭 재생 trace)
-npx playwright show-report projects/household-ledger/playwright-report
+npx playwright show-report projects/<name>/playwright-report
 
 # 경계 게이트
-node scripts/lint-prd.js household-ledger
-node scripts/lint-handoff.js household-ledger
+node scripts/lint-prd.js <name>
+node scripts/lint-handoff.js <name>
 ```
 
 증빙은 `projects/<name>/playwright-report`·`test-results`에 프로젝트별로 쌓인다. (git에는 안 올라간다 — `.gitignore` 처리.)

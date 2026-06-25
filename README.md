@@ -28,12 +28,7 @@
 
 > ⚠️ **정직한 한계.** 동작·접근성·트렌드 부합·인계 완결성은 자동 통과하지만, *"옳은 제품인가·최종 미감"* 은 **사람 미검수**다. `/forge`는 결과를 줄 때 이걸 명시한다 — 마음에 안 들면 **가정만 고쳐 다시 `/forge`**, 또는 아래 수동 모드로 갈아탄다(같은 폴더·STATUS 호환).
 
-**👀 실제 결과물:** `projects/household-ledger/`(부부·가족 공유 가계부)는 `/forge`로 통째 생성된 예시다. `handoff/index.html`을 열면 최종 화면이 클릭된다.
-
-```bash
-start "" "projects\household-ledger\handoff\index.html"     # Windows
-# open projects/household-ledger/handoff/index.html         # macOS
-```
+> 끝나면 `projects/<name>/handoff/index.html`(최종 화면 임베드)·`hand-off.md`(인계 프롬프트)가 생긴다 — 그게 결과물이다.
 
 ---
 
@@ -83,8 +78,8 @@ atelier/                            # (레포. 로컬 폴더명은 달라도 무
 │   ├── lint-prd.js                 #   PRD 완결성 자동 검사 (plan→design 게이트)
 │   ├── lint-handoff.js             #   handoff 완결성 자동 검사 (design→dev 게이트)
 │   └── lib/                        #   재사용 검증 골격(crawl·controls·selectors·a11y)
-└── projects/
-    └── household-ledger/           # 예시 — /forge로 통째 생성
+└── projects/                        # 프로젝트마다 폴더 하나 (서로 독립)
+    └── my-first-app/
         ├── PRD.md                  # 기획 산출물 (= 디자인 입력)
         ├── plan-decisions.md       # (/forge) 시장조사가 plan 질문에 답한 근거·출처
         ├── STATUS.md               # 지금 어느 단계인지 (0 기획 ~ 7 handoff)
