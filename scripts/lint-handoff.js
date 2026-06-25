@@ -33,7 +33,9 @@ const htmls = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f
 // ── chosen final 결정: STATUS.md의 (chosen) 표시 → 없으면 screens/ (변형 폴더가 여럿이면 모호 경고)
 function chosenDir() {
   const status = read(path.join(PROJ, 'STATUS.md')) || '';
-  const m = status.match(/([\w-]+)\/?[^\n]*\(chosen/i);
+  // 캡처는 글자로 시작해야 한다 — 안 그러면 "- screens-refined/ …(chosen)"의 줄머리 불릿 '-'가
+  // [\w-]에 걸려 m[1]='-'로 잡히고 chosen 감지가 표준 STATUS 형식에서 항상 폴백된다.
+  const m = status.match(/([A-Za-z][\w-]*)\/?[^\n]*\(chosen/i);
   if (m && fs.existsSync(path.join(PROJ, m[1]))) return m[1];
   const variants = fs.existsSync(PROJ) ? fs.readdirSync(PROJ).filter((d) => /^screens-/.test(d) && fs.statSync(path.join(PROJ, d)).isDirectory()) : [];
   if (variants.length) warns.push(`chosen final 미표시 — 변형 폴더 ${variants.length}개(${variants.join(', ')}) 중 무엇이 chosen인지 STATUS.md에 "(chosen)"으로 표시하세요. 일단 screens/로 검사.`);
