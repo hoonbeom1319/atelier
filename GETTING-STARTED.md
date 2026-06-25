@@ -9,7 +9,7 @@
 
 | 도구 | 용도 | 확인 |
 |---|---|---|
-| **Claude Code** | `/plan`·`/design` harness를 구동 | `claude --version` |
+| **Claude Code** | `/plan`·`/design`·`/forge` harness를 구동 | `claude --version` |
 | **Node.js** (18+) | 와이어/하이파이 동작 검증(Playwright) | `node -v` |
 | **Git** | 버전 관리·handoff 전달 | `git --version` |
 
@@ -51,9 +51,9 @@ start "" "projects\family-todo\screens\index.html"
 
 ---
 
-## 🧭 4. 내 작업 시작하기 — 두 갈래
+## 🧭 4. 내 작업 시작하기 — 세 갈래
 
-작업장 폴더에서 **Claude Code 세션을 열고**, 가진 게 무엇이냐에 따라 시작점이 다르다.
+작업장 폴더에서 **Claude Code 세션을 열고**, 가진 게 무엇이냐(그리고 **얼마나 손대고 싶냐**)에 따라 시작점이 다르다.
 
 ### 갈래 A — 아이디어만 있다 (기획부터)
 
@@ -82,7 +82,21 @@ PRD를 `projects/<name>/PRD.md`에 넣어두고:
 
 `/design`이 PRD를 받아 인테이크부터 handoff까지 단계별로 짓는다.
 
-> 📂 두 스킬 모두 **먼저 어느 프로젝트인지 고른다.** `projects/`의 각 `STATUS.md`를 읽어 대시보드로 보여주고, 멈춘 단계부터 이어간다.
+### 갈래 C — 손 안 대고 끝까지 (무인)
+
+```
+/forge
+```
+
+`/forge`는 `/plan`·`/design`을 **사람 OK 게이트 없이** 통째로 굴린다. **시작 1회 질문**(타깃·플랫폼·톤·MVP 경계 등)에만 답하면, 그 뒤로 PRD→와이어→하이파이→handoff까지 자동으로 받는다.
+
+- **자동 게이트는 그대로** — `lint-prd`·Playwright·a11y·`lint-handoff`가 품질 바닥을 지킨다.
+- **사람 판단의 빈자리**는 ① 가정 원장(`PRD.md §11`) ② **시장조사 에이전트**(웹검색 → `plan-decisions.md`) ③ **디자인 트렌드 전문가**(웹검색 감정 → 미달 시 자동 리디자인 1회, `design-critique.md`)가 메운다.
+- 결과를 받고 **마음에 안 들면** 가정만 고쳐 다시 `/forge`, 또는 `/plan`·`/design`으로 갈아타 사람이 다시 다질 수 있다(같은 폴더·STATUS 호환).
+
+> ⚠️ 무인은 빠르지만 *"옳은 제품인가·최종 미감"* 은 사람 미검수다. 전달 시 명시된다. 예시: `projects/household-ledger/`.
+
+> 📂 세 스킬 모두 **먼저 어느 프로젝트인지 고른다.** `projects/`의 각 `STATUS.md`를 읽어 대시보드로 보여주고, 멈춘 단계부터 이어간다.
 
 ---
 
@@ -149,6 +163,7 @@ npx playwright show-report projects/family-todo/playwright-report
 ```
 /plan       아이디어 → PRD (캐묻는 기획)
 /design     PRD → 와이어 → 디자인시스템 → 하이파이 → handoff
+/forge      무인 — 시작 1회 질문 → PRD → hi-fi → handoff (사람 게이트 0)
 
 node scripts/test-project.js <name> [spec경로]     검증 실행
 npx playwright show-report projects/<name>/playwright-report   증빙 보기

@@ -10,21 +10,23 @@
 
 ---
 
-## 두 개의 harness
+## harness
 
-**아틀리에**(이 작업장)는 **상·하류로 물린 두 harness**로 돌아간다. 같은 `projects/`를 공유하고, 한쪽의 출력이 다른 쪽의 입력이 된다.
+**아틀리에**(이 작업장)는 **상·하류로 물린 두 harness**(`/plan`·`/design`)로 돌아간다. 같은 `projects/`를 공유하고, 한쪽의 출력이 다른 쪽의 입력이 된다. 그리고 둘을 **사람 없이 통째로 굴리는 무인 오케스트레이터 `/forge`** 가 그 위에 얹힌다.
 
 ```
 아이디어 ──/plan──▶ PRD.md ──/design──▶ 와이어 → 검증 → 디자인 시스템 → 하이파이 → 검증 → handoff
           (기획·PM)            (디자인)
+   └───────────────── /forge (무인: 시작 1회 질문 → 인계 패키지까지, 사람 게이트 0) ─────────────────┘
 ```
 
 | harness | 역할 | 입력 → 출력 |
 |---|---|---|
 | **`/plan`** | 기획·PM (25년차 시니어처럼 캐묻는다) | 아이디어 → **`PRD.md`** |
 | **`/design`** | 디자인 빌드·검증 | `PRD.md` → 디자인 산출물 + **handoff 패키지** |
+| **`/forge`** | 무인 오케스트레이터 (위 둘을 자동 구동) | 아이디어 → **인계 패키지** (사람 게이트 0회) |
 
-`/plan`이 상류, `/design`이 하류다. 아이디어부터면 `/plan`으로 시작하고, 이미 PRD가 있으면 `/design`으로 바로 들어간다.
+`/plan`이 상류, `/design`이 하류다. 아이디어부터면 `/plan`, 이미 PRD가 있으면 `/design`으로 들어간다. **손 안 대고 끝까지 가려면 `/forge`** — 시작 1회 질문만 받고 PRD→hi-fi→handoff까지 자동으로 짓는다(아래 `/forge` 절).
 
 ---
 
@@ -75,6 +77,22 @@ PRD ─▶ ① 인테이크 ─▶ ② 와이어(클릭됨) ─▶ ③ ▶흐름
 
 ---
 
+## ⚡ `/forge` — 무인 모드 (아이디어 → 인계 패키지, 사람 게이트 0)
+
+`/plan`·`/design`을 **사람 OK 게이트 없이** 통째로 굴리는 상류 오케스트레이터다. 사용자는 **시작 1회 질문**에만 답하고, 그 뒤로 PRD→와이어→하이파이→handoff까지 자동으로 받는다.
+
+**핵심 계약 — 무엇을 빼고 무엇으로 메우나:**
+- **자동 게이트는 전부 유지** — `lint-prd` · Playwright 1·2층(죽은 컨트롤 0) · a11y(토큰 대비·axe) · `lint-handoff`. 이게 사람 판단을 대신하는 *품질 바닥*이다.
+- **사람 게이트·3층 판단만 생략** — 그 자리를 세 장치로 메운다:
+  1. **시작 1회 인테이크** — 추측하면 어긋나는 결정적 전제를 *자세히* 한 번에 받는다(왕복 없음).
+  2. **가정 원장** — 사용자 대신 내린 모든 결정을 PRD §11·전달 요약에 명시("이 가정 틀렸으면 여기 고치세요").
+  3. **전문가 에이전트(웹검색)** — *시장조사 에이전트*가 plan 질문을 출처 있는 답으로 받치고(`plan-decisions.md`), *디자인 트렌드 전문가*가 hi-fi를 **brief 방향 안에서** 현행 기준과 대조해 감정한다. 임계값 미달이면 **자동 리디자인 1회**(`design-critique.md`, off-brief 금지).
+- **정직한 한계** — 동작·접근성·트렌드 부합·인계 완결성은 자동 통과하지만, *"옳은 제품인가·최종 미감"* 은 **사람 미검수**다. 무인은 일방통행이 아니라 — 언제든 `/plan`·`/design`으로 갈아타 사람이 다시 다질 수 있다(같은 폴더·STATUS 호환).
+
+> 절차 원본은 `.claude/skills/forge/SKILL.md`. 예시 결과물은 `projects/household-ledger/`(부부·가족 공유 가계부 — `/forge`로 통째 생성).
+
+---
+
 ## 구조
 
 Atelier는 단일 프로젝트가 아니라 **여러 프로젝트를 담는 작업장**이다.
@@ -84,7 +102,8 @@ atelier/                            # (레포. 로컬 폴더명은 달라도 무
 ├── CLAUDE.md                       # 작업장 공통 규칙 (형식·품질의 원본)
 ├── .claude/skills/
 │   ├── plan/                       # /plan   — 기획 harness (→ PRD)
-│   └── design/                     # /design — 디자인 harness (PRD → handoff)
+│   ├── design/                     # /design — 디자인 harness (PRD → handoff)
+│   └── forge/                      # /forge  — 무인 오케스트레이터 (plan→design→handoff 자동)
 ├── scripts/                        # 검증 도구
 │   ├── test-project.js             #   프로젝트별 Playwright 실행기(증빙 라우팅)
 │   ├── lint-prd.js                 #   PRD 완결성 자동 검사 (plan→design 게이트)
@@ -93,12 +112,14 @@ atelier/                            # (레포. 로컬 폴더명은 달라도 무
 └── projects/
     ├── my-first-app/
     │   ├── PRD.md                  # /plan 산출물 = /design 입력
+    │   ├── plan-decisions.md       # (/forge) 시장조사가 plan 질문에 답한 근거·출처
     │   ├── STATUS.md               # 이 프로젝트가 지금 어느 단계인지 (0 기획 ~ 7 handoff)
     │   ├── 00-flow.md              # 화면·플로우 합의본
     │   ├── wireframe/              # 클릭되는 lo-fi (*.html)
     │   ├── foundation/             # tokens.css + colors/typography
     │   ├── components/             # *.html
-    │   ├── screens/                # 하이파이 (*.html)
+    │   ├── screens/                # 하이파이 (*.html)  (리디자인 시 screens-<variant>/ 후보)
+    │   ├── design-critique.md      # (/forge) 트렌드 전문가 감정 점수·지적
     │   └── handoff/                # 인계 패키지 (hand-off.md + 비주얼 문서·매핑표·인벤토리)
     ├── my-second-app/
     └── my-third-app/
@@ -107,7 +128,7 @@ atelier/                            # (레포. 로컬 폴더명은 달라도 무
 - **프로젝트는 서로 독립.** 토큰·산출물을 공유하지 않는다.
 - **`STATUS.md`가 프로젝트의 현재 위치.** `0 기획 → 1 인테이크 → … → 7 handoff`를 한 줄로 추적한다. 파일만으로는 알 수 없는 것(예: "흐름 검증을 사람이 통과시켰는가")을 기록한다. `/plan`이 `0`을 채우고, `/design`이 `1`부터 이어받는다.
 
-> **단일 출처:** 이 README는 사람용 *요약*이다. 공정 절차의 원본은 `.claude/skills/{plan,design}/SKILL.md`, 형식·품질 규칙의 원본은 `CLAUDE.md`. 규칙을 바꿀 땐 원본 한 곳만 고친다.
+> **단일 출처:** 이 README는 사람용 *요약*이다. 공정 절차의 원본은 `.claude/skills/{plan,design,forge}/SKILL.md`, 형식·품질 규칙의 원본은 `CLAUDE.md`. 규칙을 바꿀 땐 원본 한 곳만 고친다.
 
 ---
 
@@ -120,9 +141,10 @@ atelier/                            # (레포. 로컬 폴더명은 달라도 무
 ```
 /plan      # 아이디어만 있을 때 — 캐물어 PRD까지
 /design    # PRD가 있을 때 — 인테이크부터 handoff까지
+/forge     # 무인 — 시작 1회 질문만 받고 PRD→hi-fi→handoff까지 통째로 (사람 게이트 0)
 ```
 
-- 두 스킬 모두 **먼저 프로젝트를 고른다** — `projects/`의 각 `STATUS.md`를 읽어 대시보드로 보여주고, 멈춘 단계부터 이어간다. 폴더만 보고 추측하지 않는다.
+- 세 스킬 모두 **먼저 프로젝트를 고른다** — `projects/`의 각 `STATUS.md`를 읽어 대시보드로 보여주고, 멈춘 단계부터 이어간다. 폴더만 보고 추측하지 않는다.
 - 처음이면 → 새 프로젝트 생성부터 안내한다.
 - PRD는 `/plan`으로 만들거나, 이미 있으면 `projects/<name>/PRD.md`로 넣고 `/design`을 부른다.
 
