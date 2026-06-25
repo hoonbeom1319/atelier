@@ -1,0 +1,340 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>홈 · 우리집 가계부</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--font-sans);
+    background:var(--color-surface);
+    color:var(--color-text);
+    line-height:var(--lh-base);
+    -webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    max-width:var(--app-w);
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--color-surface);
+    position:relative;
+    padding-bottom:calc(var(--tabbar-h) + var(--sp-6));
+  }
+
+  /* ── header ─────────────────────────────── */
+  header{
+    padding:var(--sp-5) var(--sp-4) var(--sp-4);
+    background:var(--color-bg);
+    border-bottom:1px solid var(--color-border);
+  }
+  .head-top{display:flex;align-items:center;justify-content:space-between}
+  .head-top strong{font-size:var(--fs-h2);font-weight:var(--fw-bold);letter-spacing:-.01em}
+  .scope{
+    font-size:var(--fs-xs);
+    color:var(--color-text-subtle);
+    border:1px dashed var(--color-border-strong);
+    border-radius:var(--r-pill);
+    padding:var(--sp-1) var(--sp-3);
+    background:none;
+    cursor:default;
+  }
+  .members{display:flex;gap:var(--sp-2);margin-top:var(--sp-3);align-items:center}
+  .ava{
+    width:32px;height:32px;
+    border-radius:var(--r-pill);
+    display:grid;place-items:center;
+    font-size:var(--fs-sm);
+    font-weight:var(--fw-bold);
+    color:var(--color-on-primary);
+  }
+  .ava-me{background:var(--color-primary)}
+  .ava-sp{background:var(--color-success)}
+  .members .label{font-size:var(--fs-sm);color:var(--color-text-muted);margin-left:var(--sp-1)}
+
+  main{padding:var(--sp-4)}
+
+  /* ── hero summary card ──────────────────── */
+  .hero{
+    background:var(--color-bg);
+    border-radius:var(--r-lg);
+    padding:var(--sp-5);
+    margin-bottom:var(--sp-5);
+    box-shadow:var(--shadow-2);
+  }
+  .hero .cap{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .hero .balance{
+    font-size:var(--fs-display);
+    font-weight:var(--fw-bold);
+    letter-spacing:-.02em;
+    margin-top:var(--sp-1);
+    font-variant-numeric:tabular-nums;
+  }
+  .sum{
+    display:flex;
+    gap:var(--sp-3);
+    margin-top:var(--sp-4);
+    padding-top:var(--sp-4);
+    border-top:1px solid var(--color-border);
+  }
+  .sum > div{flex:1}
+  .sum .k{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .sum b{
+    display:block;
+    font-size:var(--fs-h2);
+    font-weight:var(--fw-bold);
+    margin-top:var(--sp-1);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-.01em;
+  }
+  .sum .v-out{color:var(--color-expense)}
+  .sum .v-in{color:var(--color-income)}
+
+  /* ── section heading ────────────────────── */
+  h2{
+    font-size:var(--fs-sm);
+    color:var(--color-text-muted);
+    font-weight:var(--fw-bold);
+    margin:var(--sp-5) var(--sp-1) var(--sp-3);
+    letter-spacing:.01em;
+  }
+
+  /* ── transaction rows ───────────────────── */
+  .row{
+    display:flex;
+    align-items:center;
+    gap:var(--sp-3);
+    padding:var(--sp-3) var(--sp-4);
+    background:var(--color-bg);
+    border-radius:var(--r-md);
+    margin-bottom:var(--sp-2);
+    text-decoration:none;
+    color:inherit;
+    box-shadow:var(--shadow-1);
+    transition:transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  }
+  .row:hover{box-shadow:var(--shadow-2)}
+  .row:active{transform:scale(.99)}
+  .ic{
+    width:40px;height:40px;flex:none;
+    border-radius:var(--r-md);
+    background:var(--color-surface);
+    display:grid;place-items:center;
+    font-size:18px;
+  }
+  .row .body{min-width:0;flex:1}
+  .row .ttl{font-size:var(--fs-body);font-weight:var(--fw-medium);display:flex;align-items:center;gap:var(--sp-2)}
+  .row .meta{display:flex;align-items:center;gap:var(--sp-2);margin-top:2px}
+  .dot{
+    width:16px;height:16px;flex:none;
+    border-radius:var(--r-pill);
+    display:grid;place-items:center;
+    font-size:9px;font-weight:var(--fw-bold);
+    color:var(--color-on-primary);
+  }
+  .dot-me{background:var(--color-primary)}
+  .dot-sp{background:var(--color-success)}
+  .muted{color:var(--color-text-muted);font-size:var(--fs-sm)}
+  .amt{
+    margin-left:auto;
+    font-weight:var(--fw-bold);
+    font-size:var(--fs-body);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-.01em;
+  }
+  .amt-out{color:var(--color-expense)}
+  .amt-in{color:var(--color-income)}
+  .badge{
+    font-size:var(--fs-xs);
+    font-weight:var(--fw-medium);
+    background:var(--color-primary-weak);
+    color:var(--color-primary);
+    border-radius:var(--r-pill);
+    padding:1px var(--sp-2);
+  }
+
+  /* ── empty state ────────────────────────── */
+  .empty-card{
+    background:var(--color-bg);
+    border-radius:var(--r-lg);
+    padding:var(--sp-8) var(--sp-5);
+    text-align:center;
+    box-shadow:var(--shadow-1);
+  }
+  .empty-card .emo{font-size:40px}
+  .empty-card p{margin-top:var(--sp-2)}
+  .empty-card .p1{font-size:var(--fs-body);font-weight:var(--fw-medium)}
+  .empty-cta{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:var(--sp-4);
+    padding:var(--sp-3) var(--sp-5);
+    background:var(--color-primary);
+    color:var(--color-on-primary);
+    text-decoration:none;
+    font-weight:var(--fw-bold);
+    font-size:var(--fs-body);
+    border-radius:var(--r-pill);
+  }
+  .empty-cta:active{background:var(--color-primary-hover)}
+
+  /* ── demo toggle ────────────────────────── */
+  .demo{
+    display:block;
+    width:100%;
+    margin-top:var(--sp-4);
+    padding:var(--sp-3);
+    border:1px dashed var(--color-border-strong);
+    background:none;
+    border-radius:var(--r-md);
+    color:var(--color-text-muted);
+    font-size:var(--fs-sm);
+    font-family:inherit;
+    cursor:pointer;
+    transition:background var(--dur-fast) var(--ease);
+  }
+  .demo:hover{background:var(--color-surface-alt)}
+
+  /* ── FAB ────────────────────────────────── */
+  .fab{
+    position:fixed;
+    left:50%;
+    transform:translateX(123px);
+    bottom:calc(var(--tabbar-h) + var(--sp-4));
+    width:56px;height:56px;
+    border-radius:var(--r-pill);
+    background:var(--color-primary);
+    color:var(--color-on-primary);
+    font-size:28px;font-weight:var(--fw-regular);
+    line-height:1;
+    display:grid;place-items:center;
+    text-decoration:none;
+    box-shadow:var(--shadow-fab);
+    transition:transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  }
+  .fab:active{transform:translateX(123px) scale(.94);background:var(--color-primary-hover)}
+
+  /* ── tab bar ────────────────────────────── */
+  nav{
+    position:fixed;bottom:0;left:50%;
+    transform:translateX(-50%);
+    width:100%;max-width:var(--app-w);
+    height:var(--tabbar-h);
+    display:flex;
+    background:var(--color-bg);
+    border-top:1px solid var(--color-border);
+  }
+  nav a{
+    flex:1;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;
+    font-size:var(--fs-xs);
+    font-weight:var(--fw-medium);
+    text-decoration:none;
+    color:var(--color-text-subtle);
+  }
+  nav a .ico{font-size:18px;line-height:1}
+  nav a[aria-current=page]{color:var(--color-primary);font-weight:var(--fw-bold)}
+
+  /* focus visibility */
+  a:focus-visible,button:focus-visible{
+    outline:2px solid var(--color-primary);
+    outline-offset:2px;
+    border-radius:var(--r-sm);
+  }
+
+  .hidden,.hidden *{display:none!important}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <div class="head-top">
+      <strong>우리집 · 2026년 6월</strong>
+      <button class="scope" data-scope="out">설정 [범위 밖]</button>
+    </div>
+    <div class="members" aria-label="가구 멤버">
+      <span class="ava ava-me">나</span><span class="ava ava-sp">배</span>
+      <span class="label">2명 함께 쓰는 중</span>
+    </div>
+  </header>
+  <main>
+    <div class="hero" id="summary">
+      <div class="cap">이번 달 잔액</div>
+      <div class="balance v-in">₩1,960,000</div>
+      <div class="sum">
+        <div>
+          <span class="k">지출</span>
+          <b class="v-out">₩1,240,000</b>
+        </div>
+        <div>
+          <span class="k">수입</span>
+          <b class="v-in">₩3,200,000</b>
+        </div>
+      </div>
+    </div>
+
+    <div id="normal">
+      <h2>최근 거래</h2>
+      <a class="row" href="detail.html">
+        <span class="ic">🍚</span>
+        <div class="body">
+          <div class="ttl">점심 — 김밥천국</div>
+          <div class="meta"><span class="dot dot-me">나</span><span class="muted">식비</span></div>
+        </div>
+        <span class="amt amt-out">-9,000</span>
+      </a>
+      <a class="row" href="detail.html">
+        <span class="ic">🏠</span>
+        <div class="body">
+          <div class="ttl">월세 <span class="badge">🔁 자동</span></div>
+          <div class="meta"><span class="dot dot-sp">배</span><span class="muted">주거</span></div>
+        </div>
+        <span class="amt amt-out">-700,000</span>
+      </a>
+      <a class="row" href="detail.html">
+        <span class="ic">💰</span>
+        <div class="body">
+          <div class="ttl">월급</div>
+          <div class="meta"><span class="dot dot-me">나</span><span class="muted">수입</span></div>
+        </div>
+        <span class="amt amt-in">+3,200,000</span>
+      </a>
+    </div>
+
+    <div id="empty" class="hidden">
+      <div class="empty-card">
+        <div class="emo">🧾</div>
+        <p class="p1">아직 기록된 거래가 없어요.</p>
+        <p class="muted">첫 거래를 기록해보세요.</p>
+        <a class="empty-cta" href="add.html">+ 첫 거래 기록</a>
+      </div>
+    </div>
+
+    <button class="demo" type="button" id="toggleEmpty" aria-pressed="false">데모: 빈 상태 보기</button>
+  </main>
+
+  <a class="fab" href="add.html" aria-label="거래 추가">+</a>
+  <nav aria-label="주요 탭">
+    <a aria-current="page"><span class="ico">🏠</span>홈</a>
+    <a href="list.html"><span class="ico">📋</span>내역</a>
+    <a href="stats.html"><span class="ico">📊</span>통계</a>
+    <a href="recurring.html"><span class="ico">🔁</span>반복</a>
+  </nav>
+</div>
+<script>
+  var t=document.getElementById('toggleEmpty');
+  t.addEventListener('click',function(){
+    var on=t.getAttribute('aria-pressed')==='true';
+    on=!on; t.setAttribute('aria-pressed',String(on));
+    document.getElementById('normal').classList.toggle('hidden',on);
+    document.getElementById('empty').classList.toggle('hidden',!on);
+    document.getElementById('summary').classList.toggle('hidden',on);
+    t.textContent= on? '데모: 정상 상태 보기':'데모: 빈 상태 보기';
+  });
+</script>
+</body>
+</html>

@@ -5,4 +5,4 @@ package-lock.json
 test-results
 playwright-report
 
-_shots
+_shots*

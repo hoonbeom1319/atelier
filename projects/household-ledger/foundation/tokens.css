@@ -1,0 +1,99 @@
+/* household-ledger — 디자인 토큰 (표준 2단: primitive → semantic)
+   톤: 미니멀·신뢰형(토스·뉴뱅크), 라이트 모드, 모바일 390px.
+   컴포넌트·화면은 semantic만 참조한다(primitive 직접 참조 금지). */
+
+:root {
+  /* ── ① primitive (팔레트 — 값) ───────────────────────────── */
+  /* 중립 회색 램프 (필수) */
+  --white:    #ffffff;
+  --gray-50:  #f9fafb;
+  --gray-100: #f2f4f6;
+  --gray-200: #e5e8eb;
+  --gray-300: #d1d6db;
+  --gray-400: #b0b8c1;
+  --gray-500: #8b95a1;
+  --gray-600: #6b7684;
+  --gray-700: #4e5968;
+  --gray-800: #333d4b;
+  --gray-900: #191f28;
+
+  /* 액센트 블루 (쓰는 단계만) — primary는 on-white 텍스트 WCAG AA(4.5) 통과하는 딥블루 */
+  --blue-50:  #eef4fe;
+  --blue-100: #d3e2fd;
+  --blue-500: #3182f6;   /* 토스 블루(밝음) — 보조·하이라이트용 */
+  --blue-600: #1b64da;   /* primary — 흰 글씨 대비 5.4:1 */
+  --blue-700: #1450b0;
+
+  /* 상태색 */
+  --green-600: #16a34a;
+  --green-700: #15803d;   /* 텍스트용 — 흰 배경 대비 5.0:1 (green-600은 fill 전용) */
+  --amber-600: #d97706;
+  --red-600:   #dc2626;
+
+  /* ── ② semantic (역할 — 별칭) ────────────────────────────── */
+  --color-bg:           var(--white);
+  --color-surface:      var(--gray-100);
+  --color-surface-alt:  var(--gray-50);
+  --color-text:         var(--gray-900);
+  /* muted·subtle은 13px 본문 등 normal 텍스트에 쓰여 WCAG AA(4.5)를 surface 배경에서도 만족해야 한다.
+     gray-600(#6b7684)은 surface 위 4.18로 미달 → gray-700로 상향(흰·surface·surface-alt 모두 통과). 위계는 크기·굵기로. */
+  --color-text-muted:   var(--gray-700);
+  --color-text-subtle:  var(--gray-700);
+  --color-border:       var(--gray-200);
+  --color-border-strong:var(--gray-300);
+
+  --color-primary:      var(--blue-600);
+  --color-primary-weak: var(--blue-50);
+  --color-primary-hover:var(--blue-700);
+  --color-on-primary:   var(--white);
+
+  --color-income:       var(--blue-600);
+  --color-expense:      var(--gray-900);
+  --color-success:      var(--green-700);
+  --color-warn:         var(--amber-600);
+  --color-danger:       var(--red-600);
+
+  /* ── 스케일 토큰 ─────────────────────────────────────────── */
+  /* 타이포 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui, sans-serif;
+  --fs-display: 28px;
+  --fs-h1: 22px;
+  --fs-h2: 18px;
+  --fs-body: 15px;
+  --fs-sm: 13px;
+  --fs-xs: 11px;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-bold: 700;
+  --lh-tight: 1.25;
+  --lh-base: 1.5;
+
+  /* 간격 (4px 베이스) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* 모서리 */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* 그림자 (미니멀 — 옅게) */
+  --shadow-1: 0 1px 2px rgba(25,31,40,.04), 0 1px 3px rgba(25,31,40,.06);
+  --shadow-2: 0 4px 16px rgba(25,31,40,.08);
+  --shadow-fab: 0 6px 16px rgba(27,100,218,.32);
+
+  /* 모션 */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --ease: cubic-bezier(.2,.7,.2,1);
+
+  /* 레이아웃 */
+  --app-w: 390px;
+  --tabbar-h: 56px;
+}

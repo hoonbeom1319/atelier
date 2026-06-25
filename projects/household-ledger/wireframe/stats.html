@@ -1,0 +1,126 @@
+<!-- @dsCard group="Wireframe" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>월간 통계 (wire)</title>
+<style>
+  :root{--ink:#1a1a1a;--mut:#777;--line:#ccc;--bg:#f4f4f4;--card:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#ddd;color:var(--ink)}
+  .phone{max-width:390px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:64px}
+  header{padding:14px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+  .pager{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:8px}
+  .pager button{border:1px solid var(--line);background:var(--card);width:34px;height:34px;border-radius:50%;cursor:pointer;font:inherit}
+  main{padding:16px}
+  .sum{display:flex;justify-content:space-between;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .sum b{display:block;font-size:16px;margin-top:4px}
+  .seg{display:flex;border:1px solid var(--ink);border-radius:8px;overflow:hidden;margin:16px 0}
+  .seg button{flex:1;padding:8px;border:0;background:var(--card);color:var(--mut);cursor:pointer;font:inherit}
+  .seg button[aria-pressed=true]{background:var(--ink);color:#fff;font-weight:700}
+  .donut{width:140px;height:140px;border-radius:50%;border:22px solid #ccc;margin:8px auto;display:grid;place-items:center;color:var(--mut);font-size:12px}
+  .legend{list-style:none}
+  .legend li{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:var(--card)}
+  .legend button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;width:100%}
+  .legend li[aria-selected=true]{border-color:var(--ink);background:#eee}
+  .pct{margin-left:auto;color:var(--mut)}
+  .members .bar{display:flex;align-items:center;gap:8px;margin:8px 0}
+  .members .track{flex:1;height:14px;background:#ddd;border-radius:7px;overflow:hidden}
+  .members .fill{height:100%;background:var(--ink)}
+  h2{font-size:13px;color:var(--mut);margin:18px 0 8px}
+  .empty.hidden{display:none}
+  .hidden *{display:none!important}
+  .empty{text-align:center;color:var(--mut);padding:30px}
+  .data.hidden{display:none}
+  nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;display:flex;background:var(--card);border-top:1px solid var(--line)}
+  nav a{flex:1;text-align:center;padding:12px 0;font-size:12px;text-decoration:none;color:var(--mut)}
+  nav a[aria-current=page]{color:var(--ink);font-weight:700}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <strong>월간 통계</strong>
+    <div class="pager">
+      <button type="button" id="prev" aria-label="이전 달">◀</button>
+      <span id="month">2026.06</span>
+      <button type="button" id="next" aria-label="다음 달">▶</button>
+    </div>
+  </header>
+  <main>
+    <div class="sum">
+      <div>수입<b id="s-inc">₩3,200,000</b></div>
+      <div>지출<b id="s-exp">₩1,240,000</b></div>
+      <div>잔액<b id="s-bal">₩1,960,000</b></div>
+    </div>
+    <p class="muted" id="vs" style="text-align:center;color:#777;font-size:12px;margin-top:8px">전월 대비 지출 -8%</p>
+
+    <div class="seg" role="group" aria-label="수입/지출">
+      <button type="button" id="tab-exp" aria-pressed="true">지출</button>
+      <button type="button" id="tab-inc" aria-pressed="false">수입</button>
+    </div>
+
+    <div class="data" id="data">
+      <div class="donut">상위 5 + 기타</div>
+      <h2>카테고리</h2>
+      <ul class="legend" id="legend">
+        <li aria-selected="false"><button type="button">🏠 주거 <span class="pct">56%</span></button></li>
+        <li aria-selected="false"><button type="button">🍚 식비 <span class="pct">18%</span></button></li>
+        <li aria-selected="false"><button type="button">🚆 교통 <span class="pct">9%</span></button></li>
+        <li aria-selected="false"><button type="button">👕 쇼핑 <span class="pct">7%</span></button></li>
+        <li aria-selected="false"><button type="button">📦 기타 <span class="pct">10%</span></button></li>
+      </ul>
+      <h2>멤버별 지출</h2>
+      <div class="members">
+        <div class="bar"><span>나</span><div class="track"><div class="fill" style="width:40%"></div></div><span>₩496,000</span></div>
+        <div class="bar"><span>배우자</span><div class="track"><div class="fill" style="width:60%"></div></div><span>₩744,000</span></div>
+      </div>
+    </div>
+
+    <div class="empty hidden" id="empty">이 달은 기록된 거래가 없어요.</div>
+  </main>
+  <nav aria-label="주요 탭">
+    <a href="index.html">홈</a>
+    <a href="list.html">내역</a>
+    <a aria-current="page">통계</a>
+    <a href="recurring.html">반복</a>
+  </nav>
+</div>
+<script>
+  // 월 페이저: 라벨/숫자 갱신 + 특정 달은 빈 상태
+  var months=['2026.04','2026.05','2026.06','2026.07'];
+  var data=[
+    {inc:'₩2,900,000',exp:'₩1,500,000',bal:'₩1,400,000',vs:'전월 대비 지출 +5%',empty:false},
+    {inc:'₩3,200,000',exp:'₩1,350,000',bal:'₩1,850,000',vs:'전월 대비 지출 -10%',empty:false},
+    {inc:'₩3,200,000',exp:'₩1,240,000',bal:'₩1,960,000',vs:'전월 대비 지출 -8%',empty:false},
+    {inc:'₩0',exp:'₩0',bal:'₩0',vs:'기록 없음',empty:true}
+  ];
+  var i=2;
+  function render(){
+    var d=data[i];
+    document.getElementById('month').textContent=months[i];
+    document.getElementById('s-inc').textContent=d.inc;
+    document.getElementById('s-exp').textContent=d.exp;
+    document.getElementById('s-bal').textContent=d.bal;
+    document.getElementById('vs').textContent=d.vs;
+    document.getElementById('empty').classList.toggle('hidden',!d.empty);
+    document.getElementById('data').classList.toggle('hidden',d.empty);
+  }
+  document.getElementById('prev').addEventListener('click',function(){i=Math.max(0,i-1);render()});
+  document.getElementById('next').addEventListener('click',function(){i=Math.min(months.length-1,i+1);render()});
+
+  var te=document.getElementById('tab-exp'),ti=document.getElementById('tab-inc');
+  function tab(sel){te.setAttribute('aria-pressed',String(sel==='exp'));ti.setAttribute('aria-pressed',String(sel==='inc'));
+    document.querySelector('.donut').textContent= sel==='exp'?'상위 5 + 기타':'수입 구성';}
+  te.addEventListener('click',function(){tab('exp')});
+  ti.addEventListener('click',function(){tab('inc')});
+
+  document.getElementById('legend').addEventListener('click',function(e){
+    var li=e.target.closest('li');if(!li)return;
+    [].forEach.call(this.querySelectorAll('li'),function(x){x.setAttribute('aria-selected','false')});
+    li.setAttribute('aria-selected','true');
+  });
+</script>
+</body>
+</html>

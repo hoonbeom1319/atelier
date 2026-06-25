@@ -1,0 +1,323 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>거래 내역</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--gray-200)}
+  body{
+    font-family:var(--font-sans);
+    color:var(--color-text);
+    font-size:var(--fs-body);
+    line-height:var(--lh-base);
+    -webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    max-width:var(--app-w);margin:0 auto;min-height:100vh;
+    background:var(--color-bg);
+    padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    position:relative;
+  }
+
+  /* ── sticky 상단: 타이틀 + 필터 칩 영역 ───────────────── */
+  header{
+    position:sticky;top:0;z-index:10;
+    background:var(--color-bg);
+    border-bottom:1px solid var(--color-border);
+  }
+  .head-top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:var(--sp-4) var(--sp-4) var(--sp-2);
+  }
+  .head-top h1{font-size:var(--fs-h1);font-weight:var(--fw-bold);letter-spacing:-.4px}
+  .head-top .sum{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+
+  /* 가로 스크롤 가능한 필터 줄 */
+  .filters{
+    display:flex;gap:var(--sp-2);
+    padding:0 var(--sp-4) var(--sp-2);
+    overflow-x:auto;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .filters::-webkit-scrollbar{display:none}
+  .filters:last-of-type{padding-bottom:var(--sp-3)}
+
+  .chip{
+    flex:0 0 auto;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 13px;
+    border:1px solid var(--color-border);
+    border-radius:var(--r-pill);
+    background:var(--color-bg);
+    color:var(--color-text-muted);
+    cursor:pointer;
+    font:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    white-space:nowrap;
+    transition:background var(--dur-fast) var(--ease),
+               border-color var(--dur-fast) var(--ease),
+               color var(--dur-fast) var(--ease);
+  }
+  .chip:hover{border-color:var(--color-border-strong)}
+  .chip:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+  /* 기간(단일선택) — 진한 채움 */
+  #period .chip[aria-pressed=true]{
+    background:var(--color-text);border-color:var(--color-text);
+    color:var(--color-bg);font-weight:var(--fw-bold);
+  }
+  /* 다중 토글 — 블루 강조(연한 채움) */
+  #catf .chip[aria-pressed=true],
+  #memf .chip[aria-pressed=true],
+  #scopef .chip[aria-pressed=true]{
+    background:var(--color-primary-weak);
+    border-color:var(--color-primary);
+    color:var(--color-primary-hover);
+    font-weight:var(--fw-bold);
+  }
+
+  /* ── 본문 ─────────────────────────────────────────────── */
+  main{padding:var(--sp-4)}
+
+  .grp{
+    font-size:var(--fs-sm);color:var(--color-text-subtle);
+    font-weight:var(--fw-medium);
+    margin:var(--sp-5) var(--sp-1) var(--sp-2);
+  }
+  .grp:first-child{margin-top:var(--sp-1)}
+
+  .row{
+    display:flex;align-items:center;gap:var(--sp-3);
+    padding:var(--sp-3) var(--sp-4);
+    margin-bottom:var(--sp-2);
+    text-decoration:none;color:inherit;
+    background:var(--color-bg);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow-1);
+    transition:background var(--dur-fast) var(--ease),
+               border-color var(--dur-fast) var(--ease);
+  }
+  .row:hover{background:var(--color-surface-alt);border-color:var(--color-border-strong)}
+  .row:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+  .ic{
+    flex:0 0 auto;
+    width:44px;height:44px;
+    border-radius:var(--r-md);
+    background:var(--color-surface);
+    display:grid;place-items:center;
+    font-size:20px;
+  }
+
+  .row .body{flex:1;min-width:0}
+  .row .title{
+    font-size:var(--fs-body);font-weight:var(--fw-medium);
+    color:var(--color-text);
+    display:flex;align-items:center;gap:6px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .meta{
+    display:flex;align-items:center;gap:var(--sp-2);
+    margin-top:2px;
+    font-size:var(--fs-sm);color:var(--color-text-muted);
+  }
+  .avatar{
+    width:18px;height:18px;border-radius:var(--r-pill);
+    background:var(--color-primary-weak);color:var(--color-primary-hover);
+    display:inline-grid;place-items:center;
+    font-size:var(--fs-xs);font-weight:var(--fw-bold);
+    flex:0 0 auto;
+  }
+  .avatar.spouse{background:var(--gray-200);color:var(--gray-700)}
+  .dot{color:var(--color-border-strong)}
+  .scope{
+    font-size:var(--fs-xs);font-weight:var(--fw-medium);
+    padding:1px 7px;border-radius:var(--r-pill);
+    background:var(--color-surface);color:var(--color-text-muted);
+  }
+
+  .row .amt{
+    margin-left:auto;flex:0 0 auto;
+    font-size:var(--fs-body);font-weight:var(--fw-bold);
+    color:var(--color-expense);
+    letter-spacing:-.3px;
+    font-variant-numeric:tabular-nums;
+  }
+  .amt.income{color:var(--color-income)}
+
+  .badge{
+    font-size:var(--fs-xs);font-weight:var(--fw-medium);
+    border-radius:var(--r-pill);
+    padding:1px 7px;
+    background:var(--color-primary-weak);
+    color:var(--color-primary-hover);
+    white-space:nowrap;
+  }
+
+  /* ── 빈 상태 ─────────────────────────────────────────── */
+  .empty{text-align:center;padding:var(--sp-8) var(--sp-6)}
+  .empty .emo{font-size:40px;line-height:1;margin-bottom:var(--sp-3)}
+  .empty p{color:var(--color-text-muted);font-size:var(--fs-body)}
+  .empty .sub{font-size:var(--fs-sm);color:var(--color-text-subtle);margin-top:var(--sp-1)}
+  .reset{
+    margin-top:var(--sp-5);
+    padding:11px 20px;
+    border:1px solid var(--color-primary);
+    border-radius:var(--r-md);
+    background:var(--color-bg);
+    color:var(--color-primary);
+    cursor:pointer;
+    font:inherit;font-size:var(--fs-body);font-weight:var(--fw-bold);
+    transition:background var(--dur-fast) var(--ease);
+  }
+  .reset:hover{background:var(--color-primary-weak)}
+  .reset:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+  /* ── 하단 탭 ─────────────────────────────────────────── */
+  nav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:var(--app-w);
+    display:flex;
+    background:var(--color-bg);
+    border-top:1px solid var(--color-border);
+    padding-bottom:env(safe-area-inset-bottom);
+    height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  }
+  nav a{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    text-decoration:none;color:var(--color-text-subtle);
+    font-size:var(--fs-xs);font-weight:var(--fw-medium);
+  }
+  nav a .ti{font-size:20px;line-height:1}
+  nav a[aria-current=page]{color:var(--color-primary);font-weight:var(--fw-bold)}
+  nav a:focus-visible{outline:2px solid var(--color-primary);outline-offset:-2px}
+
+  /* 계약: 필터 토글로 숨겨지는 요소들 */
+  .hidden *{display:none!important}
+  .empty.hidden,.row.hidden,.grp.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <div class="head-top">
+      <h1>거래 내역</h1>
+      <span class="sum">이번 달 지출 716,300원</span>
+    </div>
+    <div class="filters" id="period" role="group" aria-label="기간">
+      <button type="button" class="chip" aria-pressed="true">이번 달</button>
+      <button type="button" class="chip" aria-pressed="false">지난 달</button>
+      <button type="button" class="chip" aria-pressed="false">전체</button>
+    </div>
+    <div class="filters" id="catf" role="group" aria-label="카테고리 필터">
+      <button type="button" class="chip" data-cat="식비" aria-pressed="false">🍚 식비</button>
+      <button type="button" class="chip" data-cat="교통" aria-pressed="false">🚆 교통</button>
+      <button type="button" class="chip" data-cat="주거" aria-pressed="false">🏠 주거</button>
+    </div>
+    <div class="filters" id="memf" role="group" aria-label="멤버 필터">
+      <button type="button" class="chip" data-mem="나" aria-pressed="false">나</button>
+      <button type="button" class="chip" data-mem="배우자" aria-pressed="false">배우자</button>
+    </div>
+    <div class="filters" id="scopef" role="group" aria-label="공동/개인 필터">
+      <button type="button" class="chip" data-scope="공동" aria-pressed="false">공동</button>
+      <button type="button" class="chip" data-scope="개인" aria-pressed="false">개인</button>
+    </div>
+  </header>
+  <main>
+    <div id="results">
+      <div class="grp" data-day="6월 25일">6월 25일</div>
+      <a class="row" href="detail.html" data-cat="식비" data-mem="나" data-scope="공동">
+        <span class="ic" aria-hidden="true">🍚</span>
+        <div class="body">
+          <div class="title">점심 — 김밥천국</div>
+          <div class="meta"><span class="avatar" aria-hidden="true">나</span>나<span class="dot">·</span>식비<span class="dot">·</span><span class="scope">공동</span></div>
+        </div>
+        <span class="amt">-9,000</span>
+      </a>
+      <a class="row" href="detail.html" data-cat="교통" data-mem="배우자" data-scope="공동">
+        <span class="ic" aria-hidden="true">🚆</span>
+        <div class="body">
+          <div class="title">지하철</div>
+          <div class="meta"><span class="avatar spouse" aria-hidden="true">배</span>배우자<span class="dot">·</span>교통<span class="dot">·</span><span class="scope">공동</span></div>
+        </div>
+        <span class="amt">-2,800</span>
+      </a>
+      <div class="grp" data-day="6월 24일">6월 24일</div>
+      <a class="row" href="detail.html" data-cat="주거" data-mem="배우자" data-scope="공동">
+        <span class="ic" aria-hidden="true">🏠</span>
+        <div class="body">
+          <div class="title">월세 <span class="badge">🔁 자동</span></div>
+          <div class="meta"><span class="avatar spouse" aria-hidden="true">배</span>배우자<span class="dot">·</span>주거<span class="dot">·</span><span class="scope">공동</span></div>
+        </div>
+        <span class="amt">-700,000</span>
+      </a>
+      <a class="row" href="detail.html" data-cat="식비" data-mem="나" data-scope="개인">
+        <span class="ic" aria-hidden="true">☕</span>
+        <div class="body">
+          <div class="title">카페 — 개인</div>
+          <div class="meta"><span class="avatar" aria-hidden="true">나</span>나<span class="dot">·</span>식비<span class="dot">·</span><span class="scope">개인</span></div>
+        </div>
+        <span class="amt">-4,500</span>
+      </a>
+    </div>
+    <div class="empty hidden" id="empty">
+      <div class="emo" aria-hidden="true">🧾</div>
+      <p>조건에 맞는 거래가 없어요.</p>
+      <p class="sub">필터를 바꾸거나 초기화해 보세요.</p>
+      <button type="button" class="reset" id="reset">필터 초기화</button>
+    </div>
+  </main>
+  <nav aria-label="주요 탭">
+    <a href="index.html"><span class="ti" aria-hidden="true">🏠</span>홈</a>
+    <a aria-current="page"><span class="ti" aria-hidden="true">📋</span>내역</a>
+    <a href="stats.html"><span class="ti" aria-hidden="true">📊</span>통계</a>
+    <a href="recurring.html"><span class="ti" aria-hidden="true">🔁</span>반복</a>
+  </nav>
+</div>
+<script>
+  function single(group){
+    group.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+      [].forEach.call(group.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');apply();});
+  }
+  function multi(group){
+    group.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+      b.setAttribute('aria-pressed', b.getAttribute('aria-pressed')==='true'?'false':'true');apply();});
+  }
+  single(document.getElementById('period'));
+  multi(document.getElementById('catf'));
+  multi(document.getElementById('memf'));
+  multi(document.getElementById('scopef'));
+
+  function active(group,attr){return [].map.call(group.querySelectorAll('button[aria-pressed=true]'),function(b){return b.getAttribute(attr)})}
+  function apply(){
+    var cats=active(document.getElementById('catf'),'data-cat');
+    var mems=active(document.getElementById('memf'),'data-mem');
+    var scs=active(document.getElementById('scopef'),'data-scope');
+    var rows=document.querySelectorAll('#results .row');var shown=0;
+    [].forEach.call(rows,function(r){
+      var ok=(!cats.length||cats.indexOf(r.dataset.cat)>-1)
+           &&(!mems.length||mems.indexOf(r.dataset.mem)>-1)
+           &&(!scs.length||scs.indexOf(r.dataset.scope)>-1);
+      r.classList.toggle('hidden',!ok); if(ok)shown++;
+    });
+    // 비어버린 날짜 그룹 숨김
+    [].forEach.call(document.querySelectorAll('#results .grp'),function(g){
+      var n=g.nextElementSibling,any=false;
+      while(n&&!n.classList.contains('grp')){if(n.classList.contains('row')&&!n.classList.contains('hidden'))any=true;n=n.nextElementSibling;}
+      g.classList.toggle('hidden',!any);
+    });
+    document.getElementById('empty').classList.toggle('hidden',shown!==0);
+    document.getElementById('results').classList.toggle('hidden',shown===0);
+  }
+  document.getElementById('reset').addEventListener('click',function(){
+    [].forEach.call(document.querySelectorAll('#catf button,#memf button,#scopef button'),function(b){b.setAttribute('aria-pressed','false')});
+    apply();
+  });
+</script>
+</body>
+</html>

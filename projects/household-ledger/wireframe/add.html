@@ -1,0 +1,148 @@
+<!-- @dsCard group="Wireframe" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>거래 입력 (wire)</title>
+<style>
+  :root{--ink:#1a1a1a;--mut:#777;--line:#ccc;--bg:#f4f4f4;--card:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#ddd;color:var(--ink)}
+  .phone{max-width:390px;margin:0 auto;min-height:100vh;background:var(--bg)}
+  header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+  .back{text-decoration:none;color:inherit;font-size:20px}
+  main{padding:16px}
+  .seg{display:flex;border:1px solid var(--ink);border-radius:8px;overflow:hidden;margin-bottom:16px}
+  .seg button{flex:1;padding:10px;border:0;background:var(--card);color:var(--mut);cursor:pointer}
+  .seg button[aria-pressed=true]{background:var(--ink);color:#fff;font-weight:700}
+  label{display:block;font-size:12px;color:var(--mut);margin:14px 0 6px}
+  input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--card)}
+  .amount{font-size:24px;text-align:right;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .grid button{padding:10px 4px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer;font-size:12px}
+  .grid button[aria-pressed=true]{border-color:var(--ink);background:#eee;font-weight:700}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{padding:8px 14px;border:1px solid var(--line);border-radius:20px;background:var(--card);cursor:pointer;font:inherit}
+  .chip[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#fff;font-weight:700}
+  .quick{margin:14px 0;padding:12px;border:1px dashed var(--line);border-radius:8px}
+  .save{width:100%;margin:20px 0;padding:14px;border:0;border-radius:10px;background:var(--ink);color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+  .save[disabled]{background:#bbb;cursor:not-allowed}
+  .rep-opt.hidden{display:none}
+  .muted{color:var(--mut);font-size:12px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header><a class="back" href="index.html" aria-label="뒤로">←</a><strong>거래 입력</strong></header>
+  <main>
+    <div class="seg" role="group" aria-label="유형">
+      <button type="button" id="t-exp" aria-pressed="true">지출</button>
+      <button type="button" id="t-inc" aria-pressed="false">수입</button>
+    </div>
+
+    <label for="amount">금액</label>
+    <input id="amount" class="amount" inputmode="numeric" placeholder="0" aria-label="금액">
+
+    <label>카테고리</label>
+    <div class="grid" id="cats" role="group" aria-label="카테고리">
+      <button type="button" aria-pressed="false">🍚 식비</button>
+      <button type="button" aria-pressed="false">☕ 카페</button>
+      <button type="button" aria-pressed="false">🚆 교통</button>
+      <button type="button" aria-pressed="false">🏠 주거</button>
+      <button type="button" aria-pressed="false">📱 통신</button>
+      <button type="button" aria-pressed="false">🧴 생활</button>
+      <button type="button" aria-pressed="false">👕 쇼핑</button>
+      <button type="button" aria-pressed="false">📦 기타</button>
+    </div>
+
+    <label for="date">날짜</label>
+    <input id="date" type="date" value="2026-06-25">
+
+    <label>입력 멤버</label>
+    <div class="chips" id="members" role="group" aria-label="멤버">
+      <button type="button" class="chip" aria-pressed="true">나</button>
+      <button type="button" class="chip" aria-pressed="false">배우자</button>
+    </div>
+
+    <label>지출 구분</label>
+    <div class="chips" id="scope" role="group" aria-label="공동/개인">
+      <button type="button" class="chip" aria-pressed="true">공동</button>
+      <button type="button" class="chip" aria-pressed="false">개인</button>
+    </div>
+
+    <div class="quick">
+      <div class="muted">빠른 입력 (최근·즐겨찾기)</div>
+      <div class="chips" style="margin-top:8px">
+        <button type="button" class="chip" id="q1">🍚 점심 9,000</button>
+        <button type="button" class="chip" id="q2">☕ 커피 4,500</button>
+      </div>
+    </div>
+
+    <label>반복</label>
+    <div class="chips">
+      <button type="button" class="chip" id="rep" aria-pressed="false">반복 거래로 설정</button>
+    </div>
+    <div class="rep-opt hidden" id="repOpt">
+      <label for="freq">주기</label>
+      <input id="freq" list="freqs" value="매월" aria-label="주기">
+      <label for="startd">시작일</label>
+      <input id="startd" type="date" value="2026-07-01">
+      <label for="endr">종료</label>
+      <input id="endr" value="없음(무한)" aria-label="종료 규칙">
+    </div>
+
+    <label for="memo">메모 (선택)</label>
+    <input id="memo" placeholder="예: 마트 장보기">
+
+    <button type="button" class="save" id="save" disabled aria-disabled="true">저장</button>
+    <p class="muted" id="hint">금액과 카테고리를 입력하면 저장할 수 있어요.</p>
+  </main>
+</div>
+<script>
+  function single(group){
+    group.addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(!b)return;
+      [].forEach.call(group.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true'); validate();
+    });
+  }
+  single(document.getElementById('cats'));
+  single(document.getElementById('members'));
+  single(document.getElementById('scope'));
+  single(document.querySelector('.seg'));
+
+  var amount=document.getElementById('amount');
+  amount.addEventListener('input',validate);
+
+  var rep=document.getElementById('rep');
+  rep.addEventListener('click',function(){
+    var on=rep.getAttribute('aria-pressed')==='true'; on=!on;
+    rep.setAttribute('aria-pressed',String(on));
+    document.getElementById('repOpt').classList.toggle('hidden',!on);
+  });
+
+  function prefill(amt,catLabel){
+    amount.value=amt;
+    [].forEach.call(document.querySelectorAll('#cats button'),function(b){
+      b.setAttribute('aria-pressed', b.textContent.indexOf(catLabel)>-1 ?'true':'false');
+    });
+    validate();
+  }
+  document.getElementById('q1').addEventListener('click',function(){prefill('9000','식비')});
+  document.getElementById('q2').addEventListener('click',function(){prefill('4500','카페')});
+
+  function validate(){
+    var amt=parseInt((amount.value||'').replace(/[^0-9]/g,''),10)||0;
+    var cat=document.querySelector('#cats button[aria-pressed=true]');
+    var ok=amt>0 && cat;
+    var s=document.getElementById('save');
+    s.disabled=!ok; s.setAttribute('aria-disabled',String(!ok));
+    document.getElementById('hint').textContent= ok? '저장할 준비가 됐어요.' : '금액과 카테고리를 입력하면 저장할 수 있어요.';
+  }
+  document.getElementById('save').addEventListener('click',function(){
+    if(this.disabled)return; location.href='index.html';
+  });
+</script>
+</body>
+</html>

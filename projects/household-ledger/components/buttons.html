@@ -1,0 +1,34 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buttons · household-ledger</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{font-family:var(--font-sans);color:var(--color-text);background:var(--color-surface-alt);margin:0;padding:var(--sp-6)}
+  h2{font-size:var(--fs-sm);color:var(--color-text-muted);margin:var(--sp-5) 0 var(--sp-2)}
+  .row{display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap}
+  .btn{font:inherit;font-weight:var(--fw-bold);border-radius:var(--r-md);border:1px solid transparent;cursor:pointer;padding:var(--sp-3) var(--sp-5);font-size:var(--fs-body);transition:background var(--dur-fast) var(--ease)}
+  .btn-primary{background:var(--color-primary);color:var(--color-on-primary)}
+  .btn-primary:hover{background:var(--color-primary-hover)}
+  .btn-secondary{background:var(--color-bg);color:var(--color-text);border-color:var(--color-border-strong)}
+  .btn-ghost{background:transparent;color:var(--color-primary)}
+  .btn-danger{background:var(--color-danger);color:#fff}
+  .btn[disabled]{background:var(--color-border);color:var(--color-text-subtle);cursor:not-allowed}
+  .btn-lg{width:100%;padding:var(--sp-4);font-size:var(--fs-h2)}
+  .fab{width:56px;height:56px;border-radius:var(--r-pill);background:var(--color-primary);color:#fff;border:0;font-size:28px;box-shadow:var(--shadow-fab);cursor:pointer}
+</style></head>
+<body>
+<h2>Primary / Secondary / Ghost / Danger</h2>
+<div class="row">
+  <button class="btn btn-primary">저장</button>
+  <button class="btn btn-secondary">수정</button>
+  <button class="btn btn-ghost">전체 보기</button>
+  <button class="btn btn-danger">삭제</button>
+  <button class="btn btn-primary" disabled>저장</button>
+</div>
+<h2>Large (저장 CTA — 화면 하단 풀폭)</h2>
+<div class="row"><button class="btn btn-primary btn-lg">저장</button></div>
+<div class="row"><button class="btn btn-primary btn-lg" disabled>금액과 카테고리를 입력하세요</button></div>
+<h2>FAB (빠른 입력)</h2>
+<div class="row"><button class="fab" aria-label="거래 추가">+</button></div>
+</body></html>

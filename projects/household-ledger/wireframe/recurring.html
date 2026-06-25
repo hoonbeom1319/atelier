@@ -1,0 +1,125 @@
+<!-- @dsCard group="Wireframe" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>반복 거래 (wire)</title>
+<style>
+  :root{--ink:#1a1a1a;--mut:#777;--line:#ccc;--bg:#f4f4f4;--card:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#ddd;color:var(--ink)}
+  .phone{max-width:390px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:64px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+  .add{border:1px solid var(--ink);background:var(--card);border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit}
+  main{padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+  .top{display:flex;align-items:center;gap:10px}
+  .ic{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center}
+  .top .amt{margin-left:auto;font-weight:700}
+  .meta{color:var(--mut);font-size:13px;margin-top:6px}
+  .ctl{display:flex;gap:8px;margin-top:10px}
+  .toggle{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:6px 12px;cursor:pointer;font:inherit;font-size:12px}
+  .toggle[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .del{border:1px solid var(--line);background:none;border-radius:16px;padding:6px 12px;cursor:pointer;font:inherit;font-size:12px;color:var(--mut)}
+  .form{background:var(--card);border:1px dashed var(--ink);border-radius:10px;padding:14px;margin-bottom:12px}
+  .form.hidden{display:none}
+  .form label{display:block;font-size:12px;color:var(--mut);margin:8px 0 4px}
+  .form input,.form select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit}
+  .form .row2{display:flex;gap:8px}
+  .save{margin-top:12px;width:100%;padding:12px;border:0;border-radius:8px;background:var(--ink);color:#fff;font-weight:700;cursor:pointer;font:inherit}
+  .scope{font-size:11px;color:var(--mut);border:1px dashed var(--line);border-radius:4px;padding:4px 8px;background:none;cursor:default;margin-top:8px}
+  .empty.hidden{display:none}
+  .hidden *{display:none!important}
+  .empty{text-align:center;color:var(--mut);padding:24px}
+  nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;display:flex;background:var(--card);border-top:1px solid var(--line)}
+  nav a{flex:1;text-align:center;padding:12px 0;font-size:12px;text-decoration:none;color:var(--mut)}
+  nav a[aria-current=page]{color:var(--ink);font-weight:700}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <strong>반복 거래</strong>
+    <button type="button" class="add" id="addBtn" aria-expanded="false">+ 추가</button>
+  </header>
+  <main>
+    <div class="form hidden" id="form" aria-label="반복 규칙 추가">
+      <label for="r-cat">카테고리</label>
+      <select id="r-cat"><option>🏠 주거</option><option>📱 통신</option><option>🔁 구독</option></select>
+      <div class="row2">
+        <div style="flex:1"><label for="r-amt">금액</label><input id="r-amt" inputmode="numeric" value="9,900"></div>
+        <div style="flex:1"><label for="r-freq">주기</label><select id="r-freq"><option>매월</option><option>매주</option></select></div>
+      </div>
+      <label for="r-day">시작일</label>
+      <input id="r-day" type="date" value="2026-07-01">
+      <label for="r-end">종료</label>
+      <select id="r-end"><option>없음(무한)</option><option>횟수 지정</option><option>날짜 지정</option></select>
+      <button type="button" class="save" id="formSave">규칙 저장</button>
+    </div>
+
+    <div id="rules">
+      <div class="card">
+        <div class="top"><span class="ic">🏠</span><div><div>월세</div></div><span class="amt">₩700,000</span></div>
+        <div class="meta">매월 1일 · 다음 발생 2026-07-01 · 배우자 · 공동</div>
+        <div class="ctl">
+          <button type="button" class="toggle" aria-pressed="true">활성</button>
+          <button type="button" class="del">삭제</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="top"><span class="ic">🔁</span><div><div>넷플릭스</div></div><span class="amt">₩17,000</span></div>
+        <div class="meta">매월 15일 · 다음 발생 2026-07-15 · 나 · 공동</div>
+        <div class="ctl">
+          <button type="button" class="toggle" aria-pressed="true">활성</button>
+          <button type="button" class="del">삭제</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty hidden" id="empty">
+      <p>등록된 반복 거래가 없어요.</p>
+      <p>고정비(월세·구독)를 한 번 등록해두면 매달 자동으로 기록돼요.</p>
+    </div>
+
+    <button type="button" class="scope" data-scope="out">카테고리별 예산 설정 [범위 밖]</button>
+  </main>
+  <nav aria-label="주요 탭">
+    <a href="index.html">홈</a>
+    <a href="list.html">내역</a>
+    <a href="stats.html">통계</a>
+    <a aria-current="page">반복</a>
+  </nav>
+</div>
+<script>
+  var form=document.getElementById('form'),addBtn=document.getElementById('addBtn');
+  addBtn.addEventListener('click',function(){
+    var on=form.classList.toggle('hidden')===false;
+    addBtn.setAttribute('aria-expanded',String(on));
+    addBtn.textContent= on? '닫기':'+ 추가';
+  });
+  document.getElementById('formSave').addEventListener('click',function(){
+    var card=document.createElement('div');card.className='card';
+    card.innerHTML='<div class="top"><span class="ic">🔁</span><div><div>새 반복 거래</div></div><span class="amt">₩9,900</span></div>'+
+      '<div class="meta">매월 · 다음 발생 2026-07-01 · 나 · 공동</div>'+
+      '<div class="ctl"><button type="button" class="toggle" aria-pressed="true">활성</button><button type="button" class="del">삭제</button></div>';
+    document.getElementById('rules').appendChild(card);
+    form.classList.add('hidden');addBtn.setAttribute('aria-expanded','false');addBtn.textContent='+ 추가';
+    refreshEmpty();
+  });
+  document.getElementById('rules').addEventListener('click',function(e){
+    var t=e.target;
+    if(t.classList.contains('toggle')){
+      var on=t.getAttribute('aria-pressed')==='true';on=!on;
+      t.setAttribute('aria-pressed',String(on));t.textContent=on?'활성':'일시중지';
+    }else if(t.classList.contains('del')){
+      t.closest('.card').remove();refreshEmpty();
+    }
+  });
+  function refreshEmpty(){
+    var n=document.querySelectorAll('#rules .card').length;
+    document.getElementById('empty').classList.toggle('hidden',n!==0);
+  }
+</script>
+</body>
+</html>

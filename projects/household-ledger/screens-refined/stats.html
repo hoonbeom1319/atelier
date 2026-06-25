@@ -1,0 +1,332 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>월간 통계</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--font-sans);
+    background:var(--gray-200);
+    color:var(--color-text);
+    line-height:var(--lh-base);
+    -webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    max-width:var(--app-w);margin:0 auto;min-height:100vh;
+    background:var(--color-bg);
+    padding-bottom:calc(var(--tabbar-h) + var(--sp-4));
+    position:relative;
+  }
+
+  /* ── header / pager ─────────────────────────────── */
+  header{
+    padding:var(--sp-4) var(--sp-4) var(--sp-3);
+    background:var(--color-bg);
+    border-bottom:1px solid var(--color-border);
+    position:sticky;top:0;z-index:5;
+  }
+  header > strong{font-size:var(--fs-h1);font-weight:var(--fw-bold);letter-spacing:-.02em}
+  .pager{display:flex;align-items:center;justify-content:center;gap:var(--sp-4);margin-top:var(--sp-3)}
+  .pager button{
+    border:1px solid var(--color-border);background:var(--color-bg);
+    width:36px;height:36px;border-radius:var(--r-pill);cursor:pointer;
+    color:var(--color-text-muted);
+    display:grid;place-items:center;
+    transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+  }
+  .pager button svg{width:18px;height:18px;display:block}
+  .pager button:hover{background:var(--color-surface);border-color:var(--color-border-strong)}
+  .pager button:active{transform:scale(.94)}
+  .pager button:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+  #month{
+    font-size:var(--fs-h2);font-weight:var(--fw-bold);letter-spacing:-.01em;
+    min-width:96px;text-align:center;font-variant-numeric:tabular-nums;
+  }
+
+  main{padding:var(--sp-4)}
+
+  /* ── summary card ───────────────────────────────── */
+  .sum{
+    display:flex;justify-content:space-between;align-items:stretch;
+    background:var(--color-surface-alt);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-lg);
+    padding:var(--sp-5) var(--sp-4);
+    box-shadow:var(--shadow-1);
+  }
+  .sum > div{flex:1;text-align:center;display:flex;flex-direction:column;gap:var(--sp-1)}
+  .sum > div + div{border-left:1px solid var(--color-border)}
+  .sum .lbl{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .sum b{font-size:var(--fs-body);font-weight:var(--fw-bold);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  #s-inc{color:var(--color-income)}
+  #s-bal{color:var(--color-primary)}
+  #vs{
+    text-align:center;color:var(--color-success);
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    margin-top:var(--sp-3);
+  }
+
+  /* ── segment (수입/지출) ────────────────────────── */
+  .seg{
+    display:flex;background:var(--color-surface);
+    border-radius:var(--r-pill);padding:var(--sp-1);
+    margin:var(--sp-5) 0 var(--sp-4);
+  }
+  .seg button{
+    flex:1;padding:var(--sp-2) 0;border:0;background:transparent;
+    color:var(--color-text-muted);cursor:pointer;
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    border-radius:var(--r-pill);
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  .seg button[aria-pressed=true]{
+    background:var(--color-bg);color:var(--color-text);
+    font-weight:var(--fw-bold);box-shadow:var(--shadow-1);
+  }
+  .seg button:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+  /* ── donut (conic-gradient — hue 분리 카테고리색) ─── */
+  /* 제품 전용 카테고리 색 (foundation 아님 — 이 컴포넌트 안에 인라인 정의).
+     범례 색칩과 도넛 슬라이스가 1:1 매칭. */
+  .data{
+    --cat-1:#1b64da; /* 주거 - 블루(primary 계열) */
+    --cat-2:#12b886; /* 식비 - 틸 */
+    --cat-3:#f59f00; /* 교통 - 앰버 */
+    --cat-4:#7048e8; /* 쇼핑 - 바이올렛 */
+    --cat-5:#868e96; /* 기타 - 회색 */
+    --mem-me:var(--color-primary);     /* 나 */
+    --mem-spouse:#f59f00;              /* 배우자 - 다른 hue(앰버) */
+  }
+  .chart-wrap{
+    background:var(--color-surface-alt);
+    border:1px solid var(--color-border);border-radius:var(--r-lg);
+    padding:var(--sp-5);margin-bottom:var(--sp-5);
+    box-shadow:var(--shadow-1);
+  }
+  .donut{
+    width:160px;height:160px;border-radius:50%;margin:var(--sp-1) auto var(--sp-4);
+    position:relative;
+    background:conic-gradient(
+      var(--cat-1) 0 56%,
+      var(--cat-2) 56% 74%,
+      var(--cat-3) 74% 83%,
+      var(--cat-4) 83% 90%,
+      var(--cat-5) 90% 100%
+    );
+  }
+  .donut::after{
+    content:"";position:absolute;inset:26px;border-radius:50%;
+    background:var(--color-surface-alt);
+    box-shadow:inset 0 1px 2px rgba(25,31,40,.04);
+  }
+  .donut .center{
+    position:absolute;inset:0;display:grid;place-content:center;text-align:center;z-index:1;
+  }
+  .donut .center .k{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .donut .center .v{font-size:var(--fs-h2);font-weight:var(--fw-bold);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+  h2{
+    font-size:var(--fs-sm);color:var(--color-text-subtle);
+    font-weight:var(--fw-medium);text-transform:uppercase;letter-spacing:.04em;
+    margin:var(--sp-5) 0 var(--sp-2);
+  }
+  .chart-wrap h2:first-of-type{margin-top:0}
+
+  /* ── legend ─────────────────────────────────────── */
+  .legend{list-style:none}
+  .legend li{
+    border-radius:var(--r-md);margin-bottom:var(--sp-2);
+    background:var(--color-bg);border:1px solid var(--color-border);
+    transition:border-color var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease);
+  }
+  .legend li:last-child{margin-bottom:0}
+  .legend li:has(button[aria-pressed=true]){
+    border-color:var(--color-primary);background:var(--color-primary-weak);
+  }
+  .legend button{
+    all:unset;cursor:pointer;display:flex;align-items:center;gap:var(--sp-3);
+    width:100%;box-sizing:border-box;padding:var(--sp-3);
+  }
+  .legend button:focus-visible{outline:2px solid var(--color-primary);outline-offset:-2px;border-radius:var(--r-md)}
+  .legend .dot{
+    width:12px;height:12px;border-radius:3px;flex:0 0 auto;
+  }
+  .legend .ico{
+    flex:0 0 auto;display:grid;place-items:center;
+    color:var(--color-text-muted);
+  }
+  .legend .ico svg{width:20px;height:20px;display:block}
+  .legend .name{font-size:var(--fs-body);font-weight:var(--fw-medium);color:var(--color-text)}
+  .legend .amt{
+    margin-left:auto;font-size:var(--fs-sm);color:var(--color-text-muted);
+    font-variant-numeric:tabular-nums;
+  }
+  .legend .pct{
+    font-size:var(--fs-sm);font-weight:var(--fw-bold);color:var(--color-text);
+    font-variant-numeric:tabular-nums;min-width:38px;text-align:right;
+  }
+
+  /* ── members bars (2색 분리) ─────────────────────── */
+  .members{
+    background:var(--color-surface-alt);
+    border:1px solid var(--color-border);border-radius:var(--r-lg);
+    padding:var(--sp-4) var(--sp-4) var(--sp-5);
+    box-shadow:var(--shadow-1);
+  }
+  .members h2{margin-top:0}
+  .members .bar{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-3) 0}
+  .members .bar:last-child{margin-bottom:0}
+  .members .who{font-size:var(--fs-sm);font-weight:var(--fw-medium);width:48px;flex:0 0 auto}
+  .members .track{
+    flex:1;height:16px;background:var(--color-surface);
+    border-radius:var(--r-pill);overflow:hidden;
+  }
+  .members .fill{
+    height:100%;border-radius:var(--r-pill);
+    transition:width var(--dur-base) var(--ease);
+  }
+  .members .bar:nth-child(2) .fill{background:var(--mem-me)}
+  .members .bar:nth-child(3) .fill{background:var(--mem-spouse)}
+  .members .val{
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--color-text-muted);
+    width:84px;text-align:right;flex:0 0 auto;font-variant-numeric:tabular-nums;
+  }
+
+  /* ── empty ──────────────────────────────────────── */
+  .empty{
+    text-align:center;color:var(--color-text-muted);padding:var(--sp-8) var(--sp-4);
+    display:flex;flex-direction:column;align-items:center;gap:var(--sp-3);
+  }
+  .empty .em-ico{
+    width:56px;height:56px;border-radius:var(--r-pill);
+    background:var(--color-surface);display:grid;place-items:center;
+    color:var(--color-text-muted);
+  }
+  .empty .em-ico svg{width:28px;height:28px;display:block}
+  .empty .em-title{font-size:var(--fs-body);font-weight:var(--fw-medium);color:var(--color-text)}
+  .empty .em-sub{font-size:var(--fs-sm);color:var(--color-text-subtle)}
+
+  /* contract: visibility helpers */
+  .hidden,.hidden *{display:none!important}
+  .empty.hidden{display:none}
+  .data.hidden{display:none}
+
+  /* ── bottom tabbar ──────────────────────────────── */
+  nav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:var(--app-w);display:flex;
+    background:var(--color-bg);border-top:1px solid var(--color-border);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  nav a{
+    flex:1;text-align:center;padding:var(--sp-3) 0;
+    font-size:var(--fs-xs);text-decoration:none;color:var(--color-text-subtle);
+    font-weight:var(--fw-medium);
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+  }
+  nav a .nico{display:grid;place-items:center}
+  nav a .nico svg{width:22px;height:22px;display:block}
+  nav a[aria-current=page]{color:var(--color-primary);font-weight:var(--fw-bold)}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <strong>월간 통계</strong>
+    <div class="pager">
+      <button type="button" id="prev" aria-label="이전 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span id="month">2026.06</span>
+      <button type="button" id="next" aria-label="다음 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </header>
+  <main>
+    <div class="sum">
+      <div><span class="lbl">수입</span><b id="s-inc">₩3,200,000</b></div>
+      <div><span class="lbl">지출</span><b id="s-exp">₩1,240,000</b></div>
+      <div><span class="lbl">잔액</span><b id="s-bal">₩1,960,000</b></div>
+    </div>
+    <p id="vs">전월 대비 지출 -8%</p>
+
+    <div class="seg" role="group" aria-label="수입/지출">
+      <button type="button" id="tab-exp" aria-pressed="true">지출</button>
+      <button type="button" id="tab-inc" aria-pressed="false">수입</button>
+    </div>
+
+    <div class="data" id="data">
+      <div class="chart-wrap">
+        <div class="donut">
+          <div class="center">
+            <span class="k">총 지출</span>
+            <span class="v">₩1,240,000</span>
+          </div>
+        </div>
+        <h2>카테고리</h2>
+        <ul class="legend" id="legend">
+          <li><button type="button" aria-pressed="false"><span class="dot" style="background:var(--cat-1)"></span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg></span><span class="name">주거</span><span class="amt">₩694,400</span><span class="pct">56%</span></button></li>
+          <li><button type="button" aria-pressed="false"><span class="dot" style="background:var(--cat-2)"></span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 10v11"/><path d="M16 3c-1.5 0-2.5 1.8-2.5 4.5S15 12 16 12s2.5-1.8 2.5-4.5S17.5 3 16 3zM16 12v9"/></svg></span><span class="name">식비</span><span class="amt">₩223,200</span><span class="pct">18%</span></button></li>
+          <li><button type="button" aria-pressed="false"><span class="dot" style="background:var(--cat-3)"></span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M6 11h12"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M8 21l1.5-2M16 21l-1.5-2"/></svg></span><span class="name">교통</span><span class="amt">₩111,600</span><span class="pct">9%</span></button></li>
+          <li><button type="button" aria-pressed="false"><span class="dot" style="background:var(--cat-4)"></span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><span class="name">쇼핑</span><span class="amt">₩86,800</span><span class="pct">7%</span></button></li>
+          <li><button type="button" aria-pressed="false"><span class="dot" style="background:var(--cat-5)"></span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/></svg></span><span class="name">기타</span><span class="amt">₩124,000</span><span class="pct">10%</span></button></li>
+        </ul>
+      </div>
+      <div class="members">
+        <h2>멤버별 지출</h2>
+        <div class="bar"><span class="who">나</span><div class="track"><div class="fill" style="width:40%"></div></div><span class="val">₩496,000</span></div>
+        <div class="bar"><span class="who">배우자</span><div class="track"><div class="fill" style="width:60%"></div></div><span class="val">₩744,000</span></div>
+      </div>
+    </div>
+
+    <div class="empty hidden" id="empty">
+      <span class="em-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg></span>
+      <span class="em-title">이 달은 기록된 거래가 없어요.</span>
+      <span class="em-sub">홈에서 첫 거래를 추가해보세요.</span>
+    </div>
+  </main>
+  <nav aria-label="주요 탭">
+    <a href="index.html"><span class="nico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/></svg></span>홈</a>
+    <a href="list.html"><span class="nico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></span>내역</a>
+    <a aria-current="page"><span class="nico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M12 3v6.5"/></svg></span>통계</a>
+    <a href="recurring.html"><span class="nico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h11l-2-2M19 16H8l2 2"/></svg></span>반복</a>
+  </nav>
+</div>
+<script>
+  // 월 페이저: 라벨/숫자 갱신 + 특정 달은 빈 상태
+  var months=['2026.04','2026.05','2026.06','2026.07'];
+  var data=[
+    {inc:'₩2,900,000',exp:'₩1,500,000',bal:'₩1,400,000',vs:'전월 대비 지출 +5%',empty:false},
+    {inc:'₩3,200,000',exp:'₩1,350,000',bal:'₩1,850,000',vs:'전월 대비 지출 -10%',empty:false},
+    {inc:'₩3,200,000',exp:'₩1,240,000',bal:'₩1,960,000',vs:'전월 대비 지출 -8%',empty:false},
+    {inc:'₩0',exp:'₩0',bal:'₩0',vs:'기록 없음',empty:true}
+  ];
+  var i=2;
+  function render(){
+    var d=data[i];
+    document.getElementById('month').textContent=months[i];
+    document.getElementById('s-inc').textContent=d.inc;
+    document.getElementById('s-exp').textContent=d.exp;
+    document.getElementById('s-bal').textContent=d.bal;
+    document.getElementById('vs').textContent=d.vs;
+    document.getElementById('empty').classList.toggle('hidden',!d.empty);
+    document.getElementById('data').classList.toggle('hidden',d.empty);
+  }
+  document.getElementById('prev').addEventListener('click',function(){i=Math.max(0,i-1);render()});
+  document.getElementById('next').addEventListener('click',function(){i=Math.min(months.length-1,i+1);render()});
+
+  var te=document.getElementById('tab-exp'),ti=document.getElementById('tab-inc');
+  function tab(sel){te.setAttribute('aria-pressed',String(sel==='exp'));ti.setAttribute('aria-pressed',String(sel==='inc'));
+    var dk=document.querySelector('.donut .center .k'); if(dk) dk.textContent= sel==='exp'?'6월 지출':'6월 수입';}
+  te.addEventListener('click',function(){tab('exp')});
+  ti.addEventListener('click',function(){tab('inc')});
+
+  document.getElementById('legend').addEventListener('click',function(e){
+    var btn=e.target.closest('button');if(!btn)return;
+    [].forEach.call(this.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed','false')});
+    btn.setAttribute('aria-pressed','true');
+  });
+</script>
+</body>
+</html>

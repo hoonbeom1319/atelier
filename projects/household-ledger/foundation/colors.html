@@ -1,0 +1,52 @@
+<!-- @dsCard group="Foundation" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Colors · household-ledger</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body{font-family:var(--font-sans);color:var(--color-text);background:var(--color-surface-alt);margin:0;padding:var(--sp-6)}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2);margin-top:var(--sp-6);color:var(--color-text-muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--sp-3)}
+  .sw{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--color-border);background:var(--color-bg)}
+  .chip{height:64px} .lbl{padding:var(--sp-2) var(--sp-3);font-size:var(--fs-xs)} .lbl b{display:block;font-size:var(--fs-sm)}
+  .pair{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-top:var(--sp-3)}
+  .demo{padding:var(--sp-3) var(--sp-4);border-radius:var(--r-sm);font-size:var(--fs-sm)}
+</style></head>
+<body>
+<h1>Colors</h1>
+<p style="color:var(--color-text-muted)">semantic만 컴포넌트에서 사용. primitive는 값일 뿐.</p>
+
+<h2>Semantic</h2>
+<div class="grid">
+  <div class="sw"><div class="chip" style="background:var(--color-bg);border-bottom:1px solid var(--color-border)"></div><div class="lbl"><b>bg</b>--color-bg</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-surface)"></div><div class="lbl"><b>surface</b>--color-surface</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-text)"></div><div class="lbl"><b>text</b>--color-text</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-text-muted)"></div><div class="lbl"><b>text-muted</b>--color-text-muted</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-primary)"></div><div class="lbl"><b>primary</b>--color-primary</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-primary-weak)"></div><div class="lbl"><b>primary-weak</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-border)"></div><div class="lbl"><b>border</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-success)"></div><div class="lbl"><b>success</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-warn)"></div><div class="lbl"><b>warn</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-danger)"></div><div class="lbl"><b>danger</b></div></div>
+</div>
+
+<h2>대비 검증 (WCAG AA — 자동 게이트 통과)</h2>
+<div class="pair">
+  <span class="demo" style="background:var(--color-bg);color:var(--color-text)">text on bg</span>
+  <span class="demo" style="background:var(--color-surface);color:var(--color-text)">text on surface</span>
+  <span class="demo" style="background:var(--color-primary);color:var(--color-on-primary)">on-primary on primary</span>
+  <span class="demo" style="background:var(--color-bg);color:var(--color-text-muted)">muted on bg</span>
+</div>
+
+<h2>Primitive ramp</h2>
+<div class="grid">
+  <div class="sw"><div class="chip" style="background:var(--gray-50)"></div><div class="lbl">gray-50</div></div>
+  <div class="sw"><div class="chip" style="background:var(--gray-200)"></div><div class="lbl">gray-200</div></div>
+  <div class="sw"><div class="chip" style="background:var(--gray-400)"></div><div class="lbl">gray-400</div></div>
+  <div class="sw"><div class="chip" style="background:var(--gray-600)"></div><div class="lbl">gray-600</div></div>
+  <div class="sw"><div class="chip" style="background:var(--gray-800)"></div><div class="lbl">gray-800</div></div>
+  <div class="sw"><div class="chip" style="background:var(--blue-500)"></div><div class="lbl">blue-500</div></div>
+  <div class="sw"><div class="chip" style="background:var(--blue-600)"></div><div class="lbl">blue-600</div></div>
+  <div class="sw"><div class="chip" style="background:var(--blue-700)"></div><div class="lbl">blue-700</div></div>
+</div>
+</body></html>
