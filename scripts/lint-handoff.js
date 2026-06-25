@@ -4,7 +4,7 @@
 //   node scripts/lint-handoff.js <project>
 //
 // 자동으로 본다(사람·에이전트가 빠뜨리기 쉬운 것):
-//   ❌ 필수 패키지 파일 누락(hand-off.md · index.html · tokens-map.md · components.md)
+//   ❌ 필수 패키지 파일 누락(hand-off.md · index.html · token-mapping.md · component-inventory.md)
 //   ❌ hand-off.md에 안 채운 placeholder(<대상>·<atelier>·<chosen> …)가 남음
 //   ❌ chosen final 화면이 비주얼 문서(index.html)에 안 실림(스크린샷/임베드 누락)
 //   ❌ semantic 토큰이 매핑표에 빠짐 (primitive는 값이라 매핑 불필요 → 제외)
@@ -44,7 +44,7 @@ const HO = path.join(PROJ, 'handoff');
 if (!fs.existsSync(HO)) errors.push('handoff/ 폴더 자체가 없음 — 7단계 패키지 미작성.');
 
 // 1) 필수 파일
-for (const f of ['hand-off.md', 'index.html', 'tokens-map.md', 'components.md']) {
+for (const f of ['hand-off.md', 'index.html', 'token-mapping.md', 'component-inventory.md']) {
   if (read(path.join(HO, f))) ok.push(`handoff/${f} 존재`);
   else errors.push(`handoff/${f} 누락`);
 }
@@ -72,26 +72,26 @@ else if (screens.length) ok.push(`chosen(${chosen}) 화면 ${screens.length}개 
 
 // 4) semantic 토큰이 매핑표에 빠졌나 (primitive = --word-숫자 는 제외)
 const tokensCss = read(path.join(PROJ, 'foundation', 'tokens.css'));
-const tokensMap = read(path.join(HO, 'tokens-map.md')) || '';
+const tokensMap = read(path.join(HO, 'token-mapping.md')) || '';
 if (tokensCss) {
   const all = [...new Set([...tokensCss.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]))];
   const isPrimitive = (t) => /^--[a-z]+-\d+$/.test(t);                       // --coral-500, --gray-900 …
   const isSemantic = (t) => !isPrimitive(t) && /^--(color|fs|sp|space|r|radius|shadow|dur|ease|font|fw|lh|z|breakpoint)\b|-/.test(t) && /^--(color|fs|sp|space|r|radius|shadow|dur|ease|font|fw|lh|z)/.test(t);
   const semantic = all.filter(isSemantic);
   const missing = semantic.filter((t) => !tokensMap.includes(t));
-  if (missing.length) errors.push(`매핑표(tokens-map.md)에 빠진 semantic 토큰 ${missing.length}개: ${missing.slice(0, 12).join(', ')}${missing.length > 12 ? ' …' : ''}`);
+  if (missing.length) errors.push(`매핑표(token-mapping.md)에 빠진 semantic 토큰 ${missing.length}개: ${missing.slice(0, 12).join(', ')}${missing.length > 12 ? ' …' : ''}`);
   else if (semantic.length) ok.push(`semantic 토큰 ${semantic.length}개 전부 매핑표에 있음`);
 } else warns.push('foundation/tokens.css 없음 — 토큰 매핑 검사 건너뜀.');
 
 // 5) 컴포넌트가 인벤토리에 + 화면에 매핑됐나
 const comps = htmls(path.join(PROJ, 'components'));
-const compsMd = read(path.join(HO, 'components.md')) || '';
+const compsMd = read(path.join(HO, 'component-inventory.md')) || '';
 if (comps.length) {
   const missing = comps.filter((c) => { const n = c.replace('.html', ''); return !compsMd.includes(c) && !compsMd.includes(n); });
-  if (missing.length) errors.push(`컴포넌트 인벤토리(components.md)에 빠진 컴포넌트: ${missing.join(', ')}`);
+  if (missing.length) errors.push(`컴포넌트 인벤토리(component-inventory.md)에 빠진 컴포넌트: ${missing.join(', ')}`);
   else ok.push(`컴포넌트 ${comps.length}개 전부 인벤토리에 있음`);
   if (compsMd && !screens.some((s) => compsMd.includes(s) || compsMd.includes(s.replace('.html', '')))) {
-    warns.push('components.md가 "쓰이는 화면"을 하나도 참조하지 않음 — 컴포넌트→화면 매핑 추가 권장.');
+    warns.push('component-inventory.md가 "쓰이는 화면"을 하나도 참조하지 않음 — 컴포넌트→화면 매핑 추가 권장.');
   }
 }
 

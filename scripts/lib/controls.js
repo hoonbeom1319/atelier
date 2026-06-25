@@ -12,18 +12,27 @@
 //   const { listInteractive, probeWired, defineDeadControlTest } = require('../../scripts/lib/controls');
 const OUT_OF_SCOPE_RE = /\[범위\s*밖|out[\s-]?of[\s-]?scope|\[scope\s*out/i;
 
+// 인터랙티브 셀렉터는 한 곳에서만 정의한다 — listInteractive(querySelectorAll)와
+// probeWired(page.locator)가 **같은 집합·같은 순서**를 봐야 domIndex↔nth 정렬이 성립한다.
+const INTERACTIVE_SEL = 'a[href], button, [role="button"], input, select, textarea, [onclick], [tabindex]:not([tabindex="-1"])';
+
 // 페이지의 인터랙티브 요소를 라벨과 함께 열거한다(범위 밖·disabled 표시 포함).
+// 숨김 요소는 건너뛰되, 각 컨트롤에 **전체 DOM 인덱스(domIndex, 숨김 포함)**를 달아 반환한다.
+// probeWired는 재로드 후 nth(domIndex)로 같은 요소를 다시 찾으므로, 압축 인덱스가 아니라
+// 전체 인덱스를 써야 앞에 숨김 컨트롤이 있어도 엉뚱한 요소를 클릭하지 않는다.
 async function listInteractive(page) {
-  return await page.evaluate((reSrc) => {
+  return await page.evaluate(({ reSrc, sel }) => {
     const re = new RegExp(reSrc.source, reSrc.flags);
-    const sel = 'a[href], button, [role="button"], input, select, textarea, [onclick], [tabindex]:not([tabindex="-1"])';
+    const all = document.querySelectorAll(sel);
     const out = [];
-    for (const el of document.querySelectorAll(sel)) {
+    for (let i = 0; i < all.length; i++) {
+      const el = all[i];
       const cs = getComputedStyle(el);
       if (cs.display === 'none' || cs.visibility === 'hidden') continue;
       const label = (el.getAttribute('aria-label') || el.textContent || el.value || el.getAttribute('placeholder') || el.name || '').trim().replace(/\s+/g, ' ').slice(0, 60);
       const scopeText = (el.closest('[data-scope="out"]') ? '[범위 밖]' : '') + ' ' + label + ' ' + (el.title || '');
       out.push({
+        domIndex: i, // ← querySelectorAll 전체에서의 위치(숨김 포함). probeWired의 nth와 정렬된다.
         label,
         tag: el.tagName.toLowerCase(),
         role: el.getAttribute('role') || '',
@@ -33,7 +42,7 @@ async function listInteractive(page) {
       });
     }
     return out;
-  }, { source: OUT_OF_SCOPE_RE.source, flags: OUT_OF_SCOPE_RE.flags });
+  }, { reSrc: { source: OUT_OF_SCOPE_RE.source, flags: OUT_OF_SCOPE_RE.flags }, sel: INTERACTIVE_SEL });
 }
 
 // 페이지 상태 지문 — URL + 본문 텍스트 + 상태 속성 모음. 클릭 전후 비교용.
@@ -55,7 +64,7 @@ async function probeWired(page, url, nth, selector) {
   page.removeAllListeners?.('dialog');
   page.on('dialog', (d) => d.dismiss().catch(() => {}));
   await page.goto(url);
-  const sel = selector || 'a[href], button, [role="button"], input, select, textarea, [onclick], [tabindex]:not([tabindex="-1"])';
+  const sel = selector || INTERACTIVE_SEL;
   const target = page.locator(sel).nth(nth);
   const before = await snapshot(page);
   try {
@@ -87,7 +96,7 @@ function defineDeadControlTest(test, expect, { url, name = '', ignore = [] }) {
       // 텍스트 입력류는 클릭이 아니라 입력이 본분 → 죽은 컨트롤 검사 면제(기능 spec이 따로 본다)
       if (c.tag === 'input' && !['button', 'submit', 'checkbox', 'radio', 'reset'].includes(c.type)) continue;
       if (c.tag === 'textarea' || c.tag === 'select') continue;
-      const r = await probeWired(page, url, i);
+      const r = await probeWired(page, url, c.domIndex); // ← 압축 i가 아니라 전체 DOM 인덱스로 정확히 그 컨트롤을 클릭
       if (!r.wired) dead.push(`${c.tag}${c.role ? `[${c.role}]` : ''} "${c.label}"`);
     }
     expect(dead, `죽은 컨트롤(와이어드 안 됨·범위 밖 라벨도 없음): ${dead.join(' / ')}`).toEqual([]);
