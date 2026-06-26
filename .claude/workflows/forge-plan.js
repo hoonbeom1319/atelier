@@ -12,17 +12,19 @@ export const meta = {
 }
 
 // ── 입력 (forge가 args로 넘긴다) ────────────────────────────────────────────
-const project = args && args.project;
+// 런타임에 따라 args가 객체가 아니라 JSON 문자열로 도착할 수 있다(직렬화). 방어적으로 파싱한다.
+const A = typeof args === 'string' ? (() => { try { return JSON.parse(args); } catch { return {}; } })() : (args || {});
+const project = A && A.project;
 if (!project) throw new Error('forge-plan: args.project 가 필요합니다.');
-const idea = (args && args.idea) || '(아이디어 미기재)';
-const intake = (args && args.intake) || '(시작 인테이크 답 없음 — 가정으로 채움)';
-const axes = (args && args.researchAxes) || [
+const idea = (A && A.idea) || '(아이디어 미기재)';
+const intake = (A && A.intake) || '(시작 인테이크 답 없음 — 가정으로 채움)';
+const axes = (A && A.researchAxes) || [
   '경쟁/유사 제품·핵심기능·차별점',
   '실사용자 불만·리뷰·니즈',
   '도메인 관행·표준·규제·데이터 모델 관례',
 ];
-const N = (args && args.critics) || 3; // PRD 비평가 수
-const p = (args && args.paths) || {};
+const N = (A && A.critics) || 3; // PRD 비평가 수
+const p = (A && A.paths) || {};
 const prdPath = p.prd || `projects/${project}/PRD.md`;
 const statusPath = p.status || `projects/${project}/STATUS.md`;
 
@@ -74,8 +76,11 @@ function aggregate(votes) {
     const ngCount = valid.filter((v) => v.dims && v.dims[d] === 'ng').length;
     dims[d] = ngCount * 2 > valid.length ? 'ng' : 'ok';
   }
-  const verdict = DIMS.some((d) => dims[d] === 'ng') ? 'FAIL' : 'PASS';
-  return { dims, verdict, voters: valid.length, notes: valid.map((v) => v.notes).filter(Boolean) };
+  // 차원별 과반 ng가 없어도, 비평가 과반이 verdict=FAIL이면 FAIL.
+  // (비평가들이 *서로 다른* 차원을 지적하면 어느 차원도 과반에 못 걸려 PASS로 새는 구멍을 막는다.)
+  const failVotes = valid.filter((v) => v.verdict === 'FAIL').length;
+  const verdict = (DIMS.some((d) => dims[d] === 'ng') || failVotes * 2 > valid.length) ? 'FAIL' : 'PASS';
+  return { dims, verdict, voters: valid.length, failVotes, notes: valid.map((v) => v.notes).filter(Boolean) };
 }
 
 // ── 프롬프트 ────────────────────────────────────────────────────────────────

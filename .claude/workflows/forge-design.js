@@ -12,19 +12,21 @@ export const meta = {
 }
 
 // ── 입력 (forge가 args로 넘긴다) ────────────────────────────────────────────
-const project = args && args.project;
+// 런타임에 따라 args가 객체가 아니라 JSON 문자열로 도착할 수 있다(직렬화). 방어적으로 파싱한다.
+const A = typeof args === 'string' ? (() => { try { return JSON.parse(args); } catch { return {}; } })() : (args || {});
+const project = A && A.project;
 if (!project) throw new Error('forge-design: args.project 가 필요합니다.');
-const screens = (args && args.screens) || []; // [{ name:'home.html', spec:'…' }]
+const screens = (A && A.screens) || []; // [{ name:'home.html', spec:'…' }]
 if (!screens.length) throw new Error('forge-design: args.screens(화면 목록)이 비었습니다.');
-const V = (args && args.verifiers) || 3; // 화면당 회의론자 수
-const threshold = (args && args.trendThreshold) || 80;
-const p = (args && args.paths) || {};
+const V = (A && A.verifiers) || 3; // 화면당 회의론자 수
+const threshold = (A && A.trendThreshold) || 80;
+const p = (A && A.paths) || {};
 const tokensCss = p.tokensCss || `projects/${project}/foundation/tokens.css`;
 const flow = p.flow || `projects/${project}/00-flow.md`;
 const prd = p.prd || `projects/${project}/PRD.md`;
 const screensDir = p.screensDir || `projects/${project}/screens`;
 const wireDir = p.wireDir || `projects/${project}/wireframe`;
-const viewport = (args && args.viewport) || '(00-flow의 대상 뷰포트)';
+const viewport = (A && A.viewport) || '(00-flow의 대상 뷰포트)';
 const VARIANT = 'screens-bold';
 
 // ── 스키마 ────────────────────────────────────────────────────────────────
@@ -73,8 +75,11 @@ function aggregate(screen, votes) {
     const ngCount = valid.filter((v) => v.dims && v.dims[d] === 'ng').length;
     dims[d] = ngCount * 2 > valid.length ? 'ng' : 'ok'; // 과반 ng → ng
   }
-  const verdict = DIMS.some((d) => dims[d] === 'ng') ? 'FAIL' : 'PASS';
-  return { screen, dims, verdict, votes: valid.length };
+  // 차원별 과반 ng가 없어도, 검증자 과반이 verdict=FAIL이면 FAIL.
+  // (회의론자들이 *서로 다른* 차원을 지적하면 어느 차원도 과반에 못 걸려 PASS로 새는 구멍을 막는다.)
+  const failVotes = valid.filter((v) => v.verdict === 'FAIL').length;
+  const verdict = (DIMS.some((d) => dims[d] === 'ng') || failVotes * 2 > valid.length) ? 'FAIL' : 'PASS';
+  return { screen, dims, verdict, votes: valid.length, failVotes };
 }
 
 // ── 프롬프트 빌더 ───────────────────────────────────────────────────────────
