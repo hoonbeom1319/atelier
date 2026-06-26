@@ -1,4 +1,4 @@
 # Memory Index
 
-- [Harness agent+workflow 현황](harness-agent-workflow-status.md) — 실제 .claude/agents + forge-design Workflow 도입, 설계 원칙(에이전트는 생산·스크립트가 심판)
-- [다음: plan/PRD 강화](next-deepen-plan-prd.md) — 디자인 강화 일단락 후 기획(PRD) 공정도 같은 깊이로
+- [Harness agent+workflow 현황](harness-agent-workflow-status.md) — .claude/agents 5개 + forge-plan·forge-design Workflow + 4게이트, 설계 원칙(에이전트는 생산·스크립트가 심판)
+- [plan/PRD 강화 완료, 다음=E2E](next-deepen-plan-prd.md) — plan 강화 끝(prd-critic+lint-prd-review+forge-plan), 다음은 더미 프로젝트 엔드투엔드 테스트

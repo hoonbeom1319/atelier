@@ -14,7 +14,7 @@
 후보 / chosen final:
 - screens/ (원본) — (chosen)
 
-메모: **영구 회귀 픽스처** — `scripts/lib/*`(crawl·controls·a11y·selectors)와 `lint-prd`/`lint-verify`/`lint-handoff`가
+메모: **영구 회귀 픽스처** — `scripts/lib/*`(crawl·controls·a11y·selectors)와 `lint-prd`/`lint-prd-review`/`lint-verify`/`lint-handoff`가
 의도대로(좋은 입력 green / 나쁜 입력 red) 동작하는지 지킨다. `_` 접두사라 대시보드에서 제외됨.
-도구를 건드린 뒤 검증: `node scripts/test-project.js _smoke projects/_smoke/smoke.spec.js` + `node scripts/lint-prd.js _smoke` + `node scripts/lint-verify.js _smoke` + `node scripts/lint-handoff.js _smoke`.
-(`design-verify.md`는 lint-verify의 good 픽스처 — 별도 Agent가 render-check한 산출물 형태.)
+도구를 건드린 뒤 검증: `node scripts/test-project.js _smoke projects/_smoke/smoke.spec.js` + `node scripts/lint-prd.js _smoke` + `node scripts/lint-prd-review.js _smoke` + `node scripts/lint-verify.js _smoke` + `node scripts/lint-handoff.js _smoke`.
+(`prd-review.md`는 lint-prd-review, `design-verify.md`는 lint-verify의 good 픽스처 — 별도 Agent가 비평/검증한 산출물 형태.)

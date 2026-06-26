@@ -103,7 +103,8 @@ description: 시니어 프로덕트 기획자/PM harness. 아이디어를 받아
 6. **기술적·일정상 제약 검토** — 만들 사람의 역량, 가용 시간, 외부 의존성.
 7. **개발 착수 전 체크리스트** — 이대로 개발/디자인에 들어가도 되는지 점검.
 
-> **진행은 대화다.** 메인(이 스킬)이 직접 사용자와 캐물으며 진행한다. 서브에이전트로 떠넘기지 않는다 — 핵심은 *질문의 질*이다.
+> **진행은 대화다.** 메인(이 스킬)이 직접 사용자와 캐물으며 진행한다. 7단계 질문은 서브에이전트로 떠넘기지 않는다 — 핵심은 *질문의 질*이다.
+> **단, "PRD 완료" 직전의 *독립 비평*은 예외다(§C).** 질문은 사람이 몰되, *다 쓴 PRD*는 작성자가 아닌 별도 컨텍스트(`prd-critic`)가 적대적으로 본다 — 자기가 쓴 걸 자기가 검수하면 후해지기 때문. 질문 대행이 아니라 *완료 직전 안전망*이다.
 
 ---
 
@@ -125,9 +126,10 @@ description: 시니어 프로덕트 기획자/PM harness. 아이디어를 받아
 10. **범위 외 (Out of Scope)**
 11. **미해결 이슈와 가정** — 검증 안 된 가정은 **여기에** 명시(본문에서 사실처럼 단정 금지).
 
-PRD를 다 쓰면:
-- **▶ 자동 완결성 검사 — `node scripts/lint-prd.js <name>`로 green을 받고 "PRD 완료"를 선언한다(plan→design 경계 게이트, design→dev의 `lint-handoff`와 대칭).** 11개 섹션 존재(부재 시 error)와 내용 깊이(§5 관계표기·"물리 스키마 범위 밖" 명시 / §4 MVP 우선순위 마커 / §8 다크모드·대상 뷰포트 / §11 빈 가정 = warn)를 자동으로 본다. **error가 있으면 빠진 섹션을 채우고 다시 돌린다 — green 없이 `/design`으로 넘기지 않는다.**
-- STATUS의 `0. 기획` + `→ PRD.md 작성 완료`를 체크하고 `현재 단계: 1-인테이크 (/design 대기)`로 갱신.
+PRD를 다 쓰면 **두 게이트를 차례로** 통과해야 "PRD 완료"다 — ①형식(lint-prd) → ②실질(독립 비평):
+- **▶ ① 형식 완결성 — `node scripts/lint-prd.js <name>` green(plan→design 경계 게이트, design→dev의 `lint-handoff`와 대칭).** 11개 섹션 존재(부재 시 error)와 내용 깊이(§5 관계표기·"물리 스키마 범위 밖" 명시 / §4 MVP 우선순위 마커 / §8 다크모드·대상 뷰포트 / §11 빈 가정 = warn)를 자동으로 본다. error면 빠진 섹션을 채우고 다시 돌린다.
+- **▶ ② 실질 독립 비평 — 형식 green 위에 *실질* 게이트를 얹는다(lint-prd가 못 보는 것).** PRD를 *작성자가 아닌* 별도 컨텍스트(`subagent_type: prd-critic`)로 적대적으로 비평시킨다. 7차원(measurable·justified·prioritized·dataCoherent·consistent·assumptionsSurfaced·scoped)을 판정해 `projects/<name>/prd-review.md`에 직접 남기고, `node scripts/lint-prd-review.js <name>` green을 받는다. **FAIL이면 지적을 반영해 PRD를 고치고 재비평 — green 전엔 "PRD 완료" 선언·`/design` 진입 금지.** (있으면 `plan-decisions.md`도 비평가에게 같이 넘긴다. 1~2개 핵심만 빠르게 본 PRD라도 비평만은 별도 컨텍스트로 띄워 셀프검증을 피한다.)
+- 두 게이트 green이면 STATUS의 `0. 기획` + `→ PRD.md 작성 완료`를 체크하고 `현재 단계: 1-인테이크 (/design 대기)`로 갱신.
 - 사용자에게 **`/design`으로 넘기면 이 PRD를 그대로 받아 인테이크부터 진행한다**고 안내한다.
 
 ---
@@ -147,4 +149,4 @@ PRD를 다 쓰면:
 - **단계를 건너뛰지 않는다.** 지금 몇 단계인지 매번 알린다. 단계마다 STATUS 갱신.
 - **항상 우선순위·MVP를 따진다.** "다 중요"는 거절.
 - 기능은 **사용자 문제 + 데이터 관점** 둘 다로 검증.
-- 산출물은 `projects/<name>/PRD.md` — `/design`이 받는 입력이다. **다 쓰면 `node scripts/lint-prd.js <name>`로 완결성 green을 받고**, 그다음 `/design`으로 안내. (자동이 잡을 수 있는 건 자동에 — 섹션 부재·깊이 결함은 사람이 아니라 스크립트가 본다.)
+- 산출물은 `projects/<name>/PRD.md` — `/design`이 받는 입력이다. **다 쓰면 ① `lint-prd`(형식) → ② `prd-critic` 독립 비평 + `lint-prd-review`(실질) 둘 다 green을 받고**, 그다음 `/design`으로 안내. (자동이 잡을 수 있는 건 자동에 — 섹션 부재·깊이는 `lint-prd`가, 측정가능·정합·일관성 등 *실질*은 별도 컨텍스트 비평가가 본다. 작성자 셀프검증 금지는 `lint-prd-review` 게이트로 강제.)
