@@ -1,0 +1,276 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>collab-kanban — 홈 대시보드</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    font-family:var(--font-sans); background:var(--color-bg); color:var(--color-text);
+    font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  button{ font:inherit; color:inherit; background:transparent; border:0; cursor:pointer; }
+  a{ color:inherit; text-decoration:none; }
+  :focus-visible{ outline:none; box-shadow:var(--ring-accent); border-radius:var(--radius-sm); }
+
+  /* ── 셸 ── */
+  .shell{ display:flex; min-height:100vh; }
+
+  /* 사이드바 */
+  .sidebar{
+    width:212px; flex:none; background:var(--color-surface);
+    border-right:1px solid var(--color-border); padding:16px 12px;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-weight:800; font-size:16px; letter-spacing:-.01em;
+    padding:6px 8px 18px;
+  }
+  .brand .mark{
+    width:30px; height:30px; flex:none; border-radius:9px;
+    background:var(--gradient-brand); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; box-shadow:var(--shadow-bold);
+  }
+  .sidebar nav{ display:flex; flex-direction:column; gap:3px; }
+  .navitem{
+    display:flex; align-items:center; gap:10px; padding:9px 11px;
+    border-radius:var(--radius-md); color:var(--color-text);
+    border:1px solid transparent; background:transparent; text-align:left;
+    font:inherit; font-weight:500; cursor:pointer; width:100%;
+    transition:background .15s ease, color .15s ease;
+  }
+  .navitem:hover{ background:var(--color-surface-2); }
+  .navitem[aria-current="page"]{
+    background:var(--color-primary-subtle); color:var(--color-text);
+    font-weight:700; border-color:transparent;
+  }
+  html[data-theme="dark"] .navitem[aria-current="page"]{ color:#f2f2f4; }
+  .navitem.sub{ margin-left:18px; font-size:13px; color:var(--color-text-muted); padding-top:7px; padding-bottom:7px; }
+  .navitem.sub:hover{ color:var(--color-text); }
+  .navitem.scope{ color:var(--color-text-muted); }
+  .navitem.scope:hover{ color:var(--color-text); }
+  .sidebar .navhint{
+    margin-top:auto; padding:12px 11px; font-size:12px; color:var(--color-text-muted);
+    border-top:1px solid var(--color-border);
+  }
+
+  /* 메인 */
+  .mainpane{ flex:1; min-width:0; display:flex; flex-direction:column; background:var(--color-bg); }
+
+  .topbar{
+    position:relative; display:flex; align-items:center; gap:10px;
+    padding:12px 24px; border-bottom:1px solid var(--color-border);
+    background:var(--color-bg); flex-wrap:wrap;
+  }
+  .topbar .search{
+    flex:1; max-width:360px; font:inherit; color:var(--color-text);
+    background:var(--color-surface); border:1px solid var(--color-border);
+    padding:9px 12px; border-radius:var(--radius-pill); width:100%;
+  }
+  .topbar .search::placeholder{ color:var(--color-text-subtle); }
+  .topbar .search:focus-visible{ border-color:var(--color-focus); }
+  .topbar .tspacer{ flex:1; }
+  .tbtn{
+    border:1px solid var(--color-border); background:var(--color-surface);
+    padding:8px 11px; border-radius:var(--radius-md); font-weight:600; font-size:13px;
+    color:var(--color-text); transition:background .15s ease, border-color .15s ease;
+  }
+  .tbtn:hover{ background:var(--color-surface-2); }
+  .tbtn.scope{ color:var(--color-text-muted); border-style:dashed; }
+  .tbtn.icon{ padding:8px 10px; font-size:15px; }
+  #theme[aria-pressed="true"]{ border-color:var(--color-primary); }
+  .tbtn.user{ padding:5px 6px; }
+  .avatar{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:30px; height:30px; padding:0 7px; border-radius:50%;
+    background:var(--gradient-brand); color:#fff; font-size:12px; font-weight:700;
+    box-shadow:var(--shadow-card);
+  }
+  .dropdown{
+    position:absolute; right:18px; top:60px; z-index:30;
+    background:var(--color-overlay); border:1px solid var(--color-border);
+    border-radius:var(--radius-md); padding:8px; min-width:250px;
+    box-shadow:var(--shadow-pop); display:flex; flex-direction:column; gap:4px;
+  }
+  .dropdown .di{ padding:8px 10px; font-size:13px; color:var(--color-text); border-radius:var(--radius-sm); }
+  .dropdown .navitem{ font-size:13px; }
+
+  /* 콘텐츠 */
+  .content{ padding:24px; max-width:1180px; }
+
+  /* 히어로 */
+  .hero{
+    position:relative; overflow:hidden; border-radius:18px;
+    background:var(--gradient-hero); color:#fff;
+    padding:34px 36px; margin-bottom:28px; box-shadow:var(--shadow-bold);
+  }
+  .hero::after{
+    content:""; position:absolute; right:-60px; top:-60px; width:240px; height:240px;
+    border-radius:50%; background:rgba(255,255,255,.10); pointer-events:none;
+  }
+  .hero h1{
+    position:relative; font-size:32px; line-height:1.15; margin:0 0 8px;
+    letter-spacing:-.02em; font-weight:800; color:#fff;
+  }
+  .hero .sub{ position:relative; margin:0; font-size:15px; color:#fff; max-width:620px; opacity:.96; }
+  .hero .chips{ position:relative; display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .hero .chip{
+    background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.28);
+    padding:7px 13px; border-radius:var(--radius-pill); font-size:13px; font-weight:600;
+  }
+  .hero .chip b{ font-weight:800; }
+
+  h2{ font-size:13px; margin:0 0 12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--color-text-muted); }
+
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:28px; }
+  .widget{
+    border:1px solid var(--color-border); border-radius:14px;
+    padding:20px; background:var(--color-surface); box-shadow:var(--shadow-bold);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .widget:hover{ transform:translateY(-3px); }
+  .wlist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .crow{
+    display:block; border:1px solid var(--color-border); border-radius:var(--radius-md);
+    background:var(--color-bg); padding:13px 14px; color:var(--color-text);
+    font-weight:600; transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .crow:hover{ border-color:var(--color-primary); transform:translateX(2px); box-shadow:var(--shadow-card); }
+  .crow .m{ color:var(--color-text-muted); font-size:12px; margin-top:5px; font-weight:500; }
+  .act{
+    border:1px solid var(--color-border); border-radius:var(--radius-md);
+    padding:12px 14px; color:var(--color-text-muted); font-size:13px;
+    background:var(--color-bg); display:flex; gap:11px; align-items:flex-start;
+  }
+  .act .dot{
+    width:9px; height:9px; flex:none; margin-top:5px; border-radius:50%;
+    background:var(--gradient-brand);
+  }
+  .act b{ color:var(--color-text); font-weight:700; }
+
+  .boards{ display:flex; gap:18px; flex-wrap:wrap; }
+  .bcard{
+    width:268px; min-height:148px; border:1px solid var(--color-border);
+    border-radius:16px; padding:20px; color:var(--color-text);
+    background:var(--color-surface); display:flex; flex-direction:column;
+    box-shadow:var(--shadow-bold); transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .bcard:hover{ transform:translateY(-4px); }
+  .bcard .swatch{
+    width:46px; height:46px; border-radius:13px; background:var(--gradient-brand);
+    margin-bottom:16px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:20px; font-weight:800; box-shadow:var(--shadow-card);
+  }
+  .bcard .bt{ font-weight:800; font-size:19px; margin-bottom:6px; letter-spacing:-.01em; }
+  .bcard .bm{ color:var(--color-text-muted); font-size:13px; margin-top:auto; font-weight:500; }
+  .bcard.scope{
+    color:var(--color-text-muted); border-style:dashed; background:transparent;
+    cursor:default; box-shadow:none;
+  }
+  .bcard.scope:hover{ transform:none; }
+  .bcard.scope .swatch{ background:var(--color-surface-2); color:var(--color-text-muted); box-shadow:none; }
+  .bcard.scope .bt{ color:var(--color-text-muted); }
+
+  @media (max-width:1080px){ .grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark" aria-hidden="true">▣</span> collab-kanban</div>
+    <nav aria-label="주요">
+      <span class="navitem" aria-current="page">🏠 홈</span>
+      <a class="navitem" href="board.html" aria-label="보드">📋 보드</a>
+      <a class="navitem sub" href="board.html" aria-label="제품 보드">▸ 제품</a>
+      <button type="button" class="navitem scope" data-scope="out" aria-label="멤버 [범위 밖]">👥 멤버</button>
+      <button type="button" class="navitem scope" data-scope="out" aria-label="설정 [범위 밖]">⚙ 설정</button>
+    </nav>
+    <div class="navhint">워크스페이스 · 제품팀</div>
+  </aside>
+  <div class="mainpane">
+    <header class="topbar">
+      <input type="text" class="search" aria-label="검색" placeholder="카드·보드 검색">
+      <button type="button" class="tbtn scope" data-scope="out" aria-label="새로 만들기 [범위 밖]">+ 새로</button>
+      <span class="tspacer"></span>
+      <button type="button" class="tbtn icon" id="notifBtn" aria-haspopup="true" aria-expanded="false" aria-label="알림">🔔</button>
+      <button type="button" class="tbtn" id="theme" aria-pressed="false" aria-label="테마 전환">테마: 라이트</button>
+      <button type="button" class="tbtn user" id="userBtn" aria-haspopup="true" aria-expanded="false" aria-label="사용자 메뉴"><span class="avatar">JW</span></button>
+      <div id="dd"></div>
+    </header>
+
+    <div class="content">
+      <section class="hero" aria-label="인사">
+        <h1>안녕하세요, 김지원님</h1>
+        <p class="sub">오늘의 협업 현황입니다. 제품 보드에서 일을 옮기고, 배정하고, 대화하세요.</p>
+        <div class="chips">
+          <span class="chip">내 카드 <b>1</b></span>
+          <span class="chip">새 활동 <b>3</b></span>
+          <span class="chip">내 보드 <b>1</b></span>
+        </div>
+      </section>
+
+      <div class="grid">
+        <section class="widget" aria-label="내게 배정된 카드">
+          <h2>내게 배정된 카드</h2>
+          <ul class="wlist">
+            <li><a class="crow" href="board.html" aria-label="카드 열기: 온보딩 플로우 개선">온보딩 플로우 개선
+              <span class="m">제품 · 백로그 · 기능 · 댓글 2</span></a></li>
+          </ul>
+        </section>
+        <section class="widget" aria-label="최근 활동">
+          <h2>최근 활동</h2>
+          <ul class="wlist">
+            <li class="act"><span class="dot" aria-hidden="true"></span><span>최민준 님이 <b>로그인 화면 리디자인</b>을 진행 중으로 이동함</span></li>
+            <li class="act"><span class="dot" aria-hidden="true"></span><span>박서연 님이 <b>회원가입 버그 픽스</b>에 댓글을 남김</span></li>
+            <li class="act"><span class="dot" aria-hidden="true"></span><span>이도현 님이 <b>API 문서 작성</b>에서 @김지원 멘션함</span></li>
+          </ul>
+        </section>
+      </div>
+
+      <section aria-label="내 보드">
+        <h2>내 보드</h2>
+        <div class="boards">
+          <a class="bcard" href="board.html" aria-label="제품 보드 열기">
+            <div class="swatch" aria-hidden="true">제</div>
+            <div class="bt">제품</div><div class="bm">컬럼 5 · 카드 6 · 멤버 5</div></a>
+          <button type="button" class="bcard scope" data-scope="out" aria-label="마케팅 보드 [범위 밖]">
+            <div class="swatch" aria-hidden="true">마</div>
+            <div class="bt">마케팅</div><div class="bm">[범위 밖] — 멀티보드는 다음</div></button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+var KEY_THEME="ck-theme";
+var html=document.documentElement;
+function applyTheme(t){ html.setAttribute("data-theme",t);
+  var b=document.getElementById("theme"); b.setAttribute("aria-pressed",t==="dark"?"true":"false");
+  b.textContent="테마: "+(t==="dark"?"다크":"라이트"); }
+applyTheme(localStorage.getItem(KEY_THEME)||"light");
+document.getElementById("theme").addEventListener("click",function(){
+  var t=html.getAttribute("data-theme")==="dark"?"light":"dark"; localStorage.setItem(KEY_THEME,t); applyTheme(t);
+});
+// 드롭다운(알림/유저)
+var open=null;
+function renderDD(){
+  var dd=document.getElementById("dd");
+  document.getElementById("notifBtn").setAttribute("aria-expanded", open==="notif"?"true":"false");
+  document.getElementById("userBtn").setAttribute("aria-expanded", open==="user"?"true":"false");
+  if(open==="notif") dd.innerHTML='<div class="dropdown" role="menu" aria-label="알림"><div class="di">박서연 님이 회원가입 버그 픽스에 댓글</div><div class="di">최민준 님이 로그인 화면 리디자인 이동</div></div>';
+  else if(open==="user") dd.innerHTML='<div class="dropdown" role="menu" aria-label="사용자 메뉴"><div class="di"><b>김지원</b> (나)</div><button type="button" class="navitem scope" data-scope="out" aria-label="프로필 [범위 밖]">프로필</button><button type="button" class="navitem scope" data-scope="out" aria-label="로그아웃 [범위 밖]">로그아웃</button></div>';
+  else dd.innerHTML="";
+}
+document.getElementById("notifBtn").addEventListener("click",function(){ open=open==="notif"?null:"notif"; renderDD(); });
+document.getElementById("userBtn").addEventListener("click",function(){ open=open==="user"?null:"user"; renderDD(); });
+</script>
+</body>
+</html>

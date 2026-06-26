@@ -1,0 +1,421 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>quick-todo — 메인</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    background:var(--color-bg);
+    color:var(--color-text);
+    line-height:var(--lh-base);
+    font-size:var(--fs-14);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    transition:background-color var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+    min-height:100vh;
+  }
+
+  .wrap{
+    max-width:600px;
+    margin:0 auto;
+    padding:var(--sp-6) var(--sp-4) var(--sp-8);
+  }
+  @media (min-width:760px){
+    .wrap{padding-top:var(--sp-8);}
+  }
+
+  /* ── 1. 헤더 ───────────────────────────────────── */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:var(--sp-3);
+    padding-bottom:var(--sp-4);
+    margin-bottom:var(--sp-5);
+    border-bottom:1px solid var(--color-border);
+  }
+  h1{
+    font-size:var(--fs-22);
+    font-weight:var(--fw-bold);
+    letter-spacing:-.02em;
+    margin:0;
+    line-height:var(--lh-tight);
+  }
+  .toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:var(--sp-2);
+    border:1px solid var(--color-border-strong);
+    background:var(--color-surface);
+    color:var(--color-text-muted);
+    font:inherit;
+    font-size:var(--fs-13);
+    font-weight:var(--fw-medium);
+    padding:var(--sp-2) var(--sp-3);
+    border-radius:var(--r-2);
+    cursor:pointer;
+    transition:background-color var(--dur-1) var(--ease-standard),
+               border-color var(--dur-1) var(--ease-standard),
+               color var(--dur-1) var(--ease-standard);
+  }
+  .toggle:hover{
+    border-color:var(--color-primary);
+    color:var(--color-text);
+  }
+  .toggle .ico{
+    width:14px;height:14px;display:inline-block;flex:none;
+  }
+  .toggle[aria-pressed="true"] .ico-moon{display:none;}
+  .toggle[aria-pressed="false"] .ico-sun{display:none;}
+
+  /* ── 2. 입력 영역 ──────────────────────────────── */
+  form.input{
+    display:flex;
+    gap:var(--sp-2);
+    margin-bottom:var(--sp-5);
+  }
+  #newTodo{
+    flex:1;
+    min-width:0;
+    padding:var(--sp-3) var(--sp-4);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-2);
+    background:var(--color-surface);
+    color:var(--color-text);
+    font:inherit;
+    font-size:var(--fs-16);
+    box-shadow:var(--shadow-1);
+    transition:border-color var(--dur-1) var(--ease-standard),
+               box-shadow var(--dur-1) var(--ease-standard);
+  }
+  #newTodo::placeholder{color:var(--color-text-muted);}
+  #newTodo:focus{
+    outline:none;
+    border-color:var(--color-primary);
+    box-shadow:0 0 0 3px var(--color-primary-weak);
+  }
+  #addBtn{
+    flex:none;
+    border:1px solid var(--color-primary);
+    background:var(--color-primary);
+    color:var(--color-on-primary);
+    font:inherit;
+    font-size:var(--fs-14);
+    font-weight:var(--fw-medium);
+    padding:0 var(--sp-5);
+    border-radius:var(--r-2);
+    cursor:pointer;
+    box-shadow:var(--shadow-1);
+    transition:background-color var(--dur-1) var(--ease-standard),
+               border-color var(--dur-1) var(--ease-standard),
+               transform var(--dur-1) var(--ease-standard);
+  }
+  #addBtn:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover);}
+  #addBtn:active{transform:scale(.97);}
+  #addBtn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--color-primary-weak);}
+
+  /* ── 3. 필터바 ─────────────────────────────────── */
+  .filters{
+    display:flex;
+    align-items:center;
+    gap:var(--sp-1);
+    flex-wrap:wrap;
+    padding-bottom:var(--sp-3);
+    margin-bottom:var(--sp-2);
+    border-bottom:1px solid var(--color-border);
+  }
+  .filters [role="tab"]{
+    border:1px solid transparent;
+    background:none;
+    color:var(--color-text-muted);
+    font:inherit;
+    font-size:var(--fs-13);
+    font-weight:var(--fw-medium);
+    padding:var(--sp-1) var(--sp-3);
+    border-radius:var(--r-1);
+    cursor:pointer;
+    transition:background-color var(--dur-1) var(--ease-standard),
+               color var(--dur-1) var(--ease-standard);
+  }
+  .filters [role="tab"]:hover{
+    background:var(--color-surface-2);
+    color:var(--color-text);
+  }
+  .filters [role="tab"][aria-selected="true"]{
+    background:var(--color-primary-weak);
+    color:var(--color-primary);
+    font-weight:var(--fw-bold);
+  }
+  .filters [role="tab"]:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 3px var(--color-primary-weak);
+  }
+  #counter{
+    margin-left:auto;
+    color:var(--color-text-muted);
+    font-size:var(--fs-13);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+
+  /* ── 4. 할 일 목록 ─────────────────────────────── */
+  ul#list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  ul#list li{
+    display:flex;
+    align-items:flex-start;
+    gap:var(--sp-3);
+    padding:var(--sp-3) var(--sp-1);
+    border-bottom:1px solid var(--color-border);
+    animation:rowIn var(--dur-2) var(--ease-out);
+  }
+  @keyframes rowIn{
+    from{opacity:0;transform:translateY(-4px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  /* 커스텀 체크박스 */
+  li input[type="checkbox"]{
+    appearance:none;-webkit-appearance:none;
+    flex:none;
+    width:18px;height:18px;
+    margin:1px 0 0;
+    border:1.5px solid var(--color-border-strong);
+    border-radius:var(--r-1);
+    background:var(--color-surface);
+    cursor:pointer;
+    display:grid;place-content:center;
+    transition:background-color var(--dur-1) var(--ease-standard),
+               border-color var(--dur-1) var(--ease-standard);
+  }
+  li input[type="checkbox"]::after{
+    content:"";
+    width:9px;height:9px;
+    transform:scale(0);
+    transform-origin:center;
+    background:var(--color-on-primary);
+    clip-path:polygon(14% 44%,0 65%,40% 100%,100% 16%,82% 0,38% 70%);
+    transition:transform var(--dur-1) var(--ease-out);
+  }
+  li input[type="checkbox"]:checked{
+    background:var(--color-success);
+    border-color:var(--color-success);
+  }
+  li input[type="checkbox"]:checked::after{transform:scale(1);}
+  li input[type="checkbox"]:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 3px var(--color-primary-weak);
+  }
+
+  li .title{
+    flex:1;
+    min-width:0;
+    word-break:break-word;
+    overflow-wrap:anywhere;
+    padding-top:1px;
+    transition:color var(--dur-2) var(--ease-standard),
+               opacity var(--dur-2) var(--ease-standard);
+  }
+  li.done .title{
+    text-decoration:line-through;
+    color:var(--color-text-muted);
+  }
+
+  .del{
+    flex:none;
+    border:1px solid transparent;
+    background:none;
+    color:var(--color-text-muted);
+    font-size:var(--fs-14);
+    line-height:1;
+    width:26px;height:26px;
+    display:grid;place-content:center;
+    border-radius:var(--r-1);
+    cursor:pointer;
+    opacity:.55;
+    transition:opacity var(--dur-1) var(--ease-standard),
+               background-color var(--dur-1) var(--ease-standard),
+               color var(--dur-1) var(--ease-standard);
+  }
+  li:hover .del{opacity:1;}
+  .del:hover{
+    background:var(--color-primary-weak);
+    color:var(--color-danger);
+  }
+  .del:focus-visible{
+    outline:none;opacity:1;
+    box-shadow:0 0 0 3px var(--color-primary-weak);
+  }
+
+  /* ── 5. 빈 상태 ────────────────────────────────── */
+  #empty{
+    padding:var(--sp-8) var(--sp-4);
+    text-align:center;
+    animation:rowIn var(--dur-2) var(--ease-out);
+  }
+  #empty .glyph{
+    width:40px;height:40px;
+    margin:0 auto var(--sp-3);
+    border:1.5px dashed var(--color-border-strong);
+    border-radius:var(--r-3);
+    display:grid;place-content:center;
+    color:var(--color-text-muted);
+  }
+  #empty h2{
+    font-size:var(--fs-16);
+    font-weight:var(--fw-medium);
+    margin:0 0 var(--sp-1);
+    color:var(--color-text);
+  }
+  #empty p{
+    margin:0;
+    font-size:var(--fs-13);
+    color:var(--color-text-muted);
+  }
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>quick-todo</h1>
+      <button class="toggle" id="themeToggle" aria-label="테마 전환" aria-pressed="false">
+        <svg class="ico ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg class="ico ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+        <span class="label">다크 모드</span>
+      </button>
+    </header>
+
+    <form class="input" id="addForm">
+      <input id="newTodo" type="text" placeholder="할 일을 입력하세요" aria-label="새 할 일" autocomplete="off">
+      <button id="addBtn" type="submit">추가</button>
+    </form>
+
+    <div class="filters" role="tablist" aria-label="상태 필터">
+      <button role="tab" data-filter="all" aria-selected="true" aria-current="true">전체</button>
+      <button role="tab" data-filter="active" aria-selected="false">미완료</button>
+      <button role="tab" data-filter="completed" aria-selected="false">완료</button>
+      <span id="counter">남은 할 일 0개</span>
+    </div>
+
+    <ul id="list"></ul>
+    <div id="empty" hidden>
+      <div class="glyph" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+      </div>
+      <h2 id="emptyTitle"></h2>
+      <p id="emptyBody"></p>
+    </div>
+  </div>
+
+<script>
+  var KEY='quick-todo';
+  function load(){ try{ var r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){} return null; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+  // 시드: 저장된 상태가 없을 때만(첫 진입). 미완료2 + 완료1 — 필터/상태가 한눈에 보이게.
+  function seed(){ return { todos:[
+      {id:1,title:'장보기',completed:false},
+      {id:2,title:'운동하기',completed:false},
+      {id:3,title:'메일 확인',completed:true}
+    ], filter:'all', theme:'light' }; }
+  var state = load() || seed();
+  var nextId = state.todos.reduce(function(m,t){return Math.max(m,t.id);},0) + 1;
+
+  var listEl=document.getElementById('list');
+  var emptyEl=document.getElementById('empty');
+  var counterEl=document.getElementById('counter');
+  var input=document.getElementById('newTodo');
+  var themeBtn=document.getElementById('themeToggle');
+  var themeLabel=themeBtn.querySelector('.label');
+
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme', state.theme);
+    var dark=state.theme==='dark';
+    themeBtn.setAttribute('aria-pressed', dark?'true':'false');
+    themeLabel.textContent = dark?'라이트 모드':'다크 모드';
+  }
+
+  function visible(){
+    if(state.filter==='active') return state.todos.filter(function(t){return !t.completed;});
+    if(state.filter==='completed') return state.todos.filter(function(t){return t.completed;});
+    return state.todos;
+  }
+
+  function render(){
+    // 필터 탭 강조
+    document.querySelectorAll('[role="tab"]').forEach(function(tab){
+      var on = tab.getAttribute('data-filter')===state.filter;
+      tab.setAttribute('aria-selected', on?'true':'false');
+      if(on) tab.setAttribute('aria-current','true'); else tab.removeAttribute('aria-current');
+    });
+    // 카운터(미완료 수)
+    var active = state.todos.filter(function(t){return !t.completed;}).length;
+    counterEl.textContent = '남은 할 일 '+active+'개';
+    // 목록
+    listEl.innerHTML='';
+    var rows = visible();
+    rows.forEach(function(t){
+      var li=document.createElement('li');
+      if(t.completed) li.className='done';
+      var cb=document.createElement('input');
+      cb.type='checkbox'; cb.checked=t.completed;
+      cb.setAttribute('aria-label','완료 표시: '+t.title);
+      cb.addEventListener('change', function(){ toggle(t.id); });
+      var span=document.createElement('span'); span.className='title'; span.textContent=t.title;
+      var del=document.createElement('button'); del.className='del';
+      del.setAttribute('aria-label','삭제'); del.textContent='✕';
+      del.addEventListener('click', function(){ remove(t.id); });
+      li.appendChild(cb); li.appendChild(span); li.appendChild(del);
+      listEl.appendChild(li);
+    });
+    // 빈 상태
+    if(rows.length===0){
+      emptyEl.hidden=false; listEl.hidden=true;
+      var t=document.getElementById('emptyTitle'), b=document.getElementById('emptyBody');
+      if(state.todos.length===0){ t.textContent='할 일이 없습니다'; b.textContent='첫 할 일을 추가해 보세요.'; }
+      else if(state.filter==='active'){ t.textContent='미완료 할 일이 없습니다'; b.textContent='모두 끝냈어요. 전체 보기로 확인하세요.'; }
+      else { t.textContent='완료된 할 일이 없습니다'; b.textContent='아직 끝낸 항목이 없어요.'; }
+    } else { emptyEl.hidden=true; listEl.hidden=false; }
+  }
+
+  function add(title){
+    var v=(title||'').trim();
+    if(!v) return false;                 // F1 엣지: 빈/공백 입력 차단
+    state.todos.push({id:nextId++, title:v, completed:false});
+    save(); render(); return true;
+  }
+  function toggle(id){
+    state.todos.forEach(function(t){ if(t.id===id) t.completed=!t.completed; });
+    save(); render();
+  }
+  function remove(id){
+    state.todos=state.todos.filter(function(t){return t.id!==id;});
+    save(); render();
+  }
+  function setFilter(f){ state.filter=f; save(); render(); }
+
+  document.getElementById('addForm').addEventListener('submit', function(e){
+    e.preventDefault(); add(input.value); input.value=''; input.focus();
+  });
+  document.querySelectorAll('[role="tab"]').forEach(function(tab){
+    tab.addEventListener('click', function(){ setFilter(tab.getAttribute('data-filter')); });
+  });
+  themeBtn.addEventListener('click', function(){
+    state.theme = state.theme==='dark'?'light':'dark'; applyTheme(); save();
+  });
+
+  applyTheme(); render(); input.focus();
+</script>
+</body>
+</html>

@@ -1,12 +1,24 @@
 ---
 name: next-deepen-plan-prd
-description: [완료] plan(PRD) 공정 강화 끝 — 다음은 E2E 테스트
+description: [로드맵] plan 강화✓ + 소형 E2E✓ → 다음=협업 칸반 보드로 대형 E2E(결정됨)
 metadata:
   type: project
 ---
 
-2026-06-26. 사용자가 "디자인에 쏠려 있다, PRD도 탄탄해야 한다"며 plan 강화를 요청 → **완료됨.** design과 대칭으로 `prd-critic` 에이전트 + `lint-prd-review` 게이트 + `forge-plan` workflow 도입. 상세는 [[harness-agent-workflow-status]].
+2026-06-26. atelier 하네스 검증 로드맵.
 
-**핵심 결론(왜 중요했나):** `lint-prd`는 PRD *형식(11섹션 존재)* 만 봤고 *실질*(측정가능 지표·기능 정당화·데이터-기능 정합·내부 일관성·가정 노출)은 아무도 강제 안 함. 특히 무인 forge는 PM 자문자답이라 사람 반박이 없어 제일 약했음. → 형식(lint-prd) + 실질(prd-critic/lint-prd-review) 2단 게이트로 닫음.
+**완료 1 — plan(PRD) 공정 강화:** design과 대칭으로 `prd-critic` + `lint-prd-review` + `forge-plan` workflow 도입. (lint-prd는 형식만, 실질은 prd-critic이 본다.) 상세 [[harness-agent-workflow-status]].
 
-**다음 목표:** 더미 프로젝트로 **엔드투엔드 테스트** — forge-plan → forge-design 한 바퀴 돌려 실제로 ① market-researcher가 plan-decisions.md 쓰고 ② prd-critic이 prd-review.md 쓰고 ③ 게이트가 통과/반려하는지, ④ design 쪽도 같이. 사용자가 "커밋·plan 다음에 E2E" 순서로 지시함.
+**완료 2 — 소형 E2E:** quick-todo(Todo 앱)로 forge-plan→forge-design 한 바퀴 완주, 6게이트 green. 결과·함정 [[forge-e2e-findings]]. 결론: *파이프라인 연결성은 확인, 난이도 거름망은 미검증.*
+
+**다음 목표 — 대형 다화면 테스트.** 소형은 fan-out·묶음(청크)·리디자인·비평 NG 루프가 거의 안 돌았다. 화면 5~8개 + 분기·상태 얽힌 앱으로 다음을 실제로 발동시킨다:
+- design **묶음(청크) 진행**(①단계 세로 자르기 ②묶음별 게이트, tokens 1회) — 화면 多일 때만 발동.
+- **트렌드 임계값 미달 → 발산 리디자인 1회**(screens-bold) 경로.
+- **prd-critic NG → 개정 1회** 루프(소형은 1차 PASS라 안 돌았음).
+- screen-builder **병렬 fan-out** 다수 화면.
+
+**결정(2026-06-26): 협업 칸반 보드.** 다음 세션은 이걸로 `/forge` 대형 E2E를 돈다. 특히 볼 것:
+- **드래그 인터랙션 모델** — 카드 이동(컬럼 간)이 *구조*(인터랙션 모델)다. 와이어에서 상태 변화로 모델링하되, Playwright 죽은-컨트롤/기능 assert로 드래그를 어떻게 검증할지가 관건(HTML5 DnD는 file://·Playwright에서 까다로움 → 클릭 기반 "이동" 액션 폴백 고려).
+- **다화면 청크** — 보드 · 카드 상세 · 멤버/초대 · (프로젝트 목록) 등 → design 묶음 진행(세로 자르기 + 묶음별 게이트, tokens 1회) 첫 실발동.
+- 협업이므로 단일사용자 가정 깨짐 — 멤버·권한·실시간 갱신 상태가 PRD/데이터모델에 들어옴(prd-critic의 dataCoherent가 시험대).
+- 소형서 본 함정 재적용: 영속 vs 죽은-컨트롤 프로버, 화면당 index 처리. 상세 [[forge-e2e-findings]].

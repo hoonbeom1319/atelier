@@ -1,0 +1,31 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>컴포넌트 — 테마 토글(theme-toggle)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{font-family:system-ui,sans-serif;background:var(--color-bg);color:var(--color-text);margin:0;padding:var(--sp-6)}
+  h1{font-size:var(--fs-18)} .muted{color:var(--color-text-muted);font-size:var(--fs-13)}
+  .toggle{display:inline-flex;align-items:center;gap:var(--sp-2);border:1px solid var(--color-border-strong);background:var(--color-surface);
+          color:var(--color-text);border-radius:var(--r-1);padding:var(--sp-2) var(--sp-3);cursor:pointer;font:inherit;font-size:var(--fs-13)}
+  .demo{margin-top:var(--sp-4);padding:var(--sp-5);border:1px solid var(--color-border);border-radius:var(--r-3);background:var(--color-surface)}
+</style>
+</head>
+<body>
+  <h1>테마 토글 (theme-toggle)</h1>
+  <p class="muted">2상태 토글(라이트/다크). aria-pressed로 현재 모드. 누르면 :root[data-theme] 전환 + 영속. 아래 버튼은 실제 동작.</p>
+  <div class="demo">
+    <button class="toggle" id="t" aria-label="테마 전환" aria-pressed="false"><span id="ic">🌙</span><span id="lb">다크 모드</span></button>
+  </div>
+<script>
+  const t=document.getElementById('t');
+  t.addEventListener('click',()=>{const d=document.documentElement.getAttribute('data-theme')==='dark';
+    document.documentElement.setAttribute('data-theme',d?'light':'dark');
+    t.setAttribute('aria-pressed',d?'false':'true');
+    document.getElementById('ic').textContent=d?'🌙':'☀️';
+    document.getElementById('lb').textContent=d?'다크 모드':'라이트 모드';});
+</script>
+</body>
+</html>

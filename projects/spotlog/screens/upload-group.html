@@ -1,0 +1,382 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spotlog — 자동 그룹핑 결과</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{overflow-x:hidden}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,sans-serif;
+    background:var(--color-bg);
+    color:var(--color-text);
+    -webkit-font-smoothing:antialiased;
+  }
+  .shell{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--color-bg);
+    padding-bottom:96px;
+    position:relative;
+  }
+
+  /* ── header (sticky) ─────────────────────────────── */
+  header{
+    position:sticky;top:0;z-index:5;
+    display:flex;align-items:center;gap:var(--sp-3);
+    padding:var(--sp-3) var(--sp-4);
+    background:color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--color-border);
+  }
+  .back{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:36px;height:36px;flex:0 0 auto;
+    text-decoration:none;color:var(--color-text);
+    border:1px solid var(--color-border);border-radius:var(--r-1);
+    font-size:var(--fs-17);line-height:1;
+    transition:border-color var(--dur-1) var(--ease-standard), background var(--dur-1) var(--ease-standard);
+  }
+  .back:hover{border-color:var(--color-border-strong);background:var(--color-surface)}
+  h1{font-size:var(--fs-17);font-weight:var(--fw-semibold);margin:0}
+  .step{margin-left:auto;font-size:var(--fs-12);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+
+  .hint{
+    font-size:var(--fs-13);color:var(--color-text-muted);
+    line-height:var(--lh-base);
+    margin:0;padding:var(--sp-4) var(--sp-4) var(--sp-2);
+  }
+  .hint b{color:var(--color-warning);font-weight:var(--fw-semibold)}
+
+  /* ── cards ──────────────────────────────────────── */
+  #cards{padding:var(--sp-2) var(--sp-4) 0;display:flex;flex-direction:column;gap:var(--sp-4)}
+  .card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-2);
+    overflow:hidden;
+    animation:rise var(--dur-2) var(--ease-out) both;
+  }
+  .card:nth-child(2){animation-delay:60ms}
+  .card:nth-child(3){animation-delay:120ms}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .card .ch{padding:var(--sp-3) var(--sp-3) var(--sp-2)}
+  .edit-place{
+    display:inline-flex;align-items:baseline;gap:var(--sp-2);
+    max-width:100%;
+    font:inherit;font-size:var(--fs-15);font-weight:var(--fw-semibold);color:var(--color-text);
+    background:var(--color-surface-2);
+    border:1px solid var(--color-border-strong);
+    border-radius:var(--r-1);
+    padding:var(--sp-2) var(--sp-3);
+    cursor:pointer;text-align:left;
+    transition:border-color var(--dur-1) var(--ease-standard), background var(--dur-1) var(--ease-standard);
+  }
+  .edit-place::before{
+    content:"✎";color:var(--color-primary);font-size:var(--fs-13);flex:0 0 auto;
+  }
+  .edit-place:hover{border-color:var(--color-primary)}
+  .edit-place[aria-expanded="true"]{border-color:var(--color-primary);background:var(--color-primary-weak)}
+  .edit-place.confirmed::before{content:"✓";color:var(--color-success)}
+  .est{font-size:var(--fs-11);color:var(--color-text-muted);font-weight:var(--fw-regular)}
+  .edit-place.confirmed .est{color:var(--color-success)}
+
+  .photos{display:flex;gap:2px;background:var(--color-bg)}
+  .photos .ph{
+    flex:1;aspect-ratio:1;max-width:33.33%;
+    background:var(--color-surface-2);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--color-text-muted);font-size:var(--fs-11);
+  }
+  .photos.single .ph{max-width:none;aspect-ratio:16/9}
+  .cf{padding:var(--sp-3);display:flex;align-items:center;gap:var(--sp-2)}
+  .pin{width:8px;height:8px;border-radius:var(--r-full);background:var(--color-primary);flex:0 0 auto}
+  .pin.muted{background:var(--color-text-muted)}
+  .time{font-size:var(--fs-12);color:var(--color-text-muted)}
+
+  /* ── unclassified tray ──────────────────────────── */
+  section#unclassified{margin-top:var(--sp-6);padding:0 var(--sp-4)}
+  .sec-title{
+    font-size:var(--fs-12);color:var(--color-text-muted);
+    line-height:var(--lh-base);
+    padding:0 var(--sp-1) var(--sp-3);
+  }
+  .sec-title strong{color:var(--color-text);font-weight:var(--fw-semibold)}
+  #unclassCount{color:var(--color-warning);font-weight:var(--fw-semibold)}
+  .tray{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-2);
+    overflow:hidden;
+  }
+  .unc-row{
+    display:flex;align-items:center;gap:var(--sp-3);
+    padding:var(--sp-2) var(--sp-3);
+    border-bottom:1px solid var(--color-border);
+    transition:opacity var(--dur-2) var(--ease-standard), transform var(--dur-2) var(--ease-standard);
+  }
+  .unc-row:last-child{border-bottom:0}
+  .unc-row.leaving{opacity:0;transform:translateX(24px)}
+  .unc-row .ph{
+    width:40px;height:40px;flex:0 0 auto;border-radius:var(--r-1);
+    background:var(--color-surface-2);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--color-text-muted);font-size:var(--fs-11);
+  }
+  .fname{font-size:var(--fs-13);color:var(--color-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .move{
+    margin-left:auto;flex:0 0 auto;
+    border:1px solid var(--color-border-strong);
+    background:transparent;color:var(--color-text);
+    border-radius:var(--r-full);
+    padding:var(--sp-2) var(--sp-3);
+    font:inherit;font-size:var(--fs-12);font-weight:var(--fw-medium);
+    cursor:pointer;
+    transition:border-color var(--dur-1) var(--ease-standard), background var(--dur-1) var(--ease-standard), color var(--dur-1) var(--ease-standard);
+  }
+  .move:hover{border-color:var(--color-primary);color:var(--color-primary)}
+  .tray-empty{
+    padding:var(--sp-5) var(--sp-4);text-align:center;
+    color:var(--color-success);font-size:var(--fs-13);
+  }
+
+  /* ── footer ─────────────────────────────────────── */
+  .footer{
+    position:fixed;bottom:0;left:0;right:0;z-index:5;
+    max-width:480px;margin:0 auto;
+    background:color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter:blur(10px);
+    border-top:1px solid var(--color-border);
+    padding:var(--sp-3) var(--sp-4);
+    display:flex;align-items:center;gap:var(--sp-3);
+  }
+  .footer .summary{font-size:var(--fs-12);color:var(--color-text-muted)}
+  .next{
+    margin-left:auto;
+    display:inline-flex;align-items:center;gap:var(--sp-2);
+    background:var(--color-primary);color:var(--color-on-primary);
+    text-decoration:none;font-weight:var(--fw-semibold);font-size:var(--fs-15);
+    border-radius:var(--r-1);
+    padding:var(--sp-3) var(--sp-6);
+    transition:background var(--dur-1) var(--ease-standard), transform var(--dur-1) var(--ease-standard);
+  }
+  .next:hover{background:var(--color-primary-hover)}
+  .next:active{transform:translateY(1px)}
+
+  /* ── popover ────────────────────────────────────── */
+  .backdrop{
+    position:fixed;inset:0;z-index:10;
+    background:rgba(0,0,0,.5);
+    opacity:0;transition:opacity var(--dur-2) var(--ease-standard);
+  }
+  .backdrop:not([hidden]){opacity:1}
+  .pop{
+    position:fixed;left:0;right:0;bottom:0;z-index:11;
+    max-width:480px;margin:0 auto;
+    background:var(--color-surface);
+    border:1px solid var(--color-border-strong);
+    border-bottom:0;
+    border-radius:var(--r-3) var(--r-3) 0 0;
+    padding:var(--sp-4) var(--sp-4) var(--sp-6);
+    box-shadow:var(--shadow-2);
+    transform:translateY(100%);
+    transition:transform var(--dur-2) var(--ease-out);
+  }
+  .pop:not([hidden]){transform:none}
+  .grip{width:36px;height:4px;border-radius:var(--r-full);background:var(--color-border-strong);margin:0 auto var(--sp-4)}
+  .pt{font-size:var(--fs-15);font-weight:var(--fw-semibold);margin:0 0 var(--sp-3)}
+  #candList{display:flex;flex-direction:column;gap:var(--sp-2)}
+  .cand{
+    display:flex;justify-content:space-between;align-items:center;gap:var(--sp-3);
+    width:100%;text-align:left;
+    background:var(--color-surface-2);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-1);
+    padding:var(--sp-3);
+    color:var(--color-text);font:inherit;cursor:pointer;
+    transition:border-color var(--dur-1) var(--ease-standard), background var(--dur-1) var(--ease-standard);
+  }
+  .cand:hover{border-color:var(--color-primary)}
+  .cand .nm{font-size:var(--fs-15);font-weight:var(--fw-medium)}
+  .cand .ad{font-size:var(--fs-12);color:var(--color-text-muted);margin-top:2px}
+  .cand .dist{font-size:var(--fs-12);color:var(--color-primary);font-weight:var(--fw-semibold);flex:0 0 auto}
+  .empty{color:var(--color-text-muted);font-size:var(--fs-13);line-height:var(--lh-base);margin:0 0 var(--sp-4)}
+  .pop-actions{display:flex;gap:var(--sp-2);margin-top:var(--sp-4)}
+  .pop-actions a,.pop-actions button{
+    flex:1;text-align:center;
+    border:1px solid var(--color-border-strong);
+    background:transparent;color:var(--color-text);
+    border-radius:var(--r-1);padding:var(--sp-3);
+    font:inherit;text-decoration:none;cursor:pointer;
+    transition:border-color var(--dur-1) var(--ease-standard), background var(--dur-1) var(--ease-standard);
+  }
+  .pop-actions a:hover,.pop-actions button:hover{border-color:var(--color-primary);background:var(--color-surface-2)}
+
+  /* ── a11y: focus visibility ─────────────────────── */
+  a:focus-visible,button:focus-visible{
+    outline:2px solid var(--color-primary);
+    outline-offset:2px;
+    border-radius:var(--r-1);
+  }
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="back" href="upload-select.html" aria-label="뒤로">←</a>
+    <h1>자동 그룹핑 결과</h1>
+    <span class="step">3 / 4</span>
+  </header>
+
+  <p class="hint">EXIF로 장소별로 묶었어요. 장소명은 <b>추정</b>입니다 — 틀리면 탭해서 고치세요.</p>
+
+  <div id="cards">
+    <div class="card" data-card="1" data-poi="3">
+      <div class="ch">
+        <button class="edit-place" aria-haspopup="dialog" aria-expanded="false">성수동 인근 <span class="est">(추정 · 탭하여 수정)</span></button>
+      </div>
+      <div class="photos" aria-hidden="true"><span class="ph">사진</span><span class="ph">사진</span><span class="ph">+2</span></div>
+      <div class="cf"><span class="pin"></span><span class="time">오전 10:24–11:10 · 사진 4장</span></div>
+    </div>
+
+    <div class="card" data-card="2" data-poi="3">
+      <div class="ch">
+        <button class="edit-place" aria-haspopup="dialog" aria-expanded="false">서울숲 인근 <span class="est">(추정 · 탭하여 수정)</span></button>
+      </div>
+      <div class="photos" aria-hidden="true"><span class="ph">사진</span><span class="ph">사진</span></div>
+      <div class="cf"><span class="pin"></span><span class="time">오후 2:05–2:40 · 사진 2장</span></div>
+    </div>
+
+    <div class="card" data-card="3" data-poi="0">
+      <div class="ch">
+        <button class="edit-place" aria-haspopup="dialog" aria-expanded="false">좌표만 <span class="est">(후보 없음 · 탭하여 지정)</span></button>
+      </div>
+      <div class="photos single" aria-hidden="true"><span class="ph">사진</span></div>
+      <div class="cf"><span class="pin muted"></span><span class="time">오후 6:12 · 사진 1장 · POI 미확인</span></div>
+    </div>
+  </div>
+
+  <section id="unclassified" aria-label="미분류 사진">
+    <div class="sec-title"><strong>미분류 사진</strong> <span id="unclassCount">(3장)</span> — GPS가 없어요. 카드로 옮기세요.</div>
+    <div class="tray">
+      <div class="unc-row"><span class="ph" aria-hidden="true">사진</span><span class="fname">스크린샷.png</span><button class="move">첫 카드로 이동</button></div>
+      <div class="unc-row"><span class="ph" aria-hidden="true">사진</span><span class="fname">받은사진.jpg</span><button class="move">첫 카드로 이동</button></div>
+      <div class="unc-row"><span class="ph" aria-hidden="true">사진</span><span class="fname">카톡_001.jpg</span><button class="move">첫 카드로 이동</button></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span class="summary">장소 3곳</span>
+    <a class="next" href="upload-publish.html">다음 →</a>
+  </div>
+
+  <!-- 장소명 후보 팝오버(SC4) — 기본 숨김 -->
+  <div class="backdrop" id="popBackdrop" hidden></div>
+  <div class="pop" id="poiPopover" role="dialog" aria-modal="true" aria-label="장소명 후보" hidden>
+    <div class="grip" aria-hidden="true"></div>
+    <p class="pt" id="popTitle">주변 장소 후보</p>
+    <div id="candList"></div>
+    <div class="pop-actions">
+      <a href="map-pin.html">지도에서 직접 지정</a>
+      <button id="popClose" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CANDS = {
+    '1': [['카페 오니','성수동길 12','32m'],['베이커리 호','성수동길 14','48m'],['오니로스터스','성수동길 9','60m']],
+    '2': [['서울숲 전망데크','서울숲길 273','21m'],['서울숲 카페','서울숲길 280','55m'],['숲속책방','서울숲길 268','70m']]
+  };
+  var pop = document.getElementById('poiPopover');
+  var backdrop = document.getElementById('popBackdrop');
+  var candList = document.getElementById('candList');
+  var popTitle = document.getElementById('popTitle');
+  var popClose = document.getElementById('popClose');
+  var activeBtn = null;
+
+  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  document.getElementById('cards').addEventListener('click', function (e) {
+    var btn = e.target.closest('.edit-place');
+    if (!btn) return;
+    var card = btn.closest('.card');
+    var id = card.getAttribute('data-card');
+    activeBtn = btn;
+    btn.setAttribute('aria-expanded', 'true');
+    candList.innerHTML = '';
+    var list = CANDS[id] || [];
+    if (list.length === 0) {
+      popTitle.textContent = '주변 등록된 장소가 없습니다';
+      var p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = '아래 "지도에서 직접 지정"으로 위치를 찍거나, 좌표만 두세요.';
+      candList.appendChild(p);
+    } else {
+      popTitle.textContent = '주변 장소 후보 (거리순)';
+      list.forEach(function (c) {
+        var b = document.createElement('button');
+        b.className = 'cand';
+        b.type = 'button';
+        b.innerHTML = '<span><span class="nm">' + esc(c[0]) + '</span><span class="ad">' + esc(c[1]) + '</span></span><span class="dist">' + esc(c[2]) + '</span>';
+        b.addEventListener('click', function () {
+          activeBtn.classList.add('confirmed');
+          activeBtn.innerHTML = esc(c[0]) + ' <span class="est">(확정 · 탭하여 수정)</span>';
+          closePop();
+        });
+        candList.appendChild(b);
+      });
+    }
+    backdrop.hidden = false;
+    pop.hidden = false;
+    popClose.focus();
+  });
+
+  function closePop(){
+    pop.hidden = true;
+    backdrop.hidden = true;
+    if (activeBtn) { activeBtn.setAttribute('aria-expanded', 'false'); activeBtn.focus(); }
+  }
+  popClose.addEventListener('click', closePop);
+  backdrop.addEventListener('click', closePop);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !pop.hidden) closePop();
+  });
+
+  // 미분류 트레이 — 이동하면 행이 사라지고 카운트가 준다. 0이면 섹션 숨김.
+  var remaining = 3;
+  var tray = document.querySelector('.tray');
+  document.getElementById('unclassified').addEventListener('click', function (e) {
+    var mv = e.target.closest('.move');
+    if (!mv) return;
+    var row = mv.closest('.unc-row');
+    row.classList.add('leaving');
+    remaining -= 1;
+    document.getElementById('unclassCount').textContent = '(' + remaining + '장)';
+    var finish = function () {
+      row.remove();
+      if (remaining === 0) {
+        document.getElementById('unclassified').hidden = true;
+      } else if (tray && tray.querySelectorAll('.unc-row').length === 0) {
+        var done = document.createElement('div');
+        done.className = 'tray-empty';
+        done.textContent = '모두 이동했어요 ✓';
+        tray.appendChild(done);
+      }
+    };
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) finish();
+    else setTimeout(finish, 220);
+  });
+</script>
+</body>
+</html>

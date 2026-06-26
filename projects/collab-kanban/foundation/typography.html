@@ -1,0 +1,33 @@
+<!-- @dsCard group="Foundation" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>collab-kanban — 타이포그래피</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body{ font-family:var(--font-sans); background:var(--color-bg); color:var(--color-text); margin:0; padding:var(--space-5); line-height:1.5; }
+  h1{ font-size:20px; margin:0 0 var(--space-5); }
+  .row{ border-bottom:1px solid var(--color-border); padding:var(--space-3) 0; display:flex; align-items:baseline; gap:var(--space-4); }
+  .row .tag{ width:160px; color:var(--color-text-muted); font-size:12px; flex:none; }
+  .t-h1{ font-size:18px; font-weight:700; }
+  .t-h2{ font-size:14px; font-weight:600; }
+  .t-card{ font-size:13px; font-weight:600; }
+  .t-body{ font-size:14px; }
+  .t-meta{ font-size:12px; color:var(--color-text-muted); }
+  .t-chip{ font-size:11px; }
+  .note{ color:var(--color-text-muted); margin-top:var(--space-5); font-size:13px; }
+</style>
+</head>
+<body>
+  <h1>타이포그래피 — 절제·정보밀도(작은 본문, 명료한 위계)</h1>
+  <div class="row"><div class="tag">H1 / 보드 제목 18·700</div><div class="t-h1">협업 보드</div></div>
+  <div class="row"><div class="tag">H2 / 컬럼 헤더 14·600</div><div class="t-h2">진행 중</div></div>
+  <div class="row"><div class="tag">카드 제목 13·600</div><div class="t-card">로그인 화면 리디자인</div></div>
+  <div class="row"><div class="tag">본문 14·400</div><div class="t-body">설명·댓글 본문은 차분한 본문 크기로.</div></div>
+  <div class="row"><div class="tag">메타 12·muted</div><div class="t-meta">김지원 · 2026-06-26 · 댓글 5</div></div>
+  <div class="row"><div class="tag">칩/라벨 11</div><div class="t-chip">기능 · 마감 2026-06-30</div></div>
+  <p class="note">시스템 폰트 스택(<code>--font-sans</code>)으로 OS 네이티브 렌더 — 외부 폰트 의존성 없음. 4px 스페이싱 그리드. 숫자는 카운터·날짜에서 tabular 권장.</p>
+</body>
+</html>

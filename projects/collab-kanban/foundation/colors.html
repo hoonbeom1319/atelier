@@ -1,0 +1,60 @@
+<!-- @dsCard group="Foundation" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>collab-kanban — 색 토큰</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body{ font-family:var(--font-sans); background:var(--color-bg); color:var(--color-text); margin:0; padding:var(--space-5); }
+  header{ display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-5); }
+  h1{ font-size:20px; margin:0; } h2{ font-size:14px; color:var(--color-text-muted); margin:var(--space-5) 0 var(--space-2); text-transform:uppercase; letter-spacing:.06em; }
+  .toggle{ margin-left:auto; font:inherit; color:inherit; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:6px 12px; cursor:pointer; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:var(--space-3); }
+  .sw{ border:1px solid var(--color-border); border-radius:var(--radius-md); overflow:hidden; background:var(--color-surface); }
+  .chip{ height:56px; } .meta{ padding:8px 10px; font-size:12px; }
+  .meta .name{ font-weight:600; } .meta .val{ color:var(--color-text-muted); font-variant-numeric:tabular-nums; }
+  .pair{ display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--color-border); border-radius:var(--radius-md); margin-bottom:8px; }
+  .pair .demo{ padding:6px 12px; border-radius:var(--radius-sm); font-weight:600; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>색 토큰 — 미니멀·차분(Linear류)</h1>
+    <button class="toggle" type="button" aria-pressed="false" onclick="var h=document.documentElement,d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'light':'dark');this.setAttribute('aria-pressed',String(!d));this.textContent=d?'다크로':'라이트로';">다크로</button>
+  </header>
+
+  <h2>Semantic — 표면 elevation</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--color-bg)"></div><div class="meta"><div class="name">--color-bg</div><div class="val">base 배경</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-surface)"></div><div class="meta"><div class="name">--color-surface</div><div class="val">1차: 컬럼·패널</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-surface-2)"></div><div class="meta"><div class="name">--color-surface-2</div><div class="val">2차: 카드</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-overlay)"></div><div class="meta"><div class="name">--color-overlay</div><div class="val">모달</div></div></div>
+  </div>
+
+  <h2>Semantic — accent / 상태</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--color-primary)"></div><div class="meta"><div class="name">--color-primary</div><div class="val">1차 액션</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-primary-subtle)"></div><div class="meta"><div class="name">--color-primary-subtle</div><div class="val">선택 틴트</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-danger)"></div><div class="meta"><div class="name">--color-danger</div><div class="val">overdue·삭제</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-warning)"></div><div class="meta"><div class="name">--color-warning</div><div class="val">임박</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-success)"></div><div class="meta"><div class="name">--color-success</div><div class="val">완료</div></div></div>
+  </div>
+
+  <h2>대비 페어 (WCAG AA — tokens.spec가 양 모드 검증)</h2>
+  <div class="pair"><span class="demo" style="background:var(--color-bg);color:var(--color-text)">본문 텍스트</span> --color-text on --color-bg</div>
+  <div class="pair"><span class="demo" style="background:var(--color-surface);color:var(--color-text-muted)">보조 메타</span> --color-text-muted on --color-surface</div>
+  <div class="pair"><span class="demo" style="background:var(--color-primary);color:var(--color-on-primary)">Primary 버튼</span> --color-on-primary on --color-primary</div>
+
+  <h2>라벨 색 팔레트 (제품 데이터 — 파운데이션 토큰 아님)</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--label-bug)"></div><div class="meta"><div class="name">--label-bug</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--label-feature)"></div><div class="meta"><div class="name">--label-feature</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--label-design)"></div><div class="meta"><div class="name">--label-design</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--label-docs)"></div><div class="meta"><div class="name">--label-docs</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--label-urgent)"></div><div class="meta"><div class="name">--label-urgent</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--label-research)"></div><div class="meta"><div class="name">--label-research</div></div></div>
+  </div>
+</body>
+</html>

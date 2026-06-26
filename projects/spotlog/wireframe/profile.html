@@ -1,0 +1,68 @@
+<!-- @dsCard group="Wireframe" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spotlog — 프로필 (와이어)</title>
+<style>
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,sans-serif;background:#ddd}
+  .shell{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;border:1px solid #999;border-top:0;border-bottom:0;padding-bottom:64px}
+  header{padding:12px 16px;border-bottom:1px solid #999}
+  h1{font-size:18px;margin:0}
+  .prof{display:flex;align-items:center;gap:14px;padding:16px}
+  .avatar{width:64px;height:64px;border-radius:50%;background:#bbb;border:1px solid #999;display:flex;align-items:center;justify-content:center;font-size:11px;color:#444}
+  .who{font-weight:700}
+  .handle{font-size:13px;color:#555}
+  .stats{font-size:13px;color:#333;margin-top:4px}
+  .follow{margin:0 16px 12px;border:1px solid #333;background:#fff;padding:8px 16px;font:inherit;cursor:pointer;width:calc(100% - 32px)}
+  .follow[aria-pressed="true"]{background:#333;color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 4px}
+  .tile{aspect-ratio:1;background:#cfcfcf;border:1px solid #999;text-decoration:none;color:#333;display:flex;align-items:center;justify-content:center;font-size:11px;text-align:center;padding:4px}
+  nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;display:flex;background:#eee;border-top:1px solid #999}
+  nav a,nav span{flex:1;text-align:center;padding:12px 0;font-size:12px;text-decoration:none;color:#222}
+  nav span[aria-current]{font-weight:700;background:#ccc}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header><h1>프로필</h1></header>
+  <div class="prof">
+    <div class="avatar" aria-hidden="true">아바타</div>
+    <div>
+      <div class="who">민아</div>
+      <div class="handle">@mina_walks</div>
+      <div class="stats">장소 카드 24 · 팔로워 <span id="followerCount">312</span> · 팔로잉 180</div>
+    </div>
+  </div>
+  <button class="follow" id="followBtn" aria-pressed="false">팔로우</button>
+
+  <div class="grid" aria-label="장소 카드 모음">
+    <a class="tile" href="card-detail.html" aria-label="장소 카드: 망원 한강공원">망원 한강공원</a>
+    <a class="tile" href="card-detail.html" aria-label="장소 카드: 연남동 책방">연남동 책방</a>
+    <a class="tile" href="card-detail.html" aria-label="장소 카드: 북한산 둘레길">북한산 둘레길</a>
+    <a class="tile" href="card-detail.html" aria-label="장소 카드: 을지로 노가리골목">을지로 노가리골목</a>
+    <a class="tile" href="card-detail.html" aria-label="장소 카드: 양양 죽도해변">양양 죽도해변</a>
+    <a class="tile" href="card-detail.html" aria-label="장소 카드: 제주 사려니숲">제주 사려니숲</a>
+  </div>
+
+  <nav aria-label="주요 내비게이션">
+    <a href="index.html">홈</a>
+    <a href="explore.html">탐색</a>
+    <a href="upload-select.html">업로드</a>
+    <span aria-current="page" aria-disabled="true">프로필</span>
+  </nav>
+</div>
+<script>
+  // 팔로우 토글 — aria-pressed 반전 + 버튼 텍스트 + 팔로워 수가 실제로 변한다.
+  var b = document.getElementById('followBtn');
+  var c = document.getElementById('followerCount');
+  b.addEventListener('click', function () {
+    var on = b.getAttribute('aria-pressed') === 'true';
+    b.setAttribute('aria-pressed', String(!on));
+    b.textContent = on ? '팔로우' : '팔로잉';
+    c.textContent = String(parseInt(c.textContent, 10) + (on ? -1 : 1));
+  });
+</script>
+</body>
+</html>

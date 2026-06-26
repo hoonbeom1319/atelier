@@ -1,0 +1,35 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>컴포넌트 — 필터 바(filter-bar)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{font-family:system-ui,sans-serif;background:var(--color-bg);color:var(--color-text);margin:0;padding:var(--sp-6)}
+  h1{font-size:var(--fs-18)} .muted{color:var(--color-text-muted);font-size:var(--fs-13)}
+  .lbl{font-size:var(--fs-12);color:var(--color-text-muted);margin:var(--sp-4) 0 var(--sp-1)}
+  .bar{display:flex;align-items:center;gap:var(--sp-2);max-width:560px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-2);padding:var(--sp-2) var(--sp-3)}
+  .seg{display:inline-flex;background:var(--color-surface-2);border-radius:var(--r-1);padding:2px}
+  .tab{border:0;background:none;color:var(--color-text-muted);font:inherit;font-size:var(--fs-13);padding:var(--sp-1) var(--sp-3);border-radius:var(--r-1);cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--color-surface);color:var(--color-text);font-weight:var(--fw-medium);box-shadow:var(--shadow-1)}
+  .count{margin-left:auto;color:var(--color-text-muted);font-size:var(--fs-13)}
+</style>
+</head>
+<body>
+  <h1>필터 바 (filter-bar)</h1>
+  <p class="muted">단일 선택 세그먼트(전체/미완료/완료) + "남은 할 일 N개" 카운터. 선택 탭 aria-selected=true.</p>
+  <div class="lbl">전체 선택</div>
+  <div class="bar"><div class="seg" role="tablist">
+    <button class="tab" role="tab" aria-selected="true">전체</button>
+    <button class="tab" role="tab" aria-selected="false">미완료</button>
+    <button class="tab" role="tab" aria-selected="false">완료</button>
+  </div><span class="count">남은 할 일 2개</span></div>
+  <div class="lbl">미완료 선택</div>
+  <div class="bar"><div class="seg" role="tablist">
+    <button class="tab" role="tab" aria-selected="false">전체</button>
+    <button class="tab" role="tab" aria-selected="true">미완료</button>
+    <button class="tab" role="tab" aria-selected="false">완료</button>
+  </div><span class="count">남은 할 일 5개</span></div>
+</body>
+</html>

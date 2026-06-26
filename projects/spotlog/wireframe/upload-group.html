@@ -1,0 +1,144 @@
+<!-- @dsCard group="Wireframe" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spotlog — 자동 그룹핑 결과 (와이어)</title>
+<style>
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,sans-serif;background:#ddd}
+  .shell{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;border:1px solid #999;border-top:0;border-bottom:0;padding-bottom:72px}
+  header{padding:12px 16px;border-bottom:1px solid #999;display:flex;align-items:center;gap:12px}
+  .back{text-decoration:none;color:#111;border:1px solid #999;padding:4px 8px;font-size:13px}
+  h1{font-size:16px;margin:0}
+  .hint{font-size:12px;color:#555;padding:8px 16px}
+  .card{border-bottom:1px solid #ccc;padding:14px 16px}
+  .edit-place{font:inherit;font-weight:700;font-size:15px;background:#f3f3f3;border:1px dashed #777;padding:4px 8px;cursor:pointer;text-align:left}
+  .est{font-size:11px;color:#666;font-weight:400}
+  .photos{display:flex;gap:4px;margin-top:8px}
+  .ph{width:54px;height:54px;background:#bbb;border:1px solid #999;display:flex;align-items:center;justify-content:center;font-size:10px;color:#444}
+  .time{font-size:12px;color:#555;margin-top:6px}
+  section{border-top:6px solid #ddd}
+  .sec-title{font-size:13px;font-weight:700;padding:10px 16px 2px}
+  .unc-row{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px dashed #ccc}
+  .unc-row .ph{width:44px;height:44px}
+  .move{margin-left:auto;border:1px solid #333;background:#eee;padding:6px 12px;font-size:13px;cursor:pointer}
+  .footer{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#eee;border-top:1px solid #999;padding:10px 16px;text-align:right}
+  .next{display:inline-block;border:1px solid #333;background:#fff;padding:8px 18px;text-decoration:none;color:#111;font-size:14px}
+  /* 팝오버 */
+  .pop{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:#fff;border:1px solid #333;border-bottom:0;padding:12px 16px;box-shadow:0 -4px 12px rgba(0,0,0,.2)}
+  .pop h2{font-size:14px;margin:0 0 8px}
+  .cand{display:block;width:100%;text-align:left;border:1px solid #aaa;background:#fafafa;padding:8px 10px;margin-bottom:6px;font:inherit;cursor:pointer}
+  .cand .dist{float:right;color:#666;font-size:12px}
+  .pop-actions{display:flex;gap:8px;margin-top:6px}
+  .pop-actions a,.pop-actions button{flex:1;text-align:center;border:1px solid #777;background:#eee;padding:8px;font:inherit;text-decoration:none;color:#111;cursor:pointer}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="back" href="upload-select.html">← 뒤로</a>
+    <h1>자동 그룹핑 결과</h1>
+  </header>
+  <p class="hint">EXIF로 장소별로 묶었어요. 장소명은 <b>추정</b>입니다 — 틀리면 탭해서 고치세요.</p>
+
+  <div id="cards">
+    <div class="card" data-card="1" data-poi="3">
+      <button class="edit-place" aria-haspopup="dialog" aria-expanded="false">성수동 인근 <span class="est">(추정 · 탭하여 수정)</span></button>
+      <div class="photos" aria-hidden="true"><span class="ph">사진</span><span class="ph">사진</span><span class="ph">+2</span></div>
+      <div class="time">오전 10:24–11:10</div>
+    </div>
+    <div class="card" data-card="2" data-poi="3">
+      <button class="edit-place" aria-haspopup="dialog" aria-expanded="false">서울숲 인근 <span class="est">(추정 · 탭하여 수정)</span></button>
+      <div class="photos" aria-hidden="true"><span class="ph">사진</span><span class="ph">사진</span></div>
+      <div class="time">오후 2:05–2:40</div>
+    </div>
+    <div class="card" data-card="3" data-poi="0">
+      <button class="edit-place" aria-haspopup="dialog" aria-expanded="false">좌표만 <span class="est">(후보 없음 · 탭하여 지정)</span></button>
+      <div class="photos" aria-hidden="true"><span class="ph">사진</span></div>
+      <div class="time">오후 6:12</div>
+    </div>
+  </div>
+
+  <section id="unclassified" aria-label="미분류 사진">
+    <div class="sec-title">미분류 사진 <span id="unclassCount">(3장)</span> — GPS가 없어요. 카드로 옮기세요.</div>
+    <div class="unc-row"><span class="ph" aria-hidden="true">사진</span><span>스크린샷.png</span><button class="move">첫 카드로 이동</button></div>
+    <div class="unc-row"><span class="ph" aria-hidden="true">사진</span><span>받은사진.jpg</span><button class="move">첫 카드로 이동</button></div>
+    <div class="unc-row"><span class="ph" aria-hidden="true">사진</span><span>카톡_001.jpg</span><button class="move">첫 카드로 이동</button></div>
+  </section>
+
+  <div class="footer">
+    <a class="next" href="upload-publish.html">다음</a>
+  </div>
+
+  <!-- 장소명 후보 팝오버(SC4) — 기본 숨김 -->
+  <div class="pop" id="poiPopover" role="dialog" aria-label="장소명 후보" hidden>
+    <h2 id="popTitle">주변 장소 후보</h2>
+    <div id="candList"></div>
+    <div class="pop-actions">
+      <a href="map-pin.html">지도에서 직접 지정</a>
+      <button id="popClose">닫기</button>
+    </div>
+  </div>
+</div>
+<script>
+  var CANDS = {
+    '1': [['카페 오니','성수동길 12','32m'],['베이커리 호','성수동길 14','48m'],['오니로스터스','성수동길 9','60m']],
+    '2': [['서울숲 전망데크','서울숲길 273','21m'],['서울숲 카페','서울숲길 280','55m'],['숲속책방','서울숲길 268','70m']]
+  };
+  var pop = document.getElementById('poiPopover');
+  var candList = document.getElementById('candList');
+  var popTitle = document.getElementById('popTitle');
+  var activeBtn = null;
+
+  document.getElementById('cards').addEventListener('click', function (e) {
+    var btn = e.target.closest('.edit-place');
+    if (!btn) return;
+    var card = btn.closest('.card');
+    var id = card.getAttribute('data-card');
+    activeBtn = btn;
+    btn.setAttribute('aria-expanded', 'true');
+    candList.innerHTML = '';
+    var list = CANDS[id] || [];
+    if (list.length === 0) {
+      popTitle.textContent = '주변 등록된 장소가 없습니다';
+      var p = document.createElement('p');
+      p.textContent = '아래 "지도에서 직접 지정"으로 위치를 찍거나, 좌표만 두세요.';
+      p.style.fontSize = '13px'; p.style.color = '#555';
+      candList.appendChild(p);
+    } else {
+      popTitle.textContent = '주변 장소 후보 (거리순)';
+      list.forEach(function (c) {
+        var b = document.createElement('button');
+        b.className = 'cand';
+        b.innerHTML = c[0] + '<span class="dist">' + c[2] + '</span><br><small>' + c[1] + '</small>';
+        b.addEventListener('click', function () {
+          activeBtn.innerHTML = c[0] + ' <span class="est">(확정 · 탭하여 수정)</span>';
+          closePop();
+        });
+        candList.appendChild(b);
+      });
+    }
+    pop.hidden = false;
+  });
+
+  function closePop(){
+    pop.hidden = true;
+    if (activeBtn) activeBtn.setAttribute('aria-expanded', 'false');
+  }
+  document.getElementById('popClose').addEventListener('click', closePop);
+
+  // 미분류 트레이 — 이동하면 행이 사라지고 카운트가 준다. 0이면 섹션 숨김.
+  var remaining = 3;
+  document.getElementById('unclassified').addEventListener('click', function (e) {
+    var mv = e.target.closest('.move');
+    if (!mv) return;
+    mv.closest('.unc-row').remove();
+    remaining -= 1;
+    document.getElementById('unclassCount').textContent = '(' + remaining + '장)';
+    if (remaining === 0) document.getElementById('unclassified').hidden = true;
+  });
+</script>
+</body>
+</html>

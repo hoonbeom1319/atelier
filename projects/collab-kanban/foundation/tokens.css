@@ -1,0 +1,139 @@
+/* collab-kanban — 디자인 토큰 (표준 2단: primitive → semantic)
+ * 톤: 미니멀·차분(Linear류). 촘촘한 따뜻한 그레이 램프(50~900) + accent 1개.
+ * 라이트 + 다크는 별도 페어 스케일(단순 반전 아님). 다크는 4단 elevation.
+ * 컴포넌트는 semantic(--color-*)만 쓴다. primitive·브랜드 단어 직접 사용 금지.
+ * 라벨 색은 파운데이션이 아니라 제품 데이터 → 맨 아래 --label-* 별도 팔레트.
+ * a11y: tokens.spec.js가 라이트·다크 양 모드 semantic 쌍의 WCAG AA를 검사한다.
+ */
+
+:root {
+  /* ── ① primitive — 중립 그레이 램프(따뜻한 경향, blue-ish 회피) ── */
+  --white:    #ffffff;
+  --gray-50:  #f7f7f8;
+  --gray-100: #eeeef0;
+  --gray-200: #e3e3e6;
+  --gray-300: #d2d2d6;
+  --gray-400: #a9a9b1;
+  --gray-500: #828289;
+  --gray-600: #5d5d65;
+  --gray-700: #434349;
+  --gray-800: #2a2a2f;
+  --gray-900: #18181b;
+
+  /* primitive — accent(인디고 계열, 단일 포인트 컬러) */
+  --indigo-300: #b6baf2;
+  --indigo-400: #8a8ff0;
+  --indigo-500: #5e6ad2;
+  --indigo-600: #4c56b8;
+  --indigo-700: #3c4596;
+
+  /* primitive — 상태(피드백) */
+  --red-500:    #d24b4b;
+  --red-600:    #b23b3b;
+  --amber-500:  #c98a2e;
+  --green-500:  #3f9d62;
+
+  /* primitive — 다크 전용 표면(별도 페어 스케일) */
+  --d-base:   #161619;  /* 다크 base 배경 */
+  --d-elev-1: #1d1d22;  /* 1차 elevated: 카드·패널·컬럼 */
+  --d-elev-2: #26262c;  /* 2차 elevated: 중첩·hover */
+  --d-overlay:#2f2f36;  /* overlay: 모달·드롭다운·툴팁 */
+  --d-line:   #34343b;
+  --d-line-2: #44444c;
+
+  /* ── ② semantic — 역할명(라이트 기본). 컴포넌트는 이것만 참조 ── */
+  /* 표면 elevation (라이트: 미세 그레이로 구분) */
+  --color-bg:         var(--white);     /* 보드 base 배경 */
+  --color-surface:    var(--gray-50);   /* 1차: 컬럼·패널 */
+  --color-surface-2:  var(--gray-100);  /* 2차: 카드·중첩 */
+  --color-overlay:    var(--white);     /* 모달 표면 */
+  --color-scrim:      rgba(24,24,27,.38);/* 모달 뒤 배경 */
+
+  /* 텍스트 */
+  --color-text:        var(--gray-900); /* 본문·제목 */
+  --color-text-muted:  var(--gray-600); /* 보조·메타 */
+  --color-text-subtle: var(--gray-500); /* 더 약한 힌트(placeholder 등) */
+  --color-on-primary:  var(--white);    /* primary 위 텍스트 */
+
+  /* 경계·구분선 */
+  --color-border:      var(--gray-200);
+  --color-border-strong: var(--gray-300);
+  --color-focus:       var(--indigo-500); /* 포커스 링 */
+
+  /* accent / 인터랙티브 */
+  --color-primary:        var(--indigo-600); /* 1차 액션(라이트: 어두운 인디고, 위에 흰 텍스트 AA) */
+  --color-primary-hover:  var(--indigo-700);
+  --color-primary-subtle: var(--indigo-300); /* 선택/활성 배경 틴트 */
+
+  /* 상태 신호 */
+  --color-danger:   var(--red-600);   /* overdue·삭제 */
+  --color-warning:  var(--amber-500); /* 임박 */
+  --color-success:  var(--green-500); /* 완료 */
+
+  /* 드래그&드롭 */
+  --color-drop-target: var(--indigo-500); /* 유효 드롭존 하이라이트 */
+  --color-card-shadow: rgba(24,24,27,.10);
+
+  /* 형태 토큰(미니멀: 작은 라운드·미세 그림자, 4px 그리드) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;  --space-4: 16px;  --space-5: 24px;
+  --shadow-card: 0 1px 2px var(--color-card-shadow);
+  --shadow-pop:  0 6px 20px rgba(24,24,27,.16);
+  --shadow-bold: 0 10px 30px rgba(60,69,150,.18);   /* 대담 방향: 카드·히어로 강한 lift */
+  --font-sans: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+  /* ── 대담·화려 방향(셸·대시보드 강조). ⚠ 그라데이션은 배경/장식에만 — 텍스트는 항상 solid 표면 위(AA) ── */
+  --color-accent-2:  #c026a8;  /* 보조 강조(마젠타). 흰 텍스트 대비 ≥4.5 */
+  --gradient-brand:  linear-gradient(135deg, #4c56b8 0%, #7d44b8 100%);            /* 사이드바·아바타·뱃지 */
+  --gradient-hero:   linear-gradient(120deg, #3c4596 0%, #6f3fa8 55%, #8f3c86 100%); /* 홈 히어로(흰 텍스트 AA) */
+  --ring-accent:     0 0 0 3px rgba(94,106,210,.35); /* 강조 포커스/선택 글로우 */
+}
+
+/* ── ② semantic — 다크 페어 스케일(별도 설계, 단순 반전 아님). 4단 elevation ── */
+:root[data-theme="dark"] {
+  --color-bg:         var(--d-base);
+  --color-surface:    var(--d-elev-1);
+  --color-surface-2:  var(--d-elev-2);
+  --color-overlay:    var(--d-overlay);
+  --color-scrim:      rgba(0,0,0,.55);
+
+  --color-text:        #f2f2f4;
+  --color-text-muted:  #9a9aa6;
+  --color-text-subtle: #74747e;
+  --color-on-primary:  var(--d-base);   /* 다크: 밝은 인디고 위 어두운 텍스트로 AA 확보 */
+
+  --color-border:      var(--d-line);
+  --color-border-strong: var(--d-line-2);
+  --color-focus:       var(--indigo-400);
+
+  --color-primary:        var(--indigo-400); /* 다크: 밝은 인디고(위에 어두운 텍스트) */
+  --color-primary-hover:  var(--indigo-300);
+  --color-primary-subtle: #2c2f55;
+
+  --color-danger:   #c43d3d;   /* 다크: 채운 칩(흰 텍스트) AA ≥4.5 확보(원 red-500 #d24b4b는 4.33 미달) */
+  --color-warning:  var(--amber-500);
+  --color-success:  var(--green-500);
+
+  --color-drop-target: var(--indigo-400);
+  --color-card-shadow: rgba(0,0,0,.45);
+
+  /* 대담·화려(다크 페어) */
+  --color-accent-2: #e05fc6;
+  --gradient-brand: linear-gradient(135deg, #5e6ad2 0%, #8a5bd2 100%);
+  --gradient-hero:  linear-gradient(120deg, #23264a 0%, #34284f 55%, #44284a 100%);
+  --ring-accent:    0 0 0 3px rgba(138,143,240,.30);
+  --shadow-bold:    0 10px 30px rgba(0,0,0,.5);
+}
+
+/* ── 라벨 색 팔레트(제품 데이터 — 파운데이션 토큰 아님).
+ * 칩 = 흰 텍스트 + 라벨색 배경. 작은 11px라 WCAG AA 4.5:1 필요 → 흰 텍스트 기준 ≥4.5로 보정(양 모드 동일, axe 검증). ── */
+:root {
+  --label-bug:      #bf3535;  /* 흰 텍스트 대비 5.56 */
+  --label-feature:  #2f6fb0;  /* 5.22 */
+  --label-design:   #7d44b8;  /* 6.19 */
+  --label-docs:     #5d5d65;  /* 6.52 */
+  --label-urgent:   #a85a1f;  /* 5.06 */
+  --label-research: #2f7d70;  /* 4.90 */
+}

@@ -1,0 +1,163 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>quick-todo — 메인 (와이어)</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,sans-serif;margin:0;background:#fff;color:#111;line-height:1.4}
+  [data-theme="dark"] body{background:#111;color:#eee}
+  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 64px}
+  header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #999;padding-bottom:12px;margin-bottom:16px}
+  h1{font-size:18px;margin:0}
+  .toggle{border:1px solid #999;background:none;color:inherit;padding:6px 12px;cursor:pointer}
+  form.input{display:flex;gap:8px;margin-bottom:16px}
+  #newTodo{flex:1;padding:10px;border:1px solid #999;background:none;color:inherit;font:inherit}
+  #addBtn{border:1px solid #111;background:none;color:inherit;padding:10px 16px;cursor:pointer}
+  [data-theme="dark"] #addBtn{border-color:#eee}
+  .filters{display:flex;align-items:center;gap:8px;border-bottom:1px solid #ccc;padding-bottom:10px;margin-bottom:8px;flex-wrap:wrap}
+  .filters [role="tab"]{border:1px solid #bbb;background:none;color:inherit;padding:5px 12px;cursor:pointer}
+  .filters [role="tab"][aria-selected="true"]{border-color:#111;font-weight:700;background:#eee}
+  [data-theme="dark"] .filters [role="tab"][aria-selected="true"]{background:#333;border-color:#eee}
+  #counter{margin-left:auto;color:#555;font-size:13px}
+  [data-theme="dark"] #counter{color:#aaa}
+  ul#list{list-style:none;margin:0;padding:0}
+  ul#list li{display:flex;align-items:flex-start;gap:10px;padding:10px 4px;border-bottom:1px solid #ddd}
+  [data-theme="dark"] ul#list li{border-color:#333}
+  li .title{flex:1;word-break:break-word}
+  li.done .title{text-decoration:line-through;color:#999}
+  .del{border:1px solid #bbb;background:none;color:inherit;cursor:pointer;padding:2px 8px}
+  #empty{padding:32px 8px;text-align:center;color:#777}
+  #empty h2{font-size:15px;margin:0 0 6px}
+  #empty p{margin:0;font-size:13px}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>quick-todo</h1>
+      <button class="toggle" id="themeToggle" aria-label="테마 전환" aria-pressed="false">다크 모드</button>
+    </header>
+
+    <form class="input" id="addForm">
+      <input id="newTodo" type="text" placeholder="할 일을 입력하세요" aria-label="새 할 일" autocomplete="off">
+      <button id="addBtn" type="submit">추가</button>
+    </form>
+
+    <div class="filters" role="tablist" aria-label="상태 필터">
+      <button role="tab" data-filter="all" aria-selected="true" aria-current="true">전체</button>
+      <button role="tab" data-filter="active" aria-selected="false">미완료</button>
+      <button role="tab" data-filter="completed" aria-selected="false">완료</button>
+      <span id="counter">남은 할 일 0개</span>
+    </div>
+
+    <ul id="list"></ul>
+    <div id="empty" hidden>
+      <h2 id="emptyTitle"></h2>
+      <p id="emptyBody"></p>
+    </div>
+  </div>
+
+<script>
+  var KEY='quick-todo';
+  function load(){ try{ var r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){} return null; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+  // 시드: 저장된 상태가 없을 때만(첫 진입). 미완료2 + 완료1 — 필터/상태가 한눈에 보이게.
+  function seed(){ return { todos:[
+      {id:1,title:'장보기',completed:false},
+      {id:2,title:'운동하기',completed:false},
+      {id:3,title:'메일 확인',completed:true}
+    ], filter:'all', theme:'light' }; }
+  var state = load() || seed();
+  var nextId = state.todos.reduce(function(m,t){return Math.max(m,t.id);},0) + 1;
+
+  var listEl=document.getElementById('list');
+  var emptyEl=document.getElementById('empty');
+  var counterEl=document.getElementById('counter');
+  var input=document.getElementById('newTodo');
+  var themeBtn=document.getElementById('themeToggle');
+
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme', state.theme);
+    var dark=state.theme==='dark';
+    themeBtn.setAttribute('aria-pressed', dark?'true':'false');
+    themeBtn.textContent = dark?'라이트 모드':'다크 모드';
+  }
+
+  function visible(){
+    if(state.filter==='active') return state.todos.filter(function(t){return !t.completed;});
+    if(state.filter==='completed') return state.todos.filter(function(t){return t.completed;});
+    return state.todos;
+  }
+
+  function render(){
+    // 필터 탭 강조
+    document.querySelectorAll('[role="tab"]').forEach(function(tab){
+      var on = tab.getAttribute('data-filter')===state.filter;
+      tab.setAttribute('aria-selected', on?'true':'false');
+      if(on) tab.setAttribute('aria-current','true'); else tab.removeAttribute('aria-current');
+    });
+    // 카운터(미완료 수)
+    var active = state.todos.filter(function(t){return !t.completed;}).length;
+    counterEl.textContent = '남은 할 일 '+active+'개';
+    // 목록
+    listEl.innerHTML='';
+    var rows = visible();
+    rows.forEach(function(t){
+      var li=document.createElement('li');
+      if(t.completed) li.className='done';
+      var cb=document.createElement('input');
+      cb.type='checkbox'; cb.checked=t.completed;
+      cb.setAttribute('aria-label','완료 표시: '+t.title);
+      cb.addEventListener('change', function(){ toggle(t.id); });
+      var span=document.createElement('span'); span.className='title'; span.textContent=t.title;
+      var del=document.createElement('button'); del.className='del';
+      del.setAttribute('aria-label','삭제'); del.textContent='✕';
+      del.addEventListener('click', function(){ remove(t.id); });
+      li.appendChild(cb); li.appendChild(span); li.appendChild(del);
+      listEl.appendChild(li);
+    });
+    // 빈 상태
+    if(rows.length===0){
+      emptyEl.hidden=false; listEl.hidden=true;
+      var t=document.getElementById('emptyTitle'), b=document.getElementById('emptyBody');
+      if(state.todos.length===0){ t.textContent='할 일이 없습니다'; b.textContent='첫 할 일을 추가해 보세요.'; }
+      else if(state.filter==='active'){ t.textContent='미완료 할 일이 없습니다'; b.textContent='모두 끝냈어요. 전체 보기로 확인하세요.'; }
+      else { t.textContent='완료된 할 일이 없습니다'; b.textContent='아직 끝낸 항목이 없어요.'; }
+    } else { emptyEl.hidden=true; listEl.hidden=false; }
+  }
+
+  function add(title){
+    var v=(title||'').trim();
+    if(!v) return false;                 // F1 엣지: 빈/공백 입력 차단
+    state.todos.push({id:nextId++, title:v, completed:false});
+    save(); render(); return true;
+  }
+  function toggle(id){
+    state.todos.forEach(function(t){ if(t.id===id) t.completed=!t.completed; });
+    save(); render();
+  }
+  function remove(id){
+    state.todos=state.todos.filter(function(t){return t.id!==id;});
+    save(); render();
+  }
+  function setFilter(f){ state.filter=f; save(); render(); }
+
+  document.getElementById('addForm').addEventListener('submit', function(e){
+    e.preventDefault(); add(input.value); input.value=''; input.focus();
+  });
+  document.querySelectorAll('[role="tab"]').forEach(function(tab){
+    tab.addEventListener('click', function(){ setFilter(tab.getAttribute('data-filter')); });
+  });
+  themeBtn.addEventListener('click', function(){
+    state.theme = state.theme==='dark'?'light':'dark'; applyTheme(); save();
+  });
+
+  applyTheme(); render(); input.focus();
+</script>
+</body>
+</html>

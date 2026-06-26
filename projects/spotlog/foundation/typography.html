@@ -1,0 +1,55 @@
+<!-- @dsCard group="Foundation" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spotlog — 타이포 · 스페이싱 · 라운드</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:system-ui,sans-serif;padding:var(--sp-6);line-height:var(--lh-base)}
+  h1{font-size:var(--fs-24);margin:0 0 var(--sp-2)} h2{font-size:var(--fs-17);color:var(--color-text-muted);margin:var(--sp-6) 0 var(--sp-3)}
+  .row{display:flex;align-items:baseline;gap:var(--sp-4);padding:var(--sp-2) 0;border-bottom:1px solid var(--color-border)}
+  .tok{color:var(--color-text-muted);font-size:var(--fs-12);min-width:120px}
+  .scale{display:flex;gap:var(--sp-2);align-items:flex-end;flex-wrap:wrap}
+  .box{background:var(--color-surface);border:1px solid var(--color-border);color:var(--color-text-muted);font-size:var(--fs-11);display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px}
+  .r{display:flex;gap:var(--sp-3);flex-wrap:wrap}
+  .rd{width:72px;height:56px;background:var(--color-surface-2);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:var(--fs-11)}
+</style>
+</head>
+<body>
+  <h1>타이포 · 스페이싱 · 라운드</h1>
+
+  <h2>타입 스케일 (한국어 UI)</h2>
+  <div class="row"><span class="tok">--fs-24 / bold</span><span style="font-size:var(--fs-24);font-weight:var(--fw-bold)">다녀온 장소</span></div>
+  <div class="row"><span class="tok">--fs-20 / semibold</span><span style="font-size:var(--fs-20);font-weight:var(--fw-semibold)">성수동 카페 오니</span></div>
+  <div class="row"><span class="tok">--fs-17 / semibold</span><span style="font-size:var(--fs-17);font-weight:var(--fw-semibold)">자동 그룹핑 결과</span></div>
+  <div class="row"><span class="tok">--fs-15 / medium</span><span style="font-size:var(--fs-15);font-weight:var(--fw-medium)">장소명 · 카드 본문</span></div>
+  <div class="row"><span class="tok">--fs-13 / regular</span><span style="font-size:var(--fs-13)">주소 · 메모 · 캡션</span></div>
+  <div class="row"><span class="tok">--fs-12 / muted</span><span style="font-size:var(--fs-12);color:var(--color-text-muted)">거리 "32m" · 시간 범위 · 메타</span></div>
+  <div class="row"><span class="tok">--fs-11 / muted</span><span style="font-size:var(--fs-11);color:var(--color-text-muted)">배지 · 라벨</span></div>
+
+  <h2>스페이싱 스케일 (--sp-1 … --sp-10 = 4 … 40px)</h2>
+  <div class="scale">
+    <div class="box" style="width:var(--sp-1);height:40px">1</div>
+    <div class="box" style="width:var(--sp-2);height:40px">2</div>
+    <div class="box" style="width:var(--sp-3);height:40px">3</div>
+    <div class="box" style="width:var(--sp-4);height:40px">4</div>
+    <div class="box" style="width:var(--sp-5);height:40px">5</div>
+    <div class="box" style="width:var(--sp-6);height:40px">6</div>
+    <div class="box" style="width:var(--sp-8);height:40px">8</div>
+    <div class="box" style="width:var(--sp-10);height:40px">10</div>
+  </div>
+
+  <h2>라운드 · 그림자 · 모션</h2>
+  <div class="r">
+    <div class="rd" style="border-radius:var(--r-1)">--r-1</div>
+    <div class="rd" style="border-radius:var(--r-2)">--r-2</div>
+    <div class="rd" style="border-radius:var(--r-3)">--r-3</div>
+    <div class="rd" style="border-radius:var(--r-full)">--r-full</div>
+    <div class="rd" style="box-shadow:var(--shadow-1)">shadow-1</div>
+    <div class="rd" style="box-shadow:var(--shadow-2)">shadow-2</div>
+  </div>
+  <p style="color:var(--color-text-muted);font-size:var(--fs-12);margin-top:var(--sp-4)">모션: --dur-1 130ms / --dur-2 220ms · --ease-standard · --ease-out</p>
+</body>
+</html>

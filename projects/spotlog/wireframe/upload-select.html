@@ -1,0 +1,66 @@
+<!-- @dsCard group="Wireframe" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spotlog — 사진 선택 (와이어)</title>
+<style>
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,sans-serif;background:#ddd}
+  .shell{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;border:1px solid #999;border-top:0;border-bottom:0}
+  header{padding:12px 16px;border-bottom:1px solid #999;display:flex;align-items:center;gap:12px}
+  .back{text-decoration:none;color:#111;border:1px solid #999;padding:4px 8px;font-size:13px}
+  h1{font-size:16px;margin:0}
+  .bar{padding:8px 16px;border-bottom:1px solid #ccc;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px}
+  .cell{aspect-ratio:1;background:#bbb;border:1px solid #999;position:relative;cursor:pointer;font-size:10px;color:#333}
+  .cell[aria-checked="true"]{outline:3px solid #333;outline-offset:-3px}
+  .cell .tick{position:absolute;top:2px;right:4px;font-weight:700}
+  .next{border:1px solid #333;background:#eee;padding:8px 16px;font-size:14px;cursor:pointer}
+  .next:disabled{opacity:.4;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="back" href="index.html">← 뒤로</a>
+    <h1>사진 선택</h1>
+  </header>
+  <div class="bar">
+    <span id="selCount">0장 선택</span>
+    <button class="next" id="nextBtn" disabled aria-disabled="true">다음</button>
+  </div>
+  <div class="grid" role="group" aria-label="갤러리 사진(다중 선택)" id="grid"></div>
+</div>
+<script>
+  // 인스타식 다중 선택(체크박스) — 선택 카운터·다음 버튼 활성화가 실제로 변한다.
+  var grid = document.getElementById('grid');
+  for (var i = 1; i <= 16; i++) {
+    var b = document.createElement('button');
+    b.className = 'cell';
+    b.setAttribute('role', 'checkbox');
+    b.setAttribute('aria-checked', 'false');
+    b.setAttribute('aria-label', '사진 ' + i + ' 선택');
+    b.innerHTML = '<span class="tick" aria-hidden="true"></span>사진' + i;
+    grid.appendChild(b);
+  }
+  var count = 0;
+  var next = document.getElementById('nextBtn');
+  grid.addEventListener('click', function (e) {
+    var cell = e.target.closest('.cell');
+    if (!cell) return;
+    var on = cell.getAttribute('aria-checked') === 'true';
+    cell.setAttribute('aria-checked', String(!on));
+    cell.querySelector('.tick').textContent = on ? '' : '✓';
+    count += on ? -1 : 1;
+    document.getElementById('selCount').textContent = count + '장 선택';
+    var none = count === 0;
+    next.disabled = none;
+    next.setAttribute('aria-disabled', String(none));
+  });
+  next.addEventListener('click', function () {
+    if (!next.disabled) location.href = 'upload-group.html';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spotlog — 컴포넌트: 메모 · 태그 입력</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:system-ui,sans-serif;padding:var(--sp-6)}
+  h1{font-size:var(--fs-20);margin:0 0 var(--sp-2)} .lead{color:var(--color-text-muted);font-size:var(--fs-13);margin:0 0 var(--sp-5)}
+  h2{font-size:var(--fs-13);color:var(--color-text-muted);margin:var(--sp-6) 0 var(--sp-3)}
+  .box{max-width:440px;margin-bottom:var(--sp-4)}
+  label{display:block;font-size:var(--fs-13);font-weight:var(--fw-medium);margin-bottom:var(--sp-2)}
+  .opt{color:var(--color-text-muted);font-weight:var(--fw-regular)}
+  textarea,input{width:100%;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-1);padding:var(--sp-3);color:var(--color-text);font:inherit;box-sizing:border-box}
+  textarea:focus,input:focus{outline:2px solid var(--color-primary);outline-offset:-1px;border-color:transparent}
+  .tagrow{display:flex;gap:var(--sp-2);margin-top:var(--sp-3)}
+  .tagrow input{flex:1}
+  .add{border:1px solid var(--color-border-strong);background:transparent;color:var(--color-text);border-radius:var(--r-1);padding:0 var(--sp-4);font:inherit;cursor:pointer}
+  .chips{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-3)}
+  .chip{display:inline-flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-12);color:var(--color-text);background:var(--color-primary-weak);border:1px solid var(--color-primary);border-radius:var(--r-full);padding:2px var(--sp-3)}
+  .chip button{background:none;border:0;color:var(--color-text-muted);cursor:pointer;font:inherit;padding:0}
+</style>
+</head>
+<body>
+  <h1>메모 · 태그 입력 (F6 — 옵션)</h1>
+  <p class="lead">장소 카드 레벨. 입력은 강제하지 않음(빠른 게시가 기본). 빈 메모·태그는 저장하지 않는다.</p>
+
+  <h2>State — 빈 입력 (강제 아님)</h2>
+  <div class="box">
+    <label for="m1">메모 <span class="opt">(선택)</span></label>
+    <textarea id="m1" rows="3" placeholder="이 장소에 대한 짧은 메모"></textarea>
+    <label for="t1" style="margin-top:var(--sp-3)">태그 <span class="opt">(선택)</span></label>
+    <div class="tagrow"><input id="t1" type="text" placeholder="예: 카페, 데이트"><button class="add">추가</button></div>
+  </div>
+
+  <h2>State — 입력됨 (메모 + 태그 칩)</h2>
+  <div class="box">
+    <label for="m2">메모 <span class="opt">(선택)</span></label>
+    <textarea id="m2" rows="3">햇살 좋은 창가. 플랫화이트가 좋았다.</textarea>
+    <label for="t2" style="margin-top:var(--sp-3)">태그 <span class="opt">(선택)</span></label>
+    <div class="tagrow"><input id="t2" type="text" placeholder="태그 추가"><button class="add">추가</button></div>
+    <div class="chips">
+      <span class="chip">#카페 <button aria-label="태그 삭제: 카페">✕</button></span>
+      <span class="chip">#성수 <button aria-label="태그 삭제: 성수">✕</button></span>
+      <span class="chip">#창가 <button aria-label="태그 삭제: 창가">✕</button></span>
+    </div>
+  </div>
+</body>
+</html>

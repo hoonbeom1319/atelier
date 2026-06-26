@@ -1,0 +1,101 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>collab-kanban — 인계 비주얼 문서</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{ font-family:var(--font-sans); background:var(--color-bg); color:var(--color-text); margin:0; }
+  header{ padding:var(--space-5); border-bottom:1px solid var(--color-border); }
+  h1{ font-size:22px; margin:0 0 6px; } .sub{ color:var(--color-text-muted); font-size:14px; }
+  main{ padding:var(--space-5); max-width:1320px; margin:0 auto; }
+  section{ margin-bottom:var(--space-5); }
+  h2{ font-size:16px; border-left:3px solid var(--color-primary); padding-left:10px; margin:var(--space-5) 0 var(--space-3); }
+  .frame{ border:1px solid var(--color-border); border-radius:var(--radius-md); overflow:hidden; box-shadow:var(--shadow-card); background:var(--color-surface); }
+  .frame .cap{ display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-bottom:1px solid var(--color-border); font-size:13px; }
+  .frame .cap a{ color:var(--color-primary); }
+  iframe{ width:100%; border:0; display:block; background:#fff; }
+  .flow{ background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4); font-size:13px; line-height:1.7; white-space:pre-wrap; }
+  table{ border-collapse:collapse; width:100%; font-size:13px; }
+  th,td{ border:1px solid var(--color-border); padding:7px 10px; text-align:left; vertical-align:top; }
+  th{ background:var(--color-surface); }
+  code{ background:var(--color-surface-2); padding:1px 5px; border-radius:3px; font-size:12px; }
+  .pill{ display:inline-block; font-size:11px; padding:1px 8px; border-radius:var(--radius-pill); background:var(--color-primary-subtle); color:var(--color-text); margin-right:4px; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>collab-kanban — 인계 비주얼 문서</h1>
+    <div class="sub">소규모 팀 협업 칸반 <strong>서비스</strong> · 앱 셸(사이드바+탑바) + 홈 대시보드 + 보드 · 데스크톱 우선(1280px+) · 대담·화려 비주얼(그라데이션 셸/히어로) · 라이트+다크 · chosen: <code>screens/</code></div>
+    <div class="sub" style="margin-top:6px">자동 게이트 통과: lint-prd · lint-prd-review · Playwright 1·2층(죽은 컨트롤 0) · 토큰 a11y(양모드 AA) · 독립검증(N=3 다수결) · 트렌드 86/100 · axe(라이트/다크) serious 0 · lint-handoff. <strong>먼저 읽을 것: <code>hand-off.md</code> + <code>../PRD.md</code>.</strong></div>
+  </header>
+  <main>
+    <section>
+      <h2>화면 1 — 홈 대시보드 (index.html, 앱 셸 안)</h2>
+      <div class="frame">
+        <div class="cap"><span>screens/index.html — 사이드바·탑바 셸 + 히어로 인사 + 내게 배정/최근 활동/내 보드</span><a href="../screens/index.html" target="_blank">새 탭에서 열기 ↗</a></div>
+        <iframe src="../screens/index.html" height="700" title="홈 대시보드 화면"></iframe>
+      </div>
+    </section>
+
+    <section>
+      <h2>화면 2 — 메인 칸반 보드 (board.html) ★핵심</h2>
+      <div class="frame">
+        <div class="cap"><span>screens/board.html — 보드·카드·필터·상세 패널·드래그&드롭·역할·테마</span><a href="../screens/board.html" target="_blank">새 탭에서 열기 ↗</a></div>
+        <iframe src="../screens/board.html" height="780" title="board 화면"></iframe>
+      </div>
+      <p class="sub" style="margin-top:8px">상호작용 확인: 카드의 <code>⋮ 이동</code> 메뉴(또는 마우스 드래그) · 카드 클릭→상세 패널(타임라인/댓글) · 상단 아바타·라벨·마감 필터 · <code>역할 전환</code>(뷰어 읽기전용) · <code>테마 전환</code>(다크).</p>
+    </section>
+
+    <section>
+      <h2>흐름 맵</h2>
+      <div class="flow">[홈 대시보드: 앱 셸] 사이드바 "보드" / 배정 카드 / 내 보드 ──▶ [board: 제품 보드(같은 셸)]
+   ├ 카드 ⋮ 이동 / 드래그&드롭 ──▶ 컬럼 간 이동 · 카운터 갱신 · 활동 'moved'
+   ├ 카드 클릭 ──▶ 상세 패널(설명·담당자·라벨·마감 + 통합 타임라인[전체/댓글/활동])
+   │     ├ @멘션 댓글 작성 ──▶ 타임라인 + 카드 표면 댓글수 +1
+   │     └ 담당자 변경 ──▶ 카드 표면 아바타 + 활동 'assigned'
+   ├ + 카드 추가(컬럼 하단) ──▶ 컬럼 끝에 추가 · 활동 'created'
+   ├ 필터(담당자/라벨/마감/내 카드만) ──▶ 매칭 카드만 · 컬럼수 반영 ──(0건)──▶ 빈 보드 상태
+   ├ 역할 전환(편집자⇄뷰어) ──▶ 뷰어=드래그/추가/편집/댓글 차단 + "읽기 전용" 안내
+   └ 테마 전환(라이트⇄다크) ──▶ 의미 토큰 분기 · 양모드 AA · 선택 영속</div>
+    </section>
+
+    <section>
+      <h2>화면별 스펙 (개발 인계 요약 — 상세는 ../00-flow.md · ../PRD.md)</h2>
+      <table>
+        <tr><th>화면/영역</th><th>책임</th><th>주요 상태·변형</th></tr>
+        <tr><td><strong>앱 셸</strong> (양 화면 공유)</td>
+            <td>사이드바(홈·보드·제품·멤버·설정) + 탑바(검색·+새로·알림·테마·사용자). 그라데이션 브랜드 셸.</td>
+            <td><span class="pill">현재=aria-current</span><span class="pill">알림/사용자 드롭다운</span><span class="pill">멤버·설정·검색=[범위 밖] 스텁</span></td></tr>
+        <tr><td><strong>홈 대시보드</strong> (index.html)</td>
+            <td>히어로 인사 + 내게 배정된 카드(→보드) + 최근 활동 + 내 보드(제품/마케팅[범위 밖])</td>
+            <td><span class="pill">배정 위젯</span><span class="pill">활동 피드</span><span class="pill">보드 타일</span></td></tr>
+        <tr><td><strong>SC1 보드</strong> (board.html)</td>
+            <td>헤더(보드명·역할·테마) + 필터바 + 컬럼 5개(헤더 이름+카드수 · 카드 리스트 · + 추가)</td>
+            <td><span class="pill">카드 있음</span><span class="pill">빈 컬럼 드롭존</span><span class="pill">드롭 타깃</span><span class="pill">과밀 스크롤</span><span class="pill">필터 0건</span></td></tr>
+        <tr><td><strong>카드</strong>(보드 표면)</td>
+            <td>제목(2줄 말줄임)·담당자 아바타·라벨칩 1~2·마감(overdue)·댓글수·⋮ 이동 메뉴. draggable</td>
+            <td><span class="pill">기본/hover lift</span><span class="pill">dragging</span><span class="pill">미배정</span><span class="pill">overdue</span></td></tr>
+        <tr><td><strong>SC2 상세 패널</strong>(오버레이)</td>
+            <td>제목·설명·담당자(변경)·라벨·마감 + 통합 타임라인(전체/댓글/활동) + @멘션 댓글 입력</td>
+            <td><span class="pill">댓글</span><span class="pill">활동</span><span class="pill">담당자 변경</span><span class="pill">뷰어=댓글 숨김</span></td></tr>
+        <tr><td><strong>역할/테마</strong></td>
+            <td>편집자/뷰어 토글(뷰어 순수 읽기전용) · 라이트/다크 토글(semantic 토큰 분기, 영속)</td>
+            <td><span class="pill">편집자/뷰어</span><span class="pill">light/dark</span></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>패키지 동봉 문서</h2>
+      <ul class="sub">
+        <li><a href="hand-off.md">hand-off.md</a> — 받는 쪽 Claude Code에 붙여넣는 인계 브리프(먼저 읽을 것·지킬 계약·만들 순서)</li>
+        <li><a href="token-mapping.md">token-mapping.md</a> — semantic 토큰 → 대상 토큰 시스템 매핑표(통째 복붙 금지)</li>
+        <li><a href="component-inventory.md">component-inventory.md</a> — 컴포넌트 variant/state + 쓰이는 화면</li>
+        <li><a href="../PRD.md">../PRD.md</a> — 제품 요구사항(데이터 모델·우선순위·범위 포함)</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
