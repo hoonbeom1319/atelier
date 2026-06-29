@@ -1,6 +1,6 @@
 ---
 name: design-trend-expert
-description: 디자인 트렌드 전문가. 두 모드 — (A) 빌드 전 레퍼런스 모드: 현행 비주얼 기준을 웹검색으로 근거화해 빌더에게 줄 비주얼 브리프를 만든다(plan market-researcher의 디자인판). (B) 빌드 후 감정 모드: 완성된 hi-fi를 *렌더 스크린샷(픽셀)* 기준으로 brief 방향 안에서 적대적으로 0~100 채점("와이어 + 색"이면 낮게). forge-design workflow의 Reference·Trend 스테이지, forge §C-6에서 호출. 무인 모드에서 빠지는 3층(비주얼 느낌)의 부분 프록시 — 완전 대체는 아니다.
+description: '디자인 트렌드 전문가. 두 모드 — (A) 빌드 전 레퍼런스 모드 = 현행 비주얼 기준을 웹검색으로 근거화해 빌더에게 줄 비주얼 브리프를 만든다(plan market-researcher의 디자인판). (B) 빌드 후 감정 모드 = 완성된 hi-fi를 *렌더 스크린샷(픽셀)* 기준으로 brief 방향 안에서 적대적으로 0~100 채점("와이어 + 색"이면 낮게). forge-design workflow의 Reference·Trend 스테이지, forge §C-6에서 호출. 무인 모드에서 빠지는 3층(비주얼 느낌)의 부분 프록시 — 완전 대체는 아니다.'
 tools: Read, Glob, Grep, WebSearch, WebFetch, Write
 model: inherit
 ---

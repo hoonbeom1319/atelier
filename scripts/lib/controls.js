@@ -29,6 +29,10 @@ async function listInteractive(page) {
       const el = all[i];
       const cs = getComputedStyle(el);
       if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+      // 조상이 display:none이면 el 자신의 computed display는 none이 아니다(getComputedStyle은 조상 무시).
+      // getClientRects()는 조상 숨김까지 반영해 빈 배열 → 렌더 안 되는 컨트롤(숨긴 role-뷰·닫힌 모달 안)은 스킵.
+      // (position:fixed로 offsetParent가 null인 *보이는* 모달은 rect가 있어 정상 포함된다.)
+      if (el.getClientRects().length === 0) continue;
       const label = (el.getAttribute('aria-label') || el.textContent || el.value || el.getAttribute('placeholder') || el.name || '').trim().replace(/\s+/g, ' ').slice(0, 60);
       const scopeText = (el.closest('[data-scope="out"]') ? '[범위 밖]' : '') + ' ' + label + ' ' + (el.title || '');
       out.push({
@@ -38,7 +42,8 @@ async function listInteractive(page) {
         role: el.getAttribute('role') || '',
         href: el.getAttribute('href') || '',
         type: el.getAttribute('type') || '',
-        outOfScope: re.test(scopeText) || el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true',
+        // aria-current="page" = 현재 위치를 나타내는 내비 항목 → 자기 자신을 가리켜 이동 안 함이 정상(죽은 컨트롤 아님).
+        outOfScope: re.test(scopeText) || el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true' || el.getAttribute('aria-current') === 'page',
       });
     }
     return out;
