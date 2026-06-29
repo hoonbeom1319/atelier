@@ -12,7 +12,7 @@
 //   ❌ design-verify.md 자체가 없음 (독립 검증이 안 돌았거나 산출물을 안 남김)
 //   ❌ "검증자:" 미기재 — 누가(어느 컨텍스트가) 봤는지 불명 (셀프검증 방지 최소장치)
 //   ❌ chosen/screens 화면 중 판정에서 빠진 게 있음 (일부만 보고 통과 위장)
-//   ❌ render-check 6항목(thin/bad/variantsIdentical/off-brief/deadControl/stateInert) 중 누락
+//   ❌ render-check 7항목(thin/bad/variantsIdentical/off-brief/deadControl/stateInert/wireframey) 중 누락
 //   ❌ 종합 "RESULT:" 미기재 / RESULT: FAIL (미달인데 다음 단계로 진행 금지)
 //
 // green 없이 5단계(하이파이) 완료·다음 단계로 진행 금지. errors 있으면 exit 1.
@@ -59,13 +59,13 @@ if (!verifier || /^[-–—\s]*$/.test(verifier) || /<[^>]+>/.test(verifier)) {
   ok.push(`검증자 기재됨: ${verifier}`);
 }
 
-// 2) render-check 6항목이 다뤄졌나
-const DIMS = ['thin', 'bad', 'variantsIdentical', 'off-brief', 'deadControl', 'stateInert'];
+// 2) render-check 7항목이 다뤄졌나 (wireframey = hi-fi인데 와이어 수준 — 렌더 기반 판정)
+const DIMS = ['thin', 'bad', 'variantsIdentical', 'off-brief', 'deadControl', 'stateInert', 'wireframey'];
 const missingDims = DIMS.filter((d) => !doc.includes(d));
 if (missingDims.length) {
-  errors.push(`render-check 항목 누락: ${missingDims.join(', ')} — 6항목(thin/bad/variantsIdentical/off-brief/deadControl/stateInert)을 다 판정하세요.`);
+  errors.push(`render-check 항목 누락: ${missingDims.join(', ')} — 7항목(thin/bad/variantsIdentical/off-brief/deadControl/stateInert/wireframey)을 다 판정하세요.`);
 } else {
-  ok.push('render-check 6항목 전부 다룸');
+  ok.push('render-check 7항목 전부 다룸');
 }
 
 // 3) chosen/screens 화면이 전부 판정됐나

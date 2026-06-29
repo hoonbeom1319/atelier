@@ -8,9 +8,9 @@
 
 ## 화면별 render-check
 
-| 화면 | thin | bad | variantsIdentical | off-brief | deadControl | stateInert | 판정 |
-|---|---|---|---|---|---|---|---|
-| main.html | ok | ok | ok | ok | ok | ok | PASS |
+| 화면 | thin | bad | variantsIdentical | off-brief | deadControl | stateInert | wireframey | 판정 |
+|---|---|---|---|---|---|---|---|---|
+| main.html | ok | ok | ok | ok | ok | ok | ok | PASS |
 
 ## 재작업 지시
 
