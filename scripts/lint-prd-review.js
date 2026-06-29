@@ -10,7 +10,7 @@
 // 자동으로 본다(작성자·메인이 셀프검증으로 건너뛰기 쉬운 것):
 //   ❌ prd-review.md 자체가 없음 (독립 비평이 안 돌았거나 산출물을 안 남김)
 //   ❌ "비평가:" 미기재 — 누가(어느 별도 컨텍스트가) 봤는지 불명 (셀프검증 방지 최소장치)
-//   ❌ 7개 판정 차원(measurable/justified/prioritized/dataCoherent/consistent/assumptionsSurfaced/scoped) 중 누락
+//   ❌ 8개 판정 차원(measurable/justified/prioritized/dataCoherent/consistent/assumptionsSurfaced/scoped/surfaceComplete) 중 누락
 //   ❌ 종합 "RESULT:" 미기재 / RESULT: FAIL (미달인데 /design 으로 진행 금지)
 //
 // green 없이 "PRD 완료" 선언·design 진입 금지. errors 있으면 exit 1.
@@ -47,13 +47,13 @@ if (!critic || /^[-–—\s]*$/.test(critic) || /<[^>]+>/.test(critic)) {
   ok.push(`비평가 기재됨: ${critic}`);
 }
 
-// 2) 7개 판정 차원이 다뤄졌나
-const DIMS = ['measurable', 'justified', 'prioritized', 'dataCoherent', 'consistent', 'assumptionsSurfaced', 'scoped'];
+// 2) 8개 판정 차원이 다뤄졌나
+const DIMS = ['measurable', 'justified', 'prioritized', 'dataCoherent', 'consistent', 'assumptionsSurfaced', 'scoped', 'surfaceComplete'];
 const missingDims = DIMS.filter((d) => !doc.includes(d));
 if (missingDims.length) {
-  errors.push(`판정 차원 누락: ${missingDims.join(', ')} — 7차원(measurable/justified/prioritized/dataCoherent/consistent/assumptionsSurfaced/scoped)을 다 판정하세요.`);
+  errors.push(`판정 차원 누락: ${missingDims.join(', ')} — 8차원(measurable/justified/prioritized/dataCoherent/consistent/assumptionsSurfaced/scoped/surfaceComplete)을 다 판정하세요.`);
 } else {
-  ok.push('판정 차원 7개 전부 다룸');
+  ok.push('판정 차원 8개 전부 다룸');
 }
 
 // 3) 종합 RESULT

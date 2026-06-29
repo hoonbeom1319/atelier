@@ -8,7 +8,7 @@
 // '비기능'이 '기능'(§4)으로 오인되는 충돌은 exclude로 막는다(늑대소년 방지).
 //
 // ERROR(= /design 진입 차단): 11개 섹션 중 부재.
-// WARN(검토 권장):           내용 깊이 — §5 관계표기·물리스키마 범위밖 / §4 MVP 마커 / §8 다크모드·뷰포트 / §11 빈 가정 / 전체 thin.
+// WARN(검토 권장):           내용 깊이 — §5 관계표기·물리스키마 범위밖 / §4 MVP 마커 / §7 화면 빈약·표준 골격 누락 신호 / §8 다크모드·뷰포트 / §11 빈 가정 / 전체 thin.
 //
 // errors 있으면 exit 1.
 const fs = require('fs');
@@ -83,6 +83,22 @@ if (matched[4] != null && !/MVP|다음|나중|p0|p1|우선순위/i.test(md)) {
 if (matched[8] != null) {
   if (!/다크\s*모드|dark\s*mode|라이트\s*\/?\s*다크/i.test(md)) warns.push('§8에 다크모드 여부가 안 보임 — /design 토큰 설계에 필요합니다.');
   if (!/모바일|데스크톱|desktop|mobile|뷰포트|반응형|390|태블릿/i.test(md)) warns.push('§8에 대상 뷰포트(모바일/데스크톱 등)가 안 보임 — /design이 화면 크기를 정할 근거입니다.');
+}
+// §7 화면 목록 + §10 범위 외: 표준 화면 골격(아키타입 table-stakes) 신호
+// 빈약함(표면 누락)은 scoped의 대칭이다. 자동 *판정*은 prd-critic의 surfaceComplete 차원이 하고,
+// 린트는 "보드 한 장만" 류 조용한 누락에 대한 *신호*(WARN)만 준다 — 키워드 기반이라 강제(ERROR)는 안 함.
+if (matched[7] != null) {
+  // §7 구간 = 매칭된 §7 헤더 ~ 다음 *상위 섹션*(§8…) 헤더 전까지. (bodyAfter는 번호목록 하위항목을
+  // 헤더로 오인해 §7을 너무 일찍 자르므로, 다음 매칭 섹션 경계로 잡아 화면을 온전히 센다.)
+  const nextSecIdx = SECTIONS.map((s) => matched[s.n]).filter((i) => i != null && i > matched[7]).sort((a, b) => a - b)[0];
+  const body7 = lines.slice(matched[7] + 1, nextSecIdx == null ? lines.length : nextSecIdx).join('\n');
+  // 화면처럼 보이는 항목: SC 마커 / "화면"·"screen" 든 굵은 라벨·헤더. (단순 줄머리 마커는 영역 하위항목까지 세므로 과다 — 화면 단위만.)
+  // 진짜 신호는 "화면 *개수*"가 아니라 "§7에 진입·셸 표준 화면이 *하나도 없다*"이다.
+  // (collab-kanban은 화면 3개였지만 전부 보드 계열 — 인증·홈·설정이 §7에 통째로 없었다.)
+  const scaffoldRe = /로그인|로그아웃|sign\s*in|sign\s*up|login|인증|온보딩|onboard|대시보드|dashboard|\bhome\b|홈[\s\(（:：·\-]|홈$|메인[\s\(（:：·\-]|설정|환경설정|settings|프로필|profile|계정|account|멤버|구성원|member|워크스페이스|workspace|사이드바|sidebar|네비게이션|navigation|앱\s*셸|app\s*shell/i;
+  if (!scaffoldRe.test(body7)) {
+    warns.push('§7 화면 목록에 진입·셸 표준 화면(로그인·홈/대시보드·설정·프로필·멤버 등) 키워드가 하나도 안 보임 — "핵심 툴 한 화면"만 정의됐을 가능성(collab-kanban 류 골격 누락). 포함이면 §7에 추가, 의도적 제외면 §10에 명시(조용한 누락 방지). 최종 판정은 prd-critic surfaceComplete.');
+  }
 }
 // §11 미해결 이슈와 가정: 빈 헤더 아님
 if (matched[11] != null) {

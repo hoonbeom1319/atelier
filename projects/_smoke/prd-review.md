@@ -16,7 +16,8 @@
 | dataCoherent | ok | 더미 — 데이터 모델이 기능 덮음 |
 | consistent | ok | 더미 — 지표→기능→흐름→화면 추적 |
 | assumptionsSurfaced | ok | 더미 — 가정 §11에 노출 |
-| scoped | ok | 더미 — Out of Scope 분명 |
+| scoped | ok | 더미 — Out of Scope 분명(범위 안 부풀음) |
+| surfaceComplete | ok | 더미 — 아키타입 table-stakes 화면(인증·홈·설정 등) §7에 있거나 §10 의도적 제외 명시 |
 
 ## 개정 지시 (FAIL이면)
 
