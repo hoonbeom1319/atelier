@@ -1,0 +1,42 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>상태·종류 태그 — team-leave Components</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{font-family:var(--font-sans);background:var(--color-bg);color:var(--color-text);margin:0;padding:var(--sp-8)}
+  h2{font-size:var(--fs-h2)}
+  .row{display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;margin:var(--sp-4) 0}
+  .tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:var(--r-full);font-size:var(--fs-sm);font-weight:var(--fw-medium)}
+  .dot{width:7px;height:7px;border-radius:50%}
+  .s-pending{background:var(--color-warning-bg);color:var(--color-warning)}
+  .s-approved{background:var(--color-success-bg);color:var(--color-success)}
+  .s-rejected{background:var(--color-danger-bg);color:var(--color-danger)}
+  .s-cancelled{background:var(--color-surface-alt);color:var(--color-text-muted);border:1px solid var(--color-border)}
+  .flag{background:var(--color-danger-bg);color:var(--color-danger);font-size:var(--fs-xs);padding:2px 8px;border-radius:var(--r-sm);font-weight:var(--fw-medium)}
+  .t-bar{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:var(--r-sm);font-size:var(--fs-sm);font-weight:var(--fw-medium)}
+  .meta{color:var(--color-text-subtle);font-size:var(--fs-xs);min-width:120px}
+</style>
+</head>
+<body>
+  <h2>신청 상태 태그 (색 + 텍스트 + 점 — 색맹 안전)</h2>
+  <div class="row"><span class="meta">status</span>
+    <span class="tag s-pending"><span class="dot" style="background:var(--color-warning)"></span>대기</span>
+    <span class="tag s-approved"><span class="dot" style="background:var(--color-success)"></span>승인</span>
+    <span class="tag s-rejected"><span class="dot" style="background:var(--color-danger)"></span>반려</span>
+    <span class="tag s-cancelled"><span class="dot" style="background:var(--color-text-subtle)"></span>취소</span>
+  </div>
+  <h2>플래그</h2>
+  <div class="row"><span class="meta">flag</span><span class="flag">부여 미설정</span></div>
+
+  <h2>휴가 종류 색 바 (캘린더 — 색 + 라벨)</h2>
+  <div class="row"><span class="meta">leave-type</span>
+    <span class="t-bar" style="background:var(--type-annual-bg);color:var(--type-annual-fg)">■ 연차</span>
+    <span class="t-bar" style="background:var(--type-half-bg);color:var(--type-half-fg)">▨ 반차(오전)</span>
+    <span class="t-bar" style="background:var(--type-sick-bg);color:var(--type-sick-fg)">● 병가</span>
+    <span class="t-bar" style="background:var(--type-event-bg);color:var(--type-event-fg)">◆ 경조사</span>
+  </div>
+</body>
+</html>

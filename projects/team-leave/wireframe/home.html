@@ -1,0 +1,101 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>홈/대시보드 — team-leave 와이어</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#fff;color:#222;margin:0;display:flex;min-height:100vh}
+  nav{width:200px;border-right:2px solid #999;padding:16px;box-sizing:border-box}
+  nav a{display:block;padding:6px 8px;color:#222;text-decoration:none;border-bottom:1px solid #eee}
+  nav .cur{display:block;padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold;background:#eee}
+  .hidden{display:none}
+  main{flex:1;padding:20px}
+  .top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;padding-bottom:10px;margin-bottom:16px}
+  .top .right{display:flex;gap:12px;align-items:center;font-size:13px}
+  select{padding:6px;border:1px solid #999}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .card{border:1px solid #999;padding:14px;min-height:90px}
+  .card h3{margin:0 0 8px;font-size:14px}
+  .big{font-size:22px;font-weight:bold}
+  .btn{display:inline-block;margin-top:10px;padding:8px 12px;border:2px solid #444;background:#eee;color:#222;text-decoration:none}
+  .muted{color:#777;font-size:13px}
+  h2{font-size:16px}
+</style>
+</head>
+<body>
+  <nav>
+    <strong>team-leave</strong>
+    <div style="margin-top:12px"></div>
+    <span class="cur" aria-current="page">홈</span>
+    <a href="request.html">휴가 신청</a>
+    <a href="approvals.html" data-mgr>승인 큐</a>
+    <a href="calendar.html">팀 캘린더</a>
+    <a href="balance.html">잔여 연차</a>
+    <a href="requests.html">내 신청</a>
+    <a href="notifications.html">알림</a>
+    <a href="members.html" data-hr>멤버 관리</a>
+    <a href="settings.html">설정</a>
+  </nav>
+  <main>
+    <div class="top">
+      <h2 id="title">홈 — 직원 뷰</h2>
+      <div class="right">
+        <label>역할 전환:
+          <select id="role" onchange="switchRole(this.value)">
+            <option value="emp">직원</option>
+            <option value="mgr">팀장</option>
+            <option value="hr">HR</option>
+          </select>
+        </label>
+        <a href="notifications.html">알림 <span id="badge">3</span></a>
+        <a href="settings.html">프로필</a>
+      </div>
+    </div>
+
+    <!-- 직원 뷰 -->
+    <section id="view-emp">
+      <div class="grid">
+        <div class="card"><h3>내 잔여 연차</h3><div class="big">10일</div><div class="muted">부여 15 / 사용 3 / 대기 2</div><a class="btn" href="balance.html">잔여 상세</a></div>
+        <div class="card"><h3>내 신청 상태</h3><div>대기 1 · 승인 2 · 반려 0</div><a class="btn" href="requests.html">내 신청 보기</a></div>
+        <div class="card"><h3>팀 부재 미리보기</h3><div class="muted">오늘 2명 휴가 중</div><a class="btn" href="calendar.html">캘린더</a></div>
+      </div>
+      <p style="margin-top:16px"><a class="btn" href="request.html">+ 휴가 신청</a></p>
+    </section>
+
+    <!-- 팀장 뷰 -->
+    <section id="view-mgr" class="hidden">
+      <div class="grid">
+        <div class="card"><h3>승인 대기 큐</h3><div class="big">4건</div><a class="btn" href="approvals.html">승인 큐로</a></div>
+        <div class="card"><h3>팀 캘린더 요약</h3><div class="muted">이번 주 부재 5명</div><a class="btn" href="calendar.html">캘린더</a></div>
+        <div class="card"><h3>내 잔여</h3><div class="big">8일</div><a class="btn" href="balance.html">잔여 상세</a></div>
+      </div>
+    </section>
+
+    <!-- HR 뷰 -->
+    <section id="view-hr" class="hidden">
+      <div class="grid">
+        <div class="card"><h3>전사 휴가 현황</h3><div class="muted">오늘 12명 휴가 · 대기 9건</div><a class="btn" href="calendar.html">전사 캘린더</a></div>
+        <div class="card"><h3>부여 미설정 직원</h3><div class="big">2명</div><a class="btn" href="members.html">멤버 관리로</a></div>
+        <div class="card"><h3>전사 승인 대기</h3><div class="big">9건</div><a class="btn" href="approvals.html">전체 보기</a></div>
+      </div>
+    </section>
+
+    <p class="muted" style="margin-top:24px">빈 상태 예: 신청 0·대기 0·부여 미설정 0이어도 위 카드의 CTA로 다음 행동 유도(막다른 길 0).</p>
+  </main>
+
+<script>
+  function switchRole(r){
+    ['emp','mgr','hr'].forEach(function(k){
+      document.getElementById('view-'+k).classList.toggle('hidden', k!==r);
+    });
+    var t={emp:'홈 — 직원 뷰',mgr:'홈 — 팀장 뷰',hr:'홈 — HR 뷰'};
+    document.getElementById('title').textContent=t[r];
+    // RBAC: 내비 가시성
+    document.querySelectorAll('[data-mgr]').forEach(function(el){el.style.display=(r==='mgr'||r==='hr')?'block':'none';});
+    document.querySelectorAll('[data-hr]').forEach(function(el){el.style.display=(r==='hr')?'block':'none';});
+  }
+  switchRole('emp');
+</script>
+</body>
+</html>

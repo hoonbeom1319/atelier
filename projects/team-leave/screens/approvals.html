@@ -1,0 +1,939 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>승인 큐 — team-leave</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:var(--font-sans);
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-size:var(--fs-body);
+    line-height:var(--lh-body);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+
+  /* ───────── 좌측 내비 (디밍된 chrome) ───────── */
+  .side{
+    width:240px;flex:0 0 240px;
+    background:var(--color-surface-alt);
+    border-right:1px solid var(--color-border);
+    display:flex;flex-direction:column;
+    padding:var(--sp-4) var(--sp-3);
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{
+    display:flex;align-items:center;gap:var(--sp-2);
+    padding:var(--sp-2) var(--sp-2) var(--sp-4);
+  }
+  .brand .logo{
+    width:28px;height:28px;border-radius:var(--r-md);
+    background:var(--color-primary);color:var(--color-on-primary);
+    display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-sm);
+    box-shadow:var(--shadow-xs);
+  }
+  .brand .name{font-weight:var(--fw-semibold);font-size:var(--fs-h3);letter-spacing:-.01em}
+  .nav-group{margin-bottom:var(--sp-4)}
+  .nav-cap{
+    font-size:var(--fs-xs);color:var(--color-text-subtle);
+    font-weight:var(--fw-semibold);letter-spacing:.06em;text-transform:uppercase;
+    padding:var(--sp-2) var(--sp-2) var(--sp-1);
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:var(--sp-3);
+    height:35px;padding:0 var(--sp-2);border-radius:var(--r-sm);
+    color:var(--color-text-muted);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+  }
+  .nav-item svg{width:17px;height:17px;flex:0 0 17px;stroke-width:1.8}
+  .nav-item:hover{background:var(--color-border);color:var(--color-text)}
+  .nav-item .badge{
+    margin-left:auto;background:var(--color-primary);color:var(--color-on-primary);
+    font-size:var(--fs-xs);font-weight:var(--fw-bold);min-width:18px;height:18px;
+    border-radius:var(--r-full);display:grid;place-items:center;padding:0 5px;line-height:1;
+  }
+  .nav-item[aria-current="page"]{
+    background:var(--color-primary-soft);color:var(--color-primary);font-weight:var(--fw-semibold);
+  }
+  .nav-item[aria-current="page"] svg{color:var(--color-primary)}
+  .nav-item:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .side-foot{margin-top:auto;padding-top:var(--sp-4)}
+
+  /* ───────── 본문 셸 ───────── */
+  .app{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--color-bg)}
+  .topbar{
+    display:flex;align-items:center;gap:var(--sp-4);
+    padding:var(--sp-4) var(--sp-8);
+    background:var(--color-surface);
+    border-bottom:1px solid var(--color-border);
+    position:sticky;top:0;z-index:20;
+  }
+  .topbar .title-wrap{display:flex;flex-direction:column;gap:2px}
+  .topbar h1{margin:0;font-size:var(--fs-h1);font-weight:var(--fw-bold);letter-spacing:-.02em;line-height:var(--lh-tight)}
+  .topbar .crumb{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .topbar .spacer{flex:1}
+  .role-sel{position:relative;display:flex;align-items:center}
+  .role-sel select{
+    appearance:none;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    color:var(--color-text);background:var(--color-surface);
+    border:1px solid var(--color-border-strong);border-radius:var(--r-sm);
+    padding:7px 30px 7px var(--sp-3);cursor:pointer;
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  .role-sel select:hover{border-color:var(--color-text-subtle)}
+  .role-sel select:focus-visible{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .role-sel .chev{position:absolute;right:10px;pointer-events:none;color:var(--color-text-subtle)}
+  .icon-btn{
+    width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--color-border);
+    background:var(--color-surface);display:grid;place-items:center;cursor:pointer;position:relative;
+    color:var(--color-text-muted);transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+  }
+  .icon-btn:hover{background:var(--color-surface-alt);border-color:var(--color-border-strong);color:var(--color-text)}
+  .icon-btn:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .icon-btn .dot{
+    position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:var(--r-full);
+    background:var(--color-danger);border:2px solid var(--color-surface);
+  }
+  .profile{display:flex;align-items:center;gap:var(--sp-2);padding:4px 4px 4px 4px;border-radius:var(--r-sm);transition:background var(--dur-fast) var(--ease)}
+  .profile:hover{background:var(--color-surface-alt)}
+  .avatar{
+    width:30px;height:30px;border-radius:var(--r-full);display:grid;place-items:center;
+    font-size:var(--fs-xs);font-weight:var(--fw-bold);color:var(--color-on-primary);
+    background:var(--color-primary);flex:0 0 30px;
+  }
+  .profile .pname{font-size:var(--fs-sm);font-weight:var(--fw-semibold)}
+  .profile .prole{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+
+  /* ───────── 콘텐츠 영역 ───────── */
+  .content{padding:var(--sp-6) var(--sp-8) var(--sp-10);max-width:1160px;width:100%}
+  .layout{display:block}
+
+  /* 상단 요약 스트립(항상 표시 — 테이블 폭을 뺏지 않는다) */
+  .summary-strip{display:grid;grid-template-columns:1.1fr .9fr .9fr 1.3fr;gap:var(--sp-4);margin-bottom:var(--sp-5)}
+  .scard{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);box-shadow:var(--shadow-xs);padding:var(--sp-4) var(--sp-5);display:flex;flex-direction:column;justify-content:center;min-height:84px}
+  .scard .sl{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-semibold);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .scard .sbig{display:flex;align-items:baseline;gap:6px}
+  .scard .sbig b{font-size:var(--fs-display);font-weight:var(--fw-bold);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .scard .sbig span{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .scard.legend-card{flex-direction:column;justify-content:center;gap:8px}
+  .scard.legend-card .lrow{display:flex;gap:var(--sp-4);flex-wrap:wrap}
+  .scard .lg{display:flex;align-items:center;gap:6px;font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .scard .lg .sw{width:10px;height:10px;border-radius:3px}
+
+  /* 탭 */
+  .tabbar{display:flex;gap:var(--sp-1);border-bottom:1px solid var(--color-border);margin-bottom:var(--sp-4)}
+  .tab{
+    appearance:none;background:none;border:none;cursor:pointer;
+    padding:var(--sp-3) var(--sp-3);margin-bottom:-1px;
+    font-size:var(--fs-body);font-weight:var(--fw-medium);color:var(--color-text-muted);
+    border-bottom:2px solid transparent;display:flex;align-items:center;gap:var(--sp-2);
+    transition:color var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+  }
+  .tab:hover{color:var(--color-text)}
+  .tab .pill{
+    background:var(--color-border);color:var(--color-text-muted);
+    font-size:var(--fs-xs);font-weight:var(--fw-bold);
+    border-radius:var(--r-full);min-width:20px;height:18px;padding:0 6px;
+    display:inline-grid;place-items:center;line-height:1;transition:all var(--dur) var(--ease);
+  }
+  .tab[aria-selected="true"]{color:var(--color-text);font-weight:var(--fw-semibold);border-bottom-color:var(--color-primary)}
+  .tab[aria-selected="true"] .pill{background:var(--color-primary-soft);color:var(--color-primary)}
+  .tab:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:var(--r-sm)}
+
+  /* 필터바 */
+  .filterbar{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap}
+  .filter-label{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-semibold);text-transform:uppercase;letter-spacing:.04em;margin-right:var(--sp-1)}
+  .chip{
+    appearance:none;cursor:pointer;font-family:inherit;
+    border:1px solid var(--color-border);background:var(--color-surface);
+    color:var(--color-text-muted);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    padding:5px var(--sp-3);border-radius:var(--r-full);
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .chip:hover{border-color:var(--color-border-strong);color:var(--color-text);background:var(--color-surface-alt)}
+  .chip[aria-pressed="true"]{background:var(--color-primary-soft);border-color:var(--indigo-100);color:var(--color-primary);font-weight:var(--fw-semibold)}
+  .chip:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .search{
+    margin-left:auto;display:flex;align-items:center;gap:var(--sp-2);
+    border:1px solid var(--color-border);background:var(--color-surface);border-radius:var(--r-sm);
+    padding:6px var(--sp-3);min-width:200px;transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  .search:focus-within{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .search svg{color:var(--color-text-subtle);width:15px;height:15px}
+  .search input{border:none;outline:none;font-family:inherit;font-size:var(--fs-sm);background:none;color:var(--color-text);width:100%}
+  .search input::placeholder{color:var(--color-text-subtle)}
+
+  /* 테이블 카드 */
+  .table-card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--r-lg);box-shadow:var(--shadow-xs);overflow:hidden;
+  }
+  table{border-collapse:collapse;width:100%}
+  thead th{
+    background:var(--color-surface-alt);
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text-muted);
+    text-align:left;padding:var(--sp-3) var(--sp-4);
+    border-bottom:1px solid var(--color-border);white-space:nowrap;
+  }
+  thead th.num{text-align:right}
+  tbody td{
+    padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--color-border);
+    font-size:var(--fs-body);color:var(--color-text);vertical-align:middle;
+  }
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr{transition:background var(--dur-fast) var(--ease);cursor:pointer}
+  tbody tr:hover{background:var(--color-surface-alt)}
+  tbody tr[data-selected="true"]{background:var(--color-primary-soft)}
+  tbody tr[data-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--color-primary)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:var(--fw-medium)}
+
+  .applicant{display:flex;align-items:center;gap:var(--sp-3)}
+  .av-sm{
+    width:32px;height:32px;border-radius:var(--r-full);display:grid;place-items:center;
+    font-size:var(--fs-xs);font-weight:var(--fw-bold);color:#fff;flex:0 0 32px;
+  }
+  .applicant .meta{display:flex;flex-direction:column;line-height:1.3}
+  .applicant .pn{font-weight:var(--fw-semibold);font-size:var(--fs-body)}
+  .applicant .pt{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+  .period{display:flex;flex-direction:column;line-height:1.3}
+  .period .pd{font-weight:var(--fw-medium)}
+  .period .ap{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+  .reason{color:var(--color-text-muted);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* 종류 / 상태 태그 */
+  .tag{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    padding:3px 9px;border-radius:var(--r-full);white-space:nowrap;line-height:1.4;
+  }
+  .tag .dot{width:6px;height:6px;border-radius:var(--r-full);background:currentColor;flex:0 0 6px}
+  .tag.t-annual{background:var(--type-annual-bg);color:var(--type-annual-fg)}
+  .tag.t-half{background:var(--type-half-bg);color:var(--type-half-fg)}
+  .tag.t-sick{background:var(--type-sick-bg);color:var(--type-sick-fg)}
+  .tag.t-event{background:var(--type-event-bg);color:var(--type-event-fg)}
+  .tag.s-pending{background:var(--color-warning-bg);color:var(--color-warning)}
+  .tag.s-approved{background:var(--color-success-bg);color:var(--color-success)}
+  .tag.s-rejected{background:var(--color-danger-bg);color:var(--color-danger)}
+
+  /* 행 액션 — 기본 가독성 우선(opacity 디밍 제거: 대비 WCAG AA 유지). hover/선택은 elevation으로 강조 */
+  .row-actions{display:flex;gap:6px;justify-content:flex-end}
+  tr:hover .row-actions .act,tr[data-selected="true"] .row-actions .act{box-shadow:var(--shadow-xs)}
+  .act{
+    appearance:none;cursor:pointer;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-muted);
+    padding:5px 10px;border-radius:var(--r-sm);white-space:nowrap;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .act:hover{border-color:var(--color-border-strong);color:var(--color-text);background:var(--color-surface-alt)}
+  .act:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .act.approve{color:var(--color-success);border-color:transparent;background:var(--color-success-bg)}
+  .act.approve:hover{background:#d6efdf}
+  .act.reject{color:var(--color-danger);border-color:transparent;background:var(--color-danger-bg)}
+  .act.reject:hover{background:#fbdede}
+  .resolved{font-size:var(--fs-sm);color:var(--color-text-subtle);font-weight:var(--fw-medium);display:inline-flex;align-items:center;gap:6px}
+  .resolved svg{width:15px;height:15px}
+
+  /* 빈 상태 */
+  .empty{
+    display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:var(--sp-10) var(--sp-6);
+  }
+  .empty.show{display:flex}
+  .empty .ill{
+    width:56px;height:56px;border-radius:var(--r-lg);background:var(--color-success-bg);
+    display:grid;place-items:center;color:var(--color-success);margin-bottom:var(--sp-4);
+  }
+  .empty h3{margin:0 0 var(--sp-2);font-size:var(--fs-h3);font-weight:var(--fw-semibold)}
+  .empty p{margin:0 0 var(--sp-5);font-size:var(--fs-sm);color:var(--color-text-muted);max-width:340px}
+  .btn-primary{
+    appearance:none;cursor:pointer;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+    background:var(--color-primary);color:var(--color-on-primary);border:none;
+    padding:9px var(--sp-5);border-radius:var(--r-sm);box-shadow:var(--shadow-xs);
+    transition:background var(--dur-fast) var(--ease);display:inline-flex;align-items:center;gap:var(--sp-2);
+  }
+  .btn-primary:hover{background:var(--color-primary-hover)}
+  .btn-primary:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+  /* ───────── 우측 레일 = 행 선택 시 슬라이드인 드로어 (테이블 폭 미점유) ───────── */
+  .rail{
+    position:fixed;top:0;right:0;height:100vh;width:360px;max-width:90vw;
+    background:var(--color-surface);border-left:1px solid var(--color-border);
+    box-shadow:var(--shadow-lg);z-index:50;padding:var(--sp-5);overflow-y:auto;
+    transform:translateX(100%);visibility:hidden;transition:transform var(--dur) var(--ease),visibility var(--dur) var(--ease);
+    display:flex;flex-direction:column;gap:var(--sp-5);
+  }
+  .rail.open{transform:none;visibility:visible}
+  .rail-backdrop{position:fixed;inset:0;background:rgba(24,27,32,.18);z-index:49;opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--dur) var(--ease),visibility var(--dur) var(--ease)}
+  .rail-backdrop.open{opacity:1;visibility:visible;pointer-events:auto}
+  .card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--r-lg);box-shadow:var(--shadow-xs);padding:var(--sp-5);
+  }
+  .card h2{margin:0 0 var(--sp-1);font-size:var(--fs-h3);font-weight:var(--fw-semibold);letter-spacing:-.01em}
+  .card .sub{font-size:var(--fs-xs);color:var(--color-text-subtle);margin:0 0 var(--sp-4)}
+
+  /* 큐 메트릭 */
+  .metric{display:flex;align-items:baseline;gap:var(--sp-2)}
+  .metric .big{font-size:var(--fs-display);font-weight:var(--fw-bold);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .metric .unit{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-top:var(--sp-4)}
+  .mini{background:var(--color-surface-alt);border-radius:var(--r-md);padding:var(--sp-3)}
+  .mini .mv{font-size:var(--fs-h2);font-weight:var(--fw-bold);font-variant-numeric:tabular-nums;line-height:1.1}
+  .mini .ml{font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:2px}
+
+  /* 범례 */
+  .legend{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--color-border)}
+  .legend .lg{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .legend .sw{width:10px;height:10px;border-radius:3px}
+
+  /* 충돌 패널 — 드로어 안에서 항상 표시(드로어 transform이 가시성 제어) */
+  #conflictCard{animation:slidein var(--dur) var(--ease)}
+  @keyframes slidein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .cf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp-2)}
+  .cf-close{appearance:none;border:none;background:none;cursor:pointer;color:var(--color-text-subtle);padding:2px;border-radius:var(--r-sm);line-height:0}
+  .cf-close:hover{color:var(--color-text);background:var(--color-surface-alt)}
+  .cf-applicant{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-4) 0;padding:var(--sp-3);background:var(--color-surface-alt);border-radius:var(--r-md)}
+  .cf-applicant .meta .n{font-weight:var(--fw-semibold)}
+  .cf-applicant .meta .d{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+  .cf-banner{
+    display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-3);border-radius:var(--r-md);
+    font-size:var(--fs-sm);line-height:var(--lh-body);
+  }
+  .cf-banner.warn{background:var(--color-warning-bg);color:var(--color-warning)}
+  .cf-banner.ok{background:var(--color-success-bg);color:var(--color-success)}
+  .cf-banner svg{flex:0 0 17px;width:17px;height:17px;margin-top:1px}
+  .cf-banner b{font-weight:var(--fw-bold)}
+  .cf-overlap{margin-top:var(--sp-4);display:flex;flex-direction:column;gap:var(--sp-2)}
+  .cf-overlap .ttl{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:.04em}
+  .ov-row{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);padding:6px 0}
+  .ov-row .dt{margin-left:auto;color:var(--color-text-subtle);font-size:var(--fs-xs)}
+  .cf-actions{display:flex;gap:var(--sp-2);margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:1px solid var(--color-border)}
+  .cf-actions .act{flex:1;justify-content:center;text-align:center}
+
+  /* 처리됨 페인 */
+  #pane-done{display:none}
+  #pane-done.show{display:block}
+  .hide{display:none!important}
+
+  /* ───────── 모달 ───────── */
+  .overlay{
+    position:fixed;inset:0;background:rgba(24,27,32,.42);
+    display:none;align-items:center;justify-content:center;z-index:60;
+    animation:fade var(--dur) var(--ease);
+  }
+  .overlay.show{display:flex}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{
+    background:var(--color-surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);
+    width:440px;max-width:calc(100vw - 48px);padding:var(--sp-6);
+    animation:pop var(--dur) var(--ease);
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .modal h3{margin:0 0 var(--sp-1);font-size:var(--fs-h2);font-weight:var(--fw-semibold)}
+  .modal .mdsub{margin:0 0 var(--sp-4);font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .mod-applicant{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);background:var(--color-surface-alt);border-radius:var(--r-md);margin-bottom:var(--sp-4)}
+  .field-label{display:flex;justify-content:space-between;align-items:center;font-size:var(--fs-sm);font-weight:var(--fw-medium);margin-bottom:var(--sp-2)}
+  .req{color:var(--color-danger);font-weight:var(--fw-bold)}
+  .reasons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--sp-3)}
+  .qreason{
+    appearance:none;cursor:pointer;font-family:inherit;font-size:var(--fs-xs);font-weight:var(--fw-medium);
+    border:1px dashed var(--color-border-strong);background:var(--color-surface);color:var(--color-text-muted);
+    padding:4px 10px;border-radius:var(--r-full);transition:all var(--dur-fast) var(--ease);
+  }
+  .qreason:hover{border-style:solid;border-color:var(--color-primary);color:var(--color-primary);background:var(--color-primary-soft)}
+  textarea{
+    width:100%;box-sizing:border-box;font-family:inherit;font-size:var(--fs-body);line-height:var(--lh-body);
+    color:var(--color-text);background:var(--color-surface);
+    border:1px solid var(--color-border-strong);border-radius:var(--r-md);padding:var(--sp-3);resize:vertical;min-height:84px;
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  textarea::placeholder{color:var(--color-text-subtle)}
+  textarea:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .help{font-size:var(--fs-xs);color:var(--color-text-subtle);margin-top:6px;display:flex;align-items:center;gap:6px}
+  .help.err{color:var(--color-danger)}
+  .modal-foot{display:flex;justify-content:flex-end;gap:var(--sp-2);margin-top:var(--sp-5)}
+  .btn-ghost{
+    appearance:none;cursor:pointer;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    background:var(--color-surface);color:var(--color-text-muted);border:1px solid var(--color-border-strong);
+    padding:9px var(--sp-4);border-radius:var(--r-sm);transition:all var(--dur-fast) var(--ease);
+  }
+  .btn-ghost:hover{background:var(--color-surface-alt);color:var(--color-text)}
+  .btn-ghost:focus-visible,.btn-primary:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+  .btn-danger{
+    appearance:none;cursor:pointer;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+    background:var(--color-danger);color:#fff;border:none;padding:9px var(--sp-5);border-radius:var(--r-sm);
+    transition:background var(--dur-fast) var(--ease),opacity var(--dur-fast) var(--ease);
+  }
+  .btn-danger:hover:not(:disabled){background:var(--red-700)}
+  .btn-danger:disabled{background:var(--color-border-strong);color:var(--gray-500);cursor:not-allowed}
+  .btn-danger:focus-visible{outline:2px solid var(--color-danger);outline-offset:2px}
+
+  /* 토스트 */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--color-text);color:var(--color-surface);
+    padding:11px var(--sp-5);border-radius:var(--r-md);box-shadow:var(--shadow-lg);
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);display:flex;align-items:center;gap:var(--sp-2);
+    opacity:0;pointer-events:none;transition:all var(--dur) var(--ease);z-index:80;
+  }
+  .toast svg{width:16px;height:16px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .av-1{background:#6366f1}.av-2{background:#0ea5a4}.av-3{background:#d97706}.av-4{background:#db2777}.av-5{background:#2563eb}.av-6{background:#7c3aed}
+</style>
+</head>
+<body>
+  <!-- ───────── 좌측 내비 ───────── -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">TL</div>
+      <div class="name">team-leave</div>
+    </div>
+
+    <div class="nav-group">
+      <a class="nav-item" href="home.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>홈
+      </a>
+      <a class="nav-item" href="request.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>휴가 신청
+      </a>
+      <a class="nav-item" href="approvals.html" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>승인 큐
+        <span class="badge" id="navBadge">3</span>
+      </a>
+      <a class="nav-item" href="calendar.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀 캘린더
+      </a>
+      <a class="nav-item" href="balance.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-9-9v9z"/></svg>잔여 연차
+      </a>
+      <a class="nav-item" href="requests.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>내 신청
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-cap">관리</div>
+      <a class="nav-item" href="notifications.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>알림
+      </a>
+      <a class="nav-item" href="members.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>멤버 관리
+      </a>
+      <a class="nav-item" href="settings.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.7 1.27 2 2 0 0 1-4 0 1.65 1.65 0 0 0-2.7-1.27l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9z"/></svg>설정
+      </a>
+    </div>
+
+    <div class="side-foot">
+      <a class="nav-item" href="settings.html">
+        <span class="avatar" style="width:26px;height:26px;flex:0 0 26px">박</span>박서준 · 팀장
+      </a>
+    </div>
+  </aside>
+
+  <!-- ───────── 본문 ───────── -->
+  <div class="app">
+    <header class="topbar">
+      <div class="title-wrap">
+        <span class="crumb">관리 · 승인 워크플로우</span>
+        <h1>승인 큐</h1>
+      </div>
+      <div class="spacer"></div>
+      <label class="role-sel" title="역할 전환">
+        <select aria-label="역할 전환">
+          <option>팀장 뷰</option>
+          <option>HR 뷰</option>
+        </select>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </label>
+      <a class="icon-btn" href="notifications.html" aria-label="알림">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="dot"></span>
+      </a>
+      <a class="profile" href="settings.html">
+        <span class="avatar">박</span>
+        <span style="display:flex;flex-direction:column;line-height:1.2">
+          <span class="pname">박서준</span>
+          <span class="prole">개발팀 · 팀장</span>
+        </span>
+      </a>
+    </header>
+
+    <main class="content">
+      <div class="layout">
+        <!-- 본문: 요약 스트립 + 탭 + 필터 + 테이블(전폭) -->
+        <section>
+          <div class="summary-strip">
+            <div class="scard">
+              <div class="sl">대기 중</div>
+              <div class="sbig"><b id="railPending">3</b><span>건 · 내 액션 필요</span></div>
+            </div>
+            <div class="scard">
+              <div class="sl">오늘 팀 부재</div>
+              <div class="sbig"><b id="railToday">2</b><span>명</span></div>
+            </div>
+            <div class="scard">
+              <div class="sl">이번 달 승인</div>
+              <div class="sbig"><b>8</b><span>건</span></div>
+            </div>
+            <div class="scard legend-card">
+              <div class="sl">휴가 종류</div>
+              <div class="lrow">
+                <span class="lg"><span class="sw" style="background:var(--type-annual-fg)"></span>연차</span>
+                <span class="lg"><span class="sw" style="background:var(--type-half-fg)"></span>반차</span>
+                <span class="lg"><span class="sw" style="background:var(--type-sick-fg)"></span>병가</span>
+                <span class="lg"><span class="sw" style="background:var(--type-event-fg)"></span>경조사</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabbar" role="tablist" aria-label="승인 큐 탭">
+            <button class="tab" id="tab-pending" role="tab" aria-selected="true" onclick="showTab('pending')">
+              대기 <span class="pill"><span id="cnt">3</span></span>
+            </button>
+            <button class="tab" id="tab-done" role="tab" aria-selected="false" onclick="showTab('done')">
+              처리됨 <span class="pill">3</span>
+            </button>
+          </div>
+
+          <!-- 대기 페인 -->
+          <div id="pane-pending">
+            <div class="filterbar" id="filterbar">
+              <span class="filter-label">종류</span>
+              <button class="chip" aria-pressed="true" data-filter="all" onclick="filterType(this,'all')">전체</button>
+              <button class="chip" aria-pressed="false" data-filter="annual" onclick="filterType(this,'annual')">연차</button>
+              <button class="chip" aria-pressed="false" data-filter="half" onclick="filterType(this,'half')">반차</button>
+              <button class="chip" aria-pressed="false" data-filter="sick" onclick="filterType(this,'sick')">병가</button>
+              <button class="chip" aria-pressed="false" data-filter="event" onclick="filterType(this,'event')">경조사</button>
+              <span class="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                <input type="text" placeholder="신청자 검색" aria-label="신청자 검색" oninput="searchRows(this.value)">
+              </span>
+            </div>
+
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>신청자</th>
+                    <th>종류</th>
+                    <th>기간</th>
+                    <th class="num">일수</th>
+                    <th>신청일</th>
+                    <th>사유</th>
+                    <th>상태</th>
+                    <th class="num">액션</th>
+                  </tr>
+                </thead>
+                <tbody id="rows">
+                  <tr data-row data-type="annual" data-name="김민수" data-team="개발팀" data-period="7/20 ~ 7/21" data-conflict="0" onclick="selectRow(this)">
+                    <td>
+                      <div class="applicant"><span class="av-sm av-1">김</span>
+                        <span class="meta"><span class="pn">김민수</span><span class="pt">개발팀 · 사원</span></span></div>
+                    </td>
+                    <td><span class="tag t-annual"><span class="dot"></span>연차</span></td>
+                    <td><div class="period"><span class="pd">7/20 ~ 7/21</span><span class="ap">월~화</span></div></td>
+                    <td class="num">2</td>
+                    <td>6/24</td>
+                    <td><span class="reason" title="개인 사정">개인 사정</span></td>
+                    <td><span class="tag s-pending" data-status="대기"><span class="dot"></span>대기</span></td>
+                    <td>
+                      <div class="row-actions" data-actions>
+                        <button class="act" onclick="event.stopPropagation();selectRow(this.closest('tr'))">상세</button>
+                        <button class="act approve" onclick="event.stopPropagation();approve(this)">승인</button>
+                        <button class="act reject" onclick="event.stopPropagation();openReject(this)">반려</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-row data-type="half" data-name="이서연" data-team="개발팀" data-period="7/22 오전" data-conflict="0" onclick="selectRow(this)">
+                    <td>
+                      <div class="applicant"><span class="av-sm av-2">이</span>
+                        <span class="meta"><span class="pn">이서연</span><span class="pt">개발팀 · 주임</span></span></div>
+                    </td>
+                    <td><span class="tag t-half"><span class="dot"></span>반차</span></td>
+                    <td><div class="period"><span class="pd">7/22</span><span class="ap">오전 반차</span></div></td>
+                    <td class="num">0.5</td>
+                    <td>6/25</td>
+                    <td><span class="reason" title="병원 진료">병원 진료</span></td>
+                    <td><span class="tag s-pending" data-status="대기"><span class="dot"></span>대기</span></td>
+                    <td>
+                      <div class="row-actions" data-actions>
+                        <button class="act" onclick="event.stopPropagation();selectRow(this.closest('tr'))">상세</button>
+                        <button class="act approve" onclick="event.stopPropagation();approve(this)">승인</button>
+                        <button class="act reject" onclick="event.stopPropagation();openReject(this)">반려</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-row data-type="annual" data-name="박지훈" data-team="개발팀" data-period="7/25 ~ 7/29" data-conflict="2" data-conflict-names="이서연(7/25), 한지민(7/24~25)" onclick="selectRow(this)">
+                    <td>
+                      <div class="applicant"><span class="av-sm av-3">박</span>
+                        <span class="meta"><span class="pn">박지훈</span><span class="pt">개발팀 · 선임</span></span></div>
+                    </td>
+                    <td><span class="tag t-annual"><span class="dot"></span>연차</span></td>
+                    <td><div class="period"><span class="pd">7/25 ~ 7/29</span><span class="ap">금~화 (5영업일)</span></div></td>
+                    <td class="num">5</td>
+                    <td>6/26</td>
+                    <td><span class="reason" title="여름 휴가 (가족 여행)">여름 휴가 (가족 여행)</span></td>
+                    <td><span class="tag s-pending" data-status="대기"><span class="dot"></span>대기</span></td>
+                    <td>
+                      <div class="row-actions" data-actions>
+                        <button class="act" onclick="event.stopPropagation();selectRow(this.closest('tr'))">상세</button>
+                        <button class="act approve" onclick="event.stopPropagation();approve(this)">승인</button>
+                        <button class="act reject" onclick="event.stopPropagation();openReject(this)">반려</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-row data-type="sick" data-name="정우성" data-team="디자인팀" data-period="7/18" data-conflict="0" onclick="selectRow(this)">
+                    <td>
+                      <div class="applicant"><span class="av-sm av-4">정</span>
+                        <span class="meta"><span class="pn">정우성</span><span class="pt">디자인팀 · 사원</span></span></div>
+                    </td>
+                    <td><span class="tag t-sick"><span class="dot"></span>병가</span></td>
+                    <td><div class="period"><span class="pd">7/18</span><span class="ap">금</span></div></td>
+                    <td class="num">1</td>
+                    <td>6/27</td>
+                    <td><span class="reason" title="감기 몸살, 진단서 첨부">감기 몸살, 진단서 첨부</span></td>
+                    <td><span class="tag s-pending" data-status="대기"><span class="dot"></span>대기</span></td>
+                    <td>
+                      <div class="row-actions" data-actions>
+                        <button class="act" onclick="event.stopPropagation();selectRow(this.closest('tr'))">상세</button>
+                        <button class="act approve" onclick="event.stopPropagation();approve(this)">승인</button>
+                        <button class="act reject" onclick="event.stopPropagation();openReject(this)">반려</button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-row data-type="event" data-name="한지민" data-team="개발팀" data-period="7/23 ~ 7/24" data-conflict="1" data-conflict-names="박지훈(7/25~ 인접)" onclick="selectRow(this)">
+                    <td>
+                      <div class="applicant"><span class="av-sm av-6">한</span>
+                        <span class="meta"><span class="pn">한지민</span><span class="pt">개발팀 · 사원</span></span></div>
+                    </td>
+                    <td><span class="tag t-event"><span class="dot"></span>경조사</span></td>
+                    <td><div class="period"><span class="pd">7/23 ~ 7/24</span><span class="ap">수~목</span></div></td>
+                    <td class="num">2</td>
+                    <td>6/28</td>
+                    <td><span class="reason" title="본인 결혼">본인 결혼</span></td>
+                    <td><span class="tag s-pending" data-status="대기"><span class="dot"></span>대기</span></td>
+                    <td>
+                      <div class="row-actions" data-actions>
+                        <button class="act" onclick="event.stopPropagation();selectRow(this.closest('tr'))">상세</button>
+                        <button class="act approve" onclick="event.stopPropagation();approve(this)">승인</button>
+                        <button class="act reject" onclick="event.stopPropagation();openReject(this)">반려</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- 빈 큐 상태 -->
+              <div class="empty" id="emptyq">
+                <div class="ill">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <h3>모든 신청을 처리했습니다</h3>
+                <p>대기 중인 승인 요청이 없습니다. 팀 캘린더에서 다가오는 부재 현황을 확인하거나, 처리 이력을 검토하세요.</p>
+                <a class="btn-primary" href="calendar.html">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                  팀 캘린더 보기
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 처리됨 페인 -->
+          <div id="pane-done">
+            <div class="table-card" style="margin-top:var(--sp-1)">
+              <table>
+                <thead>
+                  <tr>
+                    <th>신청자</th>
+                    <th>종류</th>
+                    <th>기간</th>
+                    <th class="num">일수</th>
+                    <th>처리 결과</th>
+                    <th>처리자</th>
+                    <th>처리일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><div class="applicant"><span class="av-sm av-5">최</span><span class="meta"><span class="pn">최유진</span><span class="pt">개발팀 · 주임</span></span></div></td>
+                    <td><span class="tag t-annual"><span class="dot"></span>연차</span></td>
+                    <td><div class="period"><span class="pd">7/3 ~ 7/4</span></div></td>
+                    <td class="num">2</td>
+                    <td><span class="tag s-approved"><span class="dot"></span>승인</span></td>
+                    <td>나 (팀장)</td>
+                    <td>6/20</td>
+                  </tr>
+                  <tr>
+                    <td><div class="applicant"><span class="av-sm av-2">정</span><span class="meta"><span class="pn">정해성</span><span class="pt">개발팀 · 선임</span></span></div></td>
+                    <td><span class="tag t-annual"><span class="dot"></span>연차</span></td>
+                    <td><div class="period"><span class="pd">7/1</span></div></td>
+                    <td class="num">1</td>
+                    <td><span class="tag s-rejected"><span class="dot"></span>반려</span> <span style="font-size:var(--fs-xs);color:var(--color-text-subtle)">Q3 출시 주간 겹침</span></td>
+                    <td>나 (팀장)</td>
+                    <td>6/19</td>
+                  </tr>
+                  <tr>
+                    <td><div class="applicant"><span class="av-sm av-3">강</span><span class="meta"><span class="pn">강도현</span><span class="pt">디자인팀 · 사원</span></span></div></td>
+                    <td><span class="tag t-sick"><span class="dot"></span>병가</span></td>
+                    <td><div class="period"><span class="pd">6/28</span></div></td>
+                    <td class="num">1</td>
+                    <td><span class="tag s-approved"><span class="dot"></span>승인</span></td>
+                    <td>나 (팀장)</td>
+                    <td>6/27</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 오른쪽 레일 = 행 선택 시 슬라이드인 드로어(충돌 미리보기) -->
+        <div class="rail-backdrop" id="railBackdrop" onclick="clearSelection()"></div>
+        <aside class="rail" id="rail" aria-label="충돌 미리보기">
+          <!-- 충돌 미리보기(행 선택 시) -->
+          <div class="card" id="conflictCard">
+            <div class="cf-head">
+              <div>
+                <h2>충돌 미리보기</h2>
+                <p class="sub" style="margin:0">같은 기간 팀 부재 현황</p>
+              </div>
+              <button class="cf-close" aria-label="패널 닫기" onclick="clearSelection()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="cf-applicant">
+              <span class="av-sm av-1" id="cfAv">김</span>
+              <span class="meta"><span class="n" id="cfName">김민수</span><span class="d" id="cfPeriod">연차 · 7/20 ~ 7/21</span></span>
+            </div>
+            <div class="cf-banner" id="cfBanner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+              <span id="cfMsg"><b>충돌 없음.</b> 해당 기간 동료 부재가 없습니다.</span>
+            </div>
+            <div class="cf-overlap" id="cfOverlap">
+              <span class="ttl">겹치는 부재</span>
+              <div id="cfList"></div>
+            </div>
+            <p class="sub" style="margin:var(--sp-3) 0 0;font-size:var(--fs-xs)">자동 차단 아님 — 결정 참고용 가시화입니다.</p>
+            <div class="cf-actions">
+              <button class="act approve" id="cfApprove" style="padding:9px" onclick="approveSelected()">승인</button>
+              <button class="act reject" id="cfReject" style="padding:9px" onclick="rejectSelected()">반려</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- ───────── 반려 사유 모달 ───────── -->
+  <div class="overlay" id="rejectModal" onclick="if(event.target===this)closeReject()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rejTitle">
+      <h3 id="rejTitle">반려 사유 입력</h3>
+      <p class="mdsub">반려 사유는 신청자에게 전달되며 처리 이력에 기록됩니다.</p>
+      <div class="mod-applicant">
+        <span class="av-sm av-1" id="rejAv">김</span>
+        <span class="meta" style="display:flex;flex-direction:column;line-height:1.3">
+          <span style="font-weight:var(--fw-semibold)" id="rejName">김민수</span>
+          <span style="font-size:var(--fs-xs);color:var(--color-text-subtle)" id="rejInfo">연차 · 7/20 ~ 7/21 · 2일</span>
+        </span>
+      </div>
+      <div class="field-label"><span>사유 <span class="req">*</span></span></div>
+      <div class="reasons" aria-label="자주 쓰는 사유">
+        <button class="qreason" onclick="fillReason('Q3 출시 주간과 겹쳐 승인이 어렵습니다.')">출시 주간 겹침</button>
+        <button class="qreason" onclick="fillReason('같은 기간 팀 부재 인원이 많아 조정이 필요합니다.')">팀 부재 과다</button>
+        <button class="qreason" onclick="fillReason('잔여 연차가 부족합니다. 잔액 확인 후 재신청 바랍니다.')">잔액 부족</button>
+      </div>
+      <textarea id="rejReason" rows="3" placeholder="예: Q3 출시 주간과 겹쳐 일정 조정이 필요합니다."
+        oninput="onReasonInput()" onblur="onReasonBlur()"></textarea>
+      <div class="help" id="rejHelp">신청자에게 전달될 메시지입니다. 최소 5자 이상 입력하세요.</div>
+      <div class="modal-foot">
+        <button class="btn-ghost" onclick="closeReject()">취소</button>
+        <button class="btn-danger" id="rejSubmit" disabled onclick="doReject()">반려 제출</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+
+<script>
+  var curRej=null, selectedRow=null;
+
+  /* ── 탭 ── */
+  function showTab(t){
+    var pend=t==='pending';
+    document.getElementById('pane-pending').classList.toggle('hide',!pend);
+    document.getElementById('pane-done').classList.toggle('show',!pend);
+    document.getElementById('pane-done').classList.toggle('hide',pend);
+    document.getElementById('tab-pending').setAttribute('aria-selected',pend);
+    document.getElementById('tab-done').setAttribute('aria-selected',!pend);
+    if(!pend) clearSelection();
+  }
+
+  /* ── 카운트 동기화 ── */
+  function refreshCount(){
+    var statuses=document.querySelectorAll('#rows tr[data-row] [data-status]');
+    var pend=0;
+    statuses.forEach(function(s){ if(s.getAttribute('data-status')==='대기') pend++; });
+    document.getElementById('cnt').textContent=pend;
+    document.getElementById('railPending').textContent=pend;
+    var badge=document.getElementById('navBadge');
+    badge.textContent=pend; badge.style.display = pend===0 ? 'none' : '';
+    document.getElementById('emptyq').classList.toggle('show',pend===0);
+  }
+
+  /* ── 필터 ── */
+  function filterType(btn,type){
+    document.querySelectorAll('#filterbar .chip').forEach(function(c){c.setAttribute('aria-pressed','false');});
+    btn.setAttribute('aria-pressed','true');
+    document.querySelectorAll('#rows tr[data-row]').forEach(function(r){
+      r.style.display = (type==='all' || r.getAttribute('data-type')===type) ? '' : 'none';
+    });
+  }
+  function searchRows(q){
+    q=q.trim();
+    document.querySelectorAll('#rows tr[data-row]').forEach(function(r){
+      r.style.display = (q==='' || r.getAttribute('data-name').indexOf(q)>-1) ? '' : 'none';
+    });
+  }
+
+  /* ── 행 선택 → 충돌 미리보기 ── */
+  function selectRow(tr){
+    if(tr.getAttribute('data-resolved')==='1') return;
+    if(selectedRow) selectedRow.removeAttribute('data-selected');
+    selectedRow=tr; tr.setAttribute('data-selected','true');
+
+    var name=tr.getAttribute('data-name');
+    var av=tr.querySelector('.av-sm');
+    var typeTag=tr.querySelector('td:nth-child(2) .tag').textContent.trim();
+    var period=tr.getAttribute('data-period');
+    var n=parseInt(tr.getAttribute('data-conflict')||'0',10);
+    var names=tr.getAttribute('data-conflict-names')||'';
+
+    document.getElementById('cfName').textContent=name;
+    var cfAv=document.getElementById('cfAv');
+    cfAv.textContent=av.textContent; cfAv.className='av-sm '+av.className.split(' ').pop();
+    document.getElementById('cfPeriod').textContent=typeTag+' · '+period;
+
+    var banner=document.getElementById('cfBanner'), msg=document.getElementById('cfMsg'),
+        overlap=document.getElementById('cfOverlap'), list=document.getElementById('cfList');
+    if(n===0){
+      banner.className='cf-banner ok';
+      msg.innerHTML='<b>충돌 없음.</b> 해당 기간에 겹치는 동료 부재가 없습니다.';
+      overlap.style.display='none';
+    }else{
+      banner.className='cf-banner warn';
+      msg.innerHTML='<b>'+n+'명</b>의 동료가 같은 기간에 부재 예정입니다. 인원 공백을 확인하세요.';
+      overlap.style.display='';
+      list.innerHTML = names.split(',').map(function(x){
+        x=x.trim();
+        return '<div class="ov-row"><span class="tag t-annual" style="padding:2px 7px"><span class="dot"></span>'+x+'</span></div>';
+      }).join('');
+    }
+    document.getElementById('rail').classList.add('open');
+    document.getElementById('railBackdrop').classList.add('open');
+  }
+  function clearSelection(){
+    if(selectedRow) selectedRow.removeAttribute('data-selected');
+    selectedRow=null;
+    document.getElementById('rail').classList.remove('open');
+    document.getElementById('railBackdrop').classList.remove('open');
+  }
+
+  /* ── 승인 ── */
+  function approve(btn){ doApprove(btn.closest('tr')); }
+  function approveSelected(){ if(selectedRow) doApprove(selectedRow); }
+  function doApprove(tr){
+    var name=tr.getAttribute('data-name');
+    tr.querySelector('[data-status]').setAttribute('data-status','승인');
+    var tag=tr.querySelector('[data-status]');
+    tag.className='tag s-approved'; tag.innerHTML='<span class="dot"></span>승인';
+    var actCell=tr.querySelector('[data-actions]');
+    actCell.outerHTML='<span class="resolved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>확정됨 · 사용 처리</span>';
+    tr.setAttribute('data-resolved','1'); tr.style.cursor='default';
+    if(selectedRow===tr) clearSelection();
+    refreshCount();
+    toast(name+' 님의 휴가를 승인했습니다 (대기→사용 확정)');
+  }
+
+  /* ── 반려 모달 ── */
+  function openReject(btn){ openRejectFor(btn.closest('tr')); }
+  function rejectSelected(){ if(selectedRow) openRejectFor(selectedRow); }
+  function openRejectFor(tr){
+    curRej=tr;
+    var av=tr.querySelector('.av-sm');
+    var rejAv=document.getElementById('rejAv');
+    rejAv.textContent=av.textContent; rejAv.className='av-sm '+av.className.split(' ').pop();
+    document.getElementById('rejName').textContent=tr.getAttribute('data-name');
+    var typeTag=tr.querySelector('td:nth-child(2) .tag').textContent.trim();
+    var days=tr.querySelector('td.num').textContent.trim();
+    document.getElementById('rejInfo').textContent=typeTag+' · '+tr.getAttribute('data-period')+' · '+days+'일';
+    var ta=document.getElementById('rejReason');
+    ta.value=''; ta.classList.remove('err');
+    document.getElementById('rejSubmit').disabled=true;
+    var help=document.getElementById('rejHelp');
+    help.className='help'; help.textContent='신청자에게 전달될 메시지입니다. 최소 5자 이상 입력하세요.';
+    document.getElementById('rejectModal').classList.add('show');
+    setTimeout(function(){ta.focus();},50);
+  }
+  function fillReason(t){ var ta=document.getElementById('rejReason'); ta.value=t; onReasonInput(); ta.focus(); }
+  function onReasonInput(){
+    var v=document.getElementById('rejReason').value.trim();
+    document.getElementById('rejSubmit').disabled = v.length<5;
+    var help=document.getElementById('rejHelp');
+    if(v.length>=5){ help.className='help'; help.textContent='입력 완료 — 반려 제출이 가능합니다.'; }
+  }
+  function onReasonBlur(){
+    var v=document.getElementById('rejReason').value.trim();
+    var help=document.getElementById('rejHelp'), ta=document.getElementById('rejReason');
+    if(v.length>0 && v.length<5){ help.className='help err'; help.textContent='사유가 너무 짧습니다. 최소 5자 이상 입력하세요.'; ta.classList.add('err'); }
+    else { ta.classList.remove('err'); }
+  }
+  function closeReject(){ document.getElementById('rejectModal').classList.remove('show'); curRej=null; }
+  function doReject(){
+    if(!curRej) return;
+    var name=curRej.getAttribute('data-name');
+    var tag=curRej.querySelector('[data-status]');
+    tag.setAttribute('data-status','반려'); tag.className='tag s-rejected'; tag.innerHTML='<span class="dot"></span>반려';
+    var actCell=curRej.querySelector('[data-actions]');
+    actCell.outerHTML='<span class="resolved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>반려됨 · 사유 기록</span>';
+    curRej.setAttribute('data-resolved','1'); curRej.style.cursor='default';
+    if(selectedRow===curRej) clearSelection();
+    closeReject(); refreshCount();
+    toast(name+' 님의 휴가를 반려했습니다 (사유 전달)');
+  }
+
+  /* ── 토스트 ── */
+  var toastT;
+  function toast(msg){
+    var el=document.getElementById('toast');
+    document.getElementById('toastMsg').textContent=msg;
+    el.classList.add('show'); clearTimeout(toastT);
+    toastT=setTimeout(function(){el.classList.remove('show');},2600);
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      if(document.getElementById('rejectModal').classList.contains('show')) closeReject();
+      else clearSelection();
+    }
+  });
+
+  refreshCount();
+</script>
+</body>
+</html>

@@ -9,7 +9,11 @@
 //   ❌ chosen final 화면이 비주얼 문서(index.html)에 안 실림(스크린샷/임베드 누락)
 //   ❌ semantic 토큰이 매핑표에 빠짐 (primitive는 값이라 매핑 불필요 → 제외)
 //   ❌ components/*.html이 컴포넌트 인벤토리에 빠짐
-//   ⚠️ 컴포넌트가 "쓰이는 화면"에 매핑 안 됨 / PRD 있는데 hand-off.md가 참조 안 함
+//   ❌ self-contained 위반 — handoff/만 떼서 넘겨도 열려야 한다:
+//        · 필요한 소스(PRD.md·00-flow.md·chosen 화면·foundation/tokens.css)가 handoff/ 안에 복사 안 됨
+//        · 패키지 문서(hand-off.md·index.html)가 handoff/ 밖(../ 또는 projects/<name>/)을 참조
+//      → node scripts/pack-handoff.js <project> 로 채운다.
+//   ⚠️ 컴포넌트가 "쓰이는 화면"에 매핑 안 됨
 //
 // green 없이 "handoff 완료" 선언 금지. errors 있으면 exit 1.
 const fs = require('fs');
@@ -61,9 +65,6 @@ if (handoffMd) {
   const uniq = [...new Set(leftover)];
   if (uniq.length) errors.push(`hand-off.md에 안 채운 placeholder 잔존: ${uniq.join(', ')} — 실제 경로/이름으로 채우세요.`);
   else ok.push('hand-off.md placeholder 모두 채워짐');
-  // PRD 참조
-  const prd = read(path.join(PROJ, 'PRD.md'));
-  if (prd && !/PRD\.md/i.test(handoffMd)) warns.push('PRD.md가 있는데 hand-off.md가 참조하지 않음 — "먼저 읽을 것"에 PRD 경로 추가 권장.');
 }
 
 // 3) chosen final 화면이 비주얼 문서에 실렸나
@@ -101,6 +102,41 @@ if (comps.length) {
   if (compsMd && !screens.some((s) => compsMd.includes(s) || compsMd.includes(s.replace('.html', '')))) {
     warns.push('component-inventory.md가 "쓰이는 화면"을 하나도 참조하지 않음 — 컴포넌트→화면 매핑 추가 권장.');
   }
+}
+
+// 6) self-contained — handoff/만 떼서 넘겨도 열려야 한다
+//    (a) 필요한 소스가 handoff/ 안에 복사됐나   (b) 패키지 문서가 handoff/ 밖을 참조하지 않나
+//    위반은 전부 error: pack-handoff.js로 채우기 전엔 "handoff 완료"를 막는다.
+// (a) 소스 복사
+for (const f of ['PRD.md', '00-flow.md']) {
+  if (!read(path.join(PROJ, f))) continue;                                  // 프로젝트에 없으면 검사 안 함(PRD 없이 시작한 프로젝트 등)
+  if (read(path.join(HO, f))) ok.push(`handoff/${f} 복사됨 (self-contained)`);
+  else errors.push(`handoff/${f} 누락 — handoff/만 넘기면 깨짐. node scripts/pack-handoff.js ${project} 로 복사하세요.`);
+}
+const hoChosen = htmls(path.join(HO, chosen));
+if (screens.length) {
+  const missingCopy = screens.filter((s) => !hoChosen.includes(s));
+  if (missingCopy.length) errors.push(`handoff/${chosen}/ 에 빠진 chosen 화면 ${missingCopy.length}개: ${missingCopy.join(', ')} — pack-handoff.js로 복사하세요.`);
+  else ok.push(`chosen 화면 ${hoChosen.length}개 handoff/${chosen}/에 복사됨`);
+}
+if (tokensCss) {
+  if (read(path.join(HO, 'foundation', 'tokens.css'))) ok.push('handoff/foundation/tokens.css 복사됨');
+  else errors.push(`handoff/foundation/tokens.css 누락 — 화면이 ../foundation/tokens.css를 참조하므로 함께 복사해야 함. pack-handoff.js.`);
+}
+// (b) 포터빌리티 — hand-off.md·index.html(둘 다 handoff 루트)이 ../ 또는 projects/<name>/ 로 패키지 밖을 가리키면 안 됨
+const projRe = new RegExp('[^\\s`)\\]"\']*projects/' + project.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/[^\\s`)\\]"\']*', 'g');
+for (const f of ['hand-off.md', 'index.html']) {
+  const txt = read(path.join(HO, f));
+  if (!txt) continue;
+  const escapes = [];
+  for (const m of txt.matchAll(/(?:href|src)\s*=\s*["']([^"']*)["']|url\(\s*["']?([^"')]*)/gi)) {
+    const ref = m[1] || m[2] || '';
+    if (ref.startsWith('../')) escapes.push(ref);
+  }
+  for (const m of txt.matchAll(projRe)) escapes.push(m[0]);
+  const uniq = [...new Set(escapes)];
+  if (uniq.length) errors.push(`handoff/${f} 가 handoff/ 밖을 참조: ${uniq.slice(0, 6).join(', ')}${uniq.length > 6 ? ' …' : ''} — handoff/만 넘기면 깨짐. ./ 상대경로로(pack-handoff.js).`);
+  else ok.push(`handoff/${f} self-contained (외부 참조 0)`);
 }
 
 // ── 리포트

@@ -1,0 +1,631 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>휴가 신청 — team-leave</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:var(--font-sans);
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-size:var(--fs-body);
+    line-height:var(--lh-body);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--color-primary-soft)}
+
+  /* ─────────── 사이드 내비 (디밍된 chrome) ─────────── */
+  .side{
+    width:240px;flex:0 0 240px;
+    background:var(--color-surface-alt);
+    border-right:1px solid var(--color-border);
+    display:flex;flex-direction:column;
+    padding:var(--sp-4) var(--sp-3);
+    gap:var(--sp-2);
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{
+    display:flex;align-items:center;gap:var(--sp-2);
+    padding:var(--sp-2) var(--sp-2) var(--sp-4);
+  }
+  .brand .logo{
+    width:28px;height:28px;border-radius:var(--r-md);
+    background:var(--color-primary);color:var(--color-on-primary);
+    display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-sm);
+    box-shadow:var(--shadow-xs);
+  }
+  .brand .name{font-weight:var(--fw-semibold);font-size:var(--fs-h3);letter-spacing:-.01em}
+  .brand .name small{display:block;font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-regular)}
+
+  .nav-group{margin-top:var(--sp-3)}
+  .nav-cap{
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:.06em;
+    padding:var(--sp-2) var(--sp-2) var(--sp-1);
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    height:35px;padding:0 var(--sp-2);
+    border-radius:var(--r-md);
+    color:var(--color-text-muted);
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+  }
+  .nav-item svg{width:17px;height:17px;flex:0 0 17px;stroke-width:1.8}
+  .nav-item .lbl{flex:1}
+  .nav-item:hover{background:var(--color-surface);color:var(--color-text)}
+  .nav-item[aria-current="page"]{
+    background:var(--color-primary-soft);color:var(--color-primary);font-weight:var(--fw-semibold);
+  }
+  .nav-item[aria-current="page"] svg{stroke-width:2.2}
+  .nav-badge{
+    min-width:18px;height:18px;padding:0 5px;border-radius:var(--r-full);
+    background:var(--color-danger);color:#fff;font-size:11px;font-weight:var(--fw-bold);
+    display:grid;place-items:center;
+  }
+  .side-foot{margin-top:auto;padding-top:var(--sp-3);border-top:1px solid var(--color-border)}
+  .me{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2)}
+  .avatar{
+    width:30px;height:30px;border-radius:var(--r-full);flex:0 0 30px;
+    background:var(--type-annual-bg);color:var(--type-annual-fg);
+    display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-sm);
+  }
+  .me .info{min-width:0}
+  .me .info b{display:block;font-size:var(--fs-sm);font-weight:var(--fw-semibold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .me .info span{display:block;font-size:var(--fs-xs);color:var(--color-text-subtle)}
+
+  /* ─────────── 본문 ─────────── */
+  .app{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    height:60px;flex:0 0 60px;
+    background:rgba(255,255,255,.86);backdrop-filter:saturate(1.4) blur(6px);
+    border-bottom:1px solid var(--color-border);
+    display:flex;align-items:center;gap:var(--sp-4);
+    padding:0 var(--sp-8);position:sticky;top:0;z-index:20;
+  }
+  .crumbs{display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--color-text-subtle)}
+  .crumbs a:hover{color:var(--color-text)}
+  .crumbs .sep{opacity:.5}
+  .crumbs .here{color:var(--color-text);font-weight:var(--fw-semibold)}
+  .top-actions{margin-left:auto;display:flex;align-items:center;gap:var(--sp-3)}
+  .role-sel{position:relative;display:flex;align-items:center}
+  .role-sel select{
+    appearance:none;-webkit-appearance:none;
+    font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    color:var(--color-text);background:var(--color-surface);
+    border:1px solid var(--color-border);border-radius:var(--r-md);
+    padding:7px 30px 7px 12px;cursor:pointer;
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  .role-sel select:hover{border-color:var(--color-border-strong)}
+  .role-sel select:focus-visible{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .role-sel::after{content:"";position:absolute;right:11px;top:50%;width:7px;height:7px;border-right:1.6px solid var(--color-text-muted);border-bottom:1.6px solid var(--color-text-muted);transform:translateY(-65%) rotate(45deg);pointer-events:none}
+  .icon-btn{
+    position:relative;width:36px;height:36px;border-radius:var(--r-md);
+    border:1px solid var(--color-border);background:var(--color-surface);
+    display:grid;place-items:center;cursor:pointer;color:var(--color-text-muted);
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+  }
+  .icon-btn:hover{background:var(--color-surface-alt);color:var(--color-text);border-color:var(--color-border-strong)}
+  .icon-btn svg{width:18px;height:18px;stroke-width:1.8}
+  .icon-btn .dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:var(--r-full);background:var(--color-danger);border:2px solid var(--color-surface)}
+
+  .scroll{flex:1;overflow:auto}
+  .page{max-width:1120px;margin:0 auto;padding:var(--sp-8) var(--sp-8) var(--sp-10)}
+  .page-head{margin-bottom:var(--sp-6)}
+  .page-head h1{margin:0 0 6px;font-size:var(--fs-h1);font-weight:var(--fw-bold);letter-spacing:-.02em}
+  .page-head p{margin:0;font-size:var(--fs-sm);color:var(--color-text-muted)}
+
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:var(--sp-6);align-items:start}
+
+  /* ─────────── 카드 / 폼 ─────────── */
+  .card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow-xs);
+  }
+  form.card{padding:var(--sp-6) var(--sp-6) var(--sp-5)}
+  .fieldset{padding:var(--sp-5) 0;border-bottom:1px solid var(--color-border)}
+  .fieldset:first-of-type{padding-top:var(--sp-1)}
+  .fieldset:last-of-type{border-bottom:none;padding-bottom:0}
+  .leg{display:flex;align-items:baseline;gap:var(--sp-2);margin-bottom:var(--sp-3)}
+  .leg .n{
+    width:20px;height:20px;border-radius:var(--r-full);flex:0 0 20px;
+    background:var(--color-primary-soft);color:var(--color-primary);
+    font-size:var(--fs-xs);font-weight:var(--fw-bold);display:grid;place-items:center;
+  }
+  .leg h2{margin:0;font-size:var(--fs-h3);font-weight:var(--fw-semibold)}
+  .leg .hint{margin-left:auto;font-size:var(--fs-xs);color:var(--color-text-subtle)}
+
+  /* 종류 라디오 카드 */
+  .type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-2)}
+  .type-grid input{position:absolute;opacity:0;pointer-events:none}
+  .type-opt{
+    display:flex;flex-direction:column;gap:6px;
+    padding:var(--sp-3);border:1px solid var(--color-border);border-radius:var(--r-md);
+    background:var(--color-surface);cursor:pointer;
+    transition:border-color var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  .type-opt:hover{border-color:var(--color-border-strong);background:var(--color-surface-alt)}
+  .type-opt .top{display:flex;align-items:center;gap:7px}
+  .type-opt .swatch{width:10px;height:10px;border-radius:3px;flex:0 0 10px}
+  .type-opt .t{font-size:var(--fs-sm);font-weight:var(--fw-semibold)}
+  .type-opt .d{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+  .type-grid input:checked + .type-opt{
+    border-color:var(--color-primary);background:var(--color-primary-soft);
+    box-shadow:0 0 0 1px var(--color-primary);
+  }
+  /* 선택된 칩의 틴트 배경 위에서 보조 텍스트 대비 확보 (WCAG AA) */
+  .type-grid input:checked + .type-opt .d{color:var(--color-text-muted)}
+  .type-grid input:focus-visible + .type-opt{box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .sw-annual{background:var(--type-annual-fg)}
+  .sw-half{background:var(--type-half-fg)}
+  .sw-sick{background:var(--type-sick-fg)}
+  .sw-event{background:var(--type-event-fg)}
+
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field + .field{margin-top:var(--sp-4)}
+  label.lab{font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--color-text)}
+  label.lab .req{color:var(--color-danger);margin-left:2px}
+  .row2{display:grid;grid-template-columns:1fr auto 1fr;gap:var(--sp-3);align-items:end}
+  .row2 .arrow{padding-bottom:10px;color:var(--color-text-subtle)}
+  input[type=date],textarea{
+    width:100%;font-family:inherit;font-size:var(--fs-body);color:var(--color-text);
+    background:var(--color-surface);
+    border:1px solid var(--color-border-strong);border-radius:var(--r-md);
+    padding:9px 11px;transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  textarea{resize:vertical;min-height:84px;line-height:var(--lh-body)}
+  input[type=date]:hover,textarea:hover{border-color:var(--color-text-subtle)}
+  input[type=date]:focus-visible,textarea:focus-visible{
+    outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft);
+  }
+  .char-hint{font-size:var(--fs-xs);color:var(--color-text-subtle);text-align:right}
+
+  /* 반차 토글 */
+  #halfWrap{margin-top:var(--sp-4);overflow:hidden;transition:max-height var(--dur) var(--ease),opacity var(--dur) var(--ease)}
+  #halfWrap.hidden{max-height:0;opacity:0;margin-top:0;pointer-events:none}
+  #halfWrap.show{max-height:120px;opacity:1}
+  .seg{display:inline-flex;background:var(--color-surface-alt);border:1px solid var(--color-border);border-radius:var(--r-md);padding:3px;gap:3px}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg label{
+    padding:6px 18px;border-radius:6px;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease);
+  }
+  .seg input:checked + label{background:var(--color-surface);color:var(--color-text);font-weight:var(--fw-semibold);box-shadow:var(--shadow-xs)}
+  .seg input:focus-visible + label{box-shadow:0 0 0 3px var(--color-primary-soft)}
+
+  /* 폼 푸터 */
+  .form-foot{display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-5);padding-top:var(--sp-5);border-top:1px solid var(--color-border)}
+  .btn{
+    font-family:inherit;font-size:var(--fs-body);font-weight:var(--fw-semibold);
+    padding:10px 18px;border-radius:var(--r-md);cursor:pointer;border:1px solid transparent;
+    transition:background var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),opacity var(--dur-fast) var(--ease);
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .btn-primary{background:var(--color-primary);color:var(--color-on-primary);box-shadow:var(--shadow-xs)}
+  .btn-primary:hover{background:var(--color-primary-hover);box-shadow:var(--shadow-sm)}
+  .btn-primary:active{transform:translateY(1px)}
+  .btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .btn-primary[disabled],.btn-primary[aria-disabled="true"]{
+    background:var(--color-border-strong);color:var(--color-surface);cursor:not-allowed;box-shadow:none;opacity:.85;
+  }
+  .btn-ghost{background:var(--color-surface);color:var(--color-text-muted);border-color:var(--color-border)}
+  .btn-ghost:hover{background:var(--color-surface-alt);color:var(--color-text);border-color:var(--color-border-strong)}
+  .btn-ghost:focus-visible{outline:none;box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .foot-note{margin-left:auto;font-size:var(--fs-xs);color:var(--color-text-subtle)}
+
+  /* ─────────── 미리보기 패널 ─────────── */
+  .aside{position:sticky;top:calc(60px + var(--sp-6));display:flex;flex-direction:column;gap:var(--sp-4)}
+  .preview{padding:var(--sp-5)}
+  .preview .ph{display:flex;align-items:center;gap:8px;margin-bottom:var(--sp-4)}
+  .preview .ph h2{margin:0;font-size:var(--fs-h3);font-weight:var(--fw-semibold)}
+  .preview .ph .live{
+    margin-left:auto;display:inline-flex;align-items:center;gap:5px;
+    font-size:var(--fs-xs);color:var(--color-success);font-weight:var(--fw-medium);
+  }
+  .preview .ph .live .pulse{width:7px;height:7px;border-radius:var(--r-full);background:var(--color-success);animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  .hero-rem{
+    background:var(--color-surface-alt);border:1px solid var(--color-border);
+    border-radius:var(--r-md);padding:var(--sp-4);margin-bottom:var(--sp-4);
+  }
+  .hero-rem .cap{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .hero-rem .big{display:flex;align-items:baseline;gap:6px;margin-top:4px}
+  .hero-rem .big b{font-size:var(--fs-display);font-weight:var(--fw-bold);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1;transition:color var(--dur) var(--ease)}
+  .hero-rem .big .u{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .hero-rem .bar{height:7px;border-radius:var(--r-full);background:var(--color-border);margin-top:var(--sp-3);overflow:hidden}
+  .hero-rem .bar i{display:block;height:100%;border-radius:var(--r-full);background:var(--color-primary);transition:width var(--dur) var(--ease)}
+  .hero-rem .scale{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--color-text-subtle);font-variant-numeric:tabular-nums}
+
+  .pv-rows{display:flex;flex-direction:column}
+  .pv-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--color-border)}
+  .pv-row:last-child{border-bottom:none}
+  .pv-row .k{display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .pv-row .k .chip{
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);padding:2px 8px;border-radius:var(--r-full);
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .pv-row .k .chip .swatch{width:8px;height:8px;border-radius:2px}
+  .pv-row .v{font-size:var(--fs-body);font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums;color:var(--color-text);transition:color var(--dur) var(--ease)}
+  .pv-row .v.muted{color:var(--color-text-subtle)}
+
+  /* 검증 메시지 */
+  #warn{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:12px 14px;border-radius:var(--r-md);margin-top:var(--sp-4);
+    background:var(--color-danger-bg);border:1px solid color-mix(in srgb,var(--color-danger) 30%,transparent);
+    color:var(--color-danger);font-size:var(--fs-sm);font-weight:var(--fw-medium);line-height:var(--lh-body);
+  }
+  #warn svg{width:18px;height:18px;flex:0 0 18px;margin-top:1px;stroke-width:2}
+  #warn.hidden{display:none}
+  .ok-banner{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:12px 14px;border-radius:var(--r-md);margin-top:var(--sp-4);
+    background:var(--color-success-bg);border:1px solid color-mix(in srgb,var(--color-success) 28%,transparent);
+    color:var(--color-success);font-size:var(--fs-sm);font-weight:var(--fw-medium);line-height:var(--lh-body);
+  }
+  .ok-banner svg{width:18px;height:18px;flex:0 0 18px;margin-top:1px;stroke-width:2}
+  .ok-banner.hidden{display:none}
+
+  .tips{padding:var(--sp-4) var(--sp-5)}
+  .tips h3{margin:0 0 var(--sp-2);font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text)}
+  .tips ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+  .tips li{display:flex;gap:9px;font-size:var(--fs-xs);color:var(--color-text-muted);line-height:1.5}
+  .tips li svg{width:14px;height:14px;flex:0 0 14px;color:var(--color-text-subtle);margin-top:2px;stroke-width:2}
+
+  .flash{animation:flash var(--dur) var(--ease)}
+  @keyframes flash{0%{background:var(--color-primary-soft)}100%{background:transparent}}
+</style>
+</head>
+<body>
+
+  <!-- ─────────── 사이드 내비 ─────────── -->
+  <aside class="side">
+    <div class="brand">
+      <span class="logo">TL</span>
+      <span class="name">team-leave<small>휴가 관리</small></span>
+    </div>
+
+    <div class="nav-group">
+      <a class="nav-item" href="home.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        <span class="lbl">홈</span>
+      </a>
+      <a class="nav-item" href="request.html" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="lbl">휴가 신청</span>
+      </a>
+      <a class="nav-item" href="approvals.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span class="lbl">승인 큐</span>
+        <span class="nav-badge">3</span>
+      </a>
+      <a class="nav-item" href="calendar.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+        <span class="lbl">팀 캘린더</span>
+      </a>
+      <a class="nav-item" href="balance.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+        <span class="lbl">잔여 연차</span>
+      </a>
+      <a class="nav-item" href="requests.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 4h9a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6M9 13h4"/></svg>
+        <span class="lbl">내 신청</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-cap">시스템</div>
+      <a class="nav-item" href="notifications.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="lbl">알림</span>
+        <span class="nav-badge">2</span>
+      </a>
+      <a class="nav-item" href="members.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 7a3 3 0 0 1 0 6M21 20c0-2-1.5-3.6-3.5-4.3"/></svg>
+        <span class="lbl">멤버 관리</span>
+      </a>
+      <a class="nav-item" href="settings.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 2.6 14H2a2 2 0 0 1 0-4h.1A1.6 1.6 0 0 0 4 7.6a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 9 2.6V2a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a2 2 0 0 1 0 4h-.1z"/></svg>
+        <span class="lbl">설정</span>
+      </a>
+    </div>
+
+    <div class="side-foot">
+      <div class="me">
+        <span class="avatar">김</span>
+        <span class="info"><b>김서연</b><span>디자인팀 · 직원</span></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─────────── 본문 ─────────── -->
+  <div class="app">
+    <header class="topbar">
+      <nav class="crumbs" aria-label="위치">
+        <a href="home.html">홈</a>
+        <span class="sep">/</span>
+        <span class="here">휴가 신청</span>
+      </nav>
+      <div class="top-actions">
+        <div class="role-sel">
+          <select id="roleSel" aria-label="역할 전환" onchange="onRole()">
+            <option value="emp">직원 뷰</option>
+            <option value="mgr">팀장 뷰</option>
+            <option value="hr">HR 뷰</option>
+          </select>
+        </div>
+        <a class="icon-btn" href="notifications.html" aria-label="알림 2건">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="dot"></span>
+        </a>
+        <a class="icon-btn" href="settings.html" aria-label="프로필 설정" style="background:var(--type-annual-bg);color:var(--type-annual-fg);font-weight:var(--fw-bold);font-size:var(--fs-sm)">김</a>
+      </div>
+    </header>
+
+    <div class="scroll">
+      <div class="page">
+        <div class="page-head">
+          <h1>휴가 신청</h1>
+          <p>종류와 기간을 선택하면 영업일 일수와 예상 잔여가 오른쪽에서 실시간으로 계산됩니다.</p>
+        </div>
+
+        <div class="layout">
+          <!-- ── 폼 ── -->
+          <form class="card" id="leaveForm" onsubmit="return false">
+            <!-- 1. 종류 -->
+            <div class="fieldset">
+              <div class="leg"><span class="n">1</span><h2>휴가 종류</h2><span class="hint">연차·반차만 잔액 차감</span></div>
+              <div class="type-grid" role="radiogroup" aria-label="휴가 종류">
+                <input type="radio" name="type" id="t-annual" value="annual" checked onchange="recalc()">
+                <label class="type-opt" for="t-annual">
+                  <span class="top"><span class="swatch sw-annual"></span><span class="t">연차</span></span>
+                  <span class="d">1일 차감</span>
+                </label>
+                <input type="radio" name="type" id="t-half" value="half" onchange="recalc()">
+                <label class="type-opt" for="t-half">
+                  <span class="top"><span class="swatch sw-half"></span><span class="t">반차</span></span>
+                  <span class="d">0.5일 차감</span>
+                </label>
+                <input type="radio" name="type" id="t-sick" value="sick" onchange="recalc()">
+                <label class="type-opt" for="t-sick">
+                  <span class="top"><span class="swatch sw-sick"></span><span class="t">병가</span></span>
+                  <span class="d">무차감</span>
+                </label>
+                <input type="radio" name="type" id="t-event" value="event" onchange="recalc()">
+                <label class="type-opt" for="t-event">
+                  <span class="top"><span class="swatch sw-event"></span><span class="t">경조사</span></span>
+                  <span class="d">무차감</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 2. 기간 -->
+            <div class="fieldset">
+              <div class="leg"><span class="n">2</span><h2>기간</h2><span class="hint">주말 자동 제외 · 공휴일 제외는 범위 밖</span></div>
+              <div class="row2">
+                <div class="field">
+                  <label class="lab" for="start">시작일<span class="req">*</span></label>
+                  <input id="start" type="date" value="2026-07-20" onchange="recalc()" onblur="recalc()">
+                </div>
+                <span class="arrow" aria-hidden="true">→</span>
+                <div class="field">
+                  <label class="lab" for="end">종료일<span class="req">*</span></label>
+                  <input id="end" type="date" value="2026-07-21" onchange="recalc()" onblur="recalc()">
+                </div>
+              </div>
+
+              <div id="halfWrap" class="hidden">
+                <div class="field" style="margin-top:0">
+                  <label class="lab" for="slot-am">반차 시간대</label>
+                  <div class="seg" id="slot" role="radiogroup" aria-label="반차 시간대">
+                    <input type="radio" name="slot" id="slot-am" value="오전" checked>
+                    <label for="slot-am">오전</label>
+                    <input type="radio" name="slot" id="slot-pm" value="오후">
+                    <label for="slot-pm">오후</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. 사유 -->
+            <div class="fieldset">
+              <div class="leg"><span class="n">3</span><h2>사유</h2><span class="hint">병가·경조사는 증빙 메모 대체</span></div>
+              <div class="field">
+                <label class="lab" for="reason">신청 사유</label>
+                <textarea id="reason" rows="3" placeholder="예) 가족 행사 참석으로 연차 사용합니다." oninput="onReason()"></textarea>
+                <span class="char-hint"><span id="charCount">0</span> / 200자</span>
+              </div>
+            </div>
+
+            <!-- 검증 / 푸터 -->
+            <div id="warn" class="warn hidden" role="alert">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+              <span id="warnText"></span>
+            </div>
+            <div id="okBanner" class="ok-banner hidden" role="status">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg>
+              <span id="okText">신청 가능합니다 — 제출 시 '대기' 상태로 등록됩니다.</span>
+            </div>
+
+            <div class="form-foot">
+              <a id="submit" class="btn btn-primary" href="requests.html" onclick="return submitReq()">제출</a>
+              <a class="btn btn-ghost" href="home.html">취소</a>
+              <span class="foot-note">제출 후 승인자에게 알림이 전송됩니다 (목업)</span>
+            </div>
+          </form>
+
+          <!-- ── 미리보기 패널 ── -->
+          <div class="aside">
+            <div class="card preview" aria-live="polite">
+              <div class="ph">
+                <h2>잔액 미리보기</h2>
+                <span class="live"><span class="pulse"></span>실시간</span>
+              </div>
+
+              <div class="hero-rem">
+                <div class="cap">제출 후 예상 잔여 (연차)</div>
+                <div class="big"><b id="rem">8</b><span class="u">일 / 10일</span></div>
+                <div class="bar"><i id="remBar" style="width:80%"></i></div>
+                <div class="scale"><span>0</span><span>현재 10일</span></div>
+              </div>
+
+              <div class="pv-rows">
+                <div class="pv-row">
+                  <span class="k">신청 종류
+                    <span class="chip" id="typeChip" style="background:var(--type-annual-bg);color:var(--type-annual-fg)"><span class="swatch sw-annual"></span>연차</span>
+                  </span>
+                </div>
+                <div class="pv-row">
+                  <span class="k">신청 일수 (영업일)</span>
+                  <span class="v" id="days">2일</span>
+                </div>
+                <div class="pv-row">
+                  <span class="k">대기(pending)로 잡힘</span>
+                  <span class="v" id="pend">2일</span>
+                </div>
+                <div class="pv-row">
+                  <span class="k">현재 잔여</span>
+                  <span class="v muted">10일</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card tips">
+              <h3>알아두기</h3>
+              <ul>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>본인 기존 대기 신청과 기간이 겹치면 제출이 차단됩니다.</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>잔액을 초과하는 신청은 음수 잔액 방지를 위해 차단됩니다.</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>반차는 0.5일로 계산되며 시간대(오전/오후)를 선택합니다.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var balance = 10; // 연차 잔여 시드
+
+  function bizDays(s,e){
+    var sd=new Date(s),ed=new Date(e);
+    if(isNaN(sd)||isNaN(ed))return 0;
+    if(ed<sd)return -1; // 역순
+    var n=0,d=new Date(sd);
+    while(d<=ed){var w=d.getDay();if(w!==0&&w!==6)n++;d.setDate(d.getDate()+1);}
+    return n;
+  }
+  function getType(){
+    var r=document.querySelector('input[name="type"]:checked');
+    return r?r.value:'annual';
+  }
+  var TYPE_META={
+    annual:{label:'연차', cls:'sw-annual', bg:'var(--type-annual-bg)', fg:'var(--type-annual-fg)'},
+    half:  {label:'반차', cls:'sw-half',   bg:'var(--type-half-bg)',   fg:'var(--type-half-fg)'},
+    sick:  {label:'병가', cls:'sw-sick',   bg:'var(--type-sick-bg)',   fg:'var(--type-sick-fg)'},
+    event: {label:'경조사',cls:'sw-event', bg:'var(--type-event-bg)',  fg:'var(--type-event-fg)'}
+  };
+
+  function setText(id,val){
+    var el=document.getElementById(id);
+    if(el.textContent!==String(val)){el.textContent=val; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');}
+  }
+
+  function recalc(){
+    var type=getType();
+    var s=document.getElementById('start').value, e=document.getElementById('end').value;
+    var meta=TYPE_META[type];
+
+    // 반차 토글 노출
+    var hw=document.getElementById('halfWrap');
+    hw.classList.toggle('hidden', type!=='half');
+    hw.classList.toggle('show', type==='half');
+
+    // 종류 칩
+    var chip=document.getElementById('typeChip');
+    chip.style.background=meta.bg; chip.style.color=meta.fg;
+    chip.innerHTML='<span class="swatch '+meta.cls+'"></span>'+meta.label;
+
+    // 메시지 리셋
+    var warn=document.getElementById('warn'), warnT=document.getElementById('warnText');
+    var ok=document.getElementById('okBanner');
+    warn.classList.add('hidden'); warnT.textContent='';
+    ok.classList.add('hidden');
+    var submit=document.getElementById('submit'); submit.removeAttribute('aria-disabled');
+
+    var days;
+    if(type==='half'){ days=0.5; }
+    else {
+      var bd=bizDays(s,e);
+      if(bd===-1){
+        warnT.textContent='종료일이 시작일보다 빠릅니다. 종료일을 시작일 이후로 바꿔 주세요.';
+        warn.classList.remove('hidden'); submit.setAttribute('aria-disabled','true');
+        setText('days','—'); setText('pend','—'); setText('rem','—');
+        document.getElementById('remBar').style.width='0%';
+        return;
+      }
+      days=bd;
+    }
+
+    var deducts=(type==='annual'||type==='half');
+    var pend=deducts?days:0;
+    var rem=balance-pend;
+
+    setText('days', days+'일');
+    setText('pend', pend+'일');
+    setText('rem', deducts?rem:balance);
+    var pct=Math.max(0,Math.min(100,((deducts?rem:balance)/balance)*100));
+    document.getElementById('remBar').style.width=pct+'%';
+
+    var remEl=document.getElementById('rem');
+    remEl.style.color = (deducts && rem<3) ? 'var(--color-danger)' : 'var(--color-text)';
+
+    // 검증 — 차단
+    var blocked=false;
+    if(deducts && days>balance){
+      warnT.textContent='잔액 초과: 신청 '+days+'일이 가용 '+balance+'일을 넘습니다. 기간을 줄이거나 종류를 변경하세요.';
+      warn.classList.remove('hidden'); submit.setAttribute('aria-disabled','true'); blocked=true;
+    }
+    // 본인 겹침(시드: 7/10~7/11 기존 대기 신청)
+    if(!blocked && type!=='half' && s<='2026-07-11' && e>='2026-07-10'){
+      warnT.textContent='본인 기존 대기 신청(7/10~7/11)과 기간이 겹칩니다. 다른 날짜를 선택하세요.';
+      warn.classList.remove('hidden'); submit.setAttribute('aria-disabled','true'); blocked=true;
+    }
+    if(!blocked){
+      ok.classList.remove('hidden');
+    }
+  }
+
+  function onReason(){
+    var v=document.getElementById('reason').value;
+    document.getElementById('charCount').textContent=v.length;
+  }
+  function onRole(){
+    // 역할 전환 — 셸 컨텍스트 반영(관측 가능한 상태 변화)
+    var map={emp:'직원',mgr:'팀장',hr:'HR'};
+    var v=document.getElementById('roleSel').value;
+    var info=document.querySelector('.me .info span');
+    if(info) info.textContent='디자인팀 · '+map[v];
+  }
+  function submitReq(){
+    if(document.getElementById('submit').getAttribute('aria-disabled')==='true'){ return false; }
+    return true; // requests.html로 이동 (상태 '대기' 추가는 목업)
+  }
+
+  recalc();
+  onReason();
+</script>
+</body>
+</html>

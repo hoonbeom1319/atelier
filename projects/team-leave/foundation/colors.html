@@ -1,0 +1,60 @@
+<!-- @dsCard group="Foundation" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>색 — team-leave Foundation</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body{font-family:var(--font-sans);background:var(--color-bg);color:var(--color-text);margin:0;padding:var(--sp-8)}
+  h1{font-size:var(--fs-h1)}h2{font-size:var(--fs-h2);margin-top:var(--sp-8)}
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-3)}
+  .sw{border:1px solid var(--color-border);border-radius:var(--r-md);overflow:hidden;background:var(--color-surface)}
+  .chip{height:56px}
+  .lbl{padding:var(--sp-2);font-size:var(--fs-xs);color:var(--color-text-muted)}
+  .tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:var(--r-full);font-size:var(--fs-sm);font-weight:var(--fw-medium);margin-right:8px}
+  .dot{width:7px;height:7px;border-radius:50%}
+</style>
+</head>
+<body>
+  <h1>색 시스템 (semantic 역할 · 라이트 모드)</h1>
+  <h2>중립 램프 (primitive)</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--gray-50)"></div><div class="lbl">gray-50</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-100)"></div><div class="lbl">gray-100</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-200)"></div><div class="lbl">gray-200</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-300)"></div><div class="lbl">gray-300</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-400)"></div><div class="lbl">gray-400</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-500)"></div><div class="lbl">gray-500</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-600)"></div><div class="lbl">gray-600</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-700)"></div><div class="lbl">gray-700</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-800)"></div><div class="lbl">gray-800</div></div>
+    <div class="sw"><div class="chip" style="background:var(--gray-900)"></div><div class="lbl">gray-900</div></div>
+  </div>
+
+  <h2>강조 + 표면 (semantic)</h2>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--color-primary)"></div><div class="lbl">primary</div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-primary-hover)"></div><div class="lbl">primary-hover</div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-primary-soft)"></div><div class="lbl">primary-soft</div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-surface);border-bottom:1px solid var(--color-border)"></div><div class="lbl">surface</div></div>
+    <div class="sw"><div class="chip" style="background:var(--color-bg)"></div><div class="lbl">bg</div></div>
+  </div>
+
+  <h2>상태 태그 (색 + 텍스트 — 색만 의존 금지, WCAG AA)</h2>
+  <div>
+    <span class="tag" style="background:var(--color-warning-bg);color:var(--color-warning)"><span class="dot" style="background:var(--color-warning)"></span>대기</span>
+    <span class="tag" style="background:var(--color-success-bg);color:var(--color-success)"><span class="dot" style="background:var(--color-success)"></span>승인</span>
+    <span class="tag" style="background:var(--color-danger-bg);color:var(--color-danger)"><span class="dot" style="background:var(--color-danger)"></span>반려</span>
+    <span class="tag" style="background:var(--color-surface-alt);color:var(--color-text-muted);border:1px solid var(--color-border)"><span class="dot" style="background:var(--color-text-subtle)"></span>취소</span>
+  </div>
+
+  <h2>휴가 종류 색 (캘린더 색 바 — 색 + 라벨)</h2>
+  <div>
+    <span class="tag" style="background:var(--type-annual-bg);color:var(--type-annual-fg)">■ 연차</span>
+    <span class="tag" style="background:var(--type-half-bg);color:var(--type-half-fg)">▨ 반차</span>
+    <span class="tag" style="background:var(--type-sick-bg);color:var(--type-sick-fg)">● 병가</span>
+    <span class="tag" style="background:var(--type-event-bg);color:var(--type-event-fg)">◆ 경조사</span>
+  </div>
+</body>
+</html>

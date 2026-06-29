@@ -1,0 +1,117 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>휴가 신청 — team-leave 와이어</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#fff;color:#222;margin:0;display:flex;min-height:100vh}
+  nav{width:200px;border-right:2px solid #999;padding:16px;box-sizing:border-box}
+  nav a{display:block;padding:6px 8px;color:#222;text-decoration:none;border-bottom:1px solid #eee}
+  nav .cur{display:block;padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold;background:#eee}
+  main{flex:1;padding:20px;max-width:720px}
+  h2{font-size:16px}
+  label{display:block;font-size:13px;margin:14px 0 4px}
+  select,input,textarea{width:100%;box-sizing:border-box;padding:8px;border:1px solid #999;background:#fafafa}
+  .row{display:flex;gap:12px}
+  .row>div{flex:1}
+  .preview{border:1px solid #999;padding:12px;margin-top:16px}
+  .warn{border:1px solid #c33;background:#fdecec;color:#a00;padding:8px;margin-top:10px}
+  .hidden{display:none}
+  .btn{display:inline-block;margin-top:16px;padding:9px 14px;border:2px solid #444;background:#eee;color:#222;text-decoration:none;cursor:pointer}
+  .btn[disabled]{opacity:.4;pointer-events:none}
+</style>
+</head>
+<body>
+  <nav>
+    <strong>team-leave</strong><div style="margin-top:12px"></div>
+    <a href="home.html">홈</a>
+    <span class="cur" aria-current="page">휴가 신청</span>
+    <a href="approvals.html">승인 큐</a>
+    <a href="calendar.html">팀 캘린더</a>
+    <a href="balance.html">잔여 연차</a>
+    <a href="requests.html">내 신청</a>
+    <a href="notifications.html">알림</a>
+    <a href="members.html">멤버 관리</a>
+    <a href="settings.html">설정</a>
+  </nav>
+  <main>
+    <h2>휴가 신청</h2>
+    <p style="color:#777;font-size:13px">현재 잔여(연차): <strong>10일</strong> (시드 데이터)</p>
+
+    <label for="type">휴가 종류</label>
+    <select id="type" onchange="recalc()">
+      <option value="annual">연차 (차감)</option>
+      <option value="half">반차 (0.5일 차감)</option>
+      <option value="sick">병가</option>
+      <option value="event">경조사 (무차감)</option>
+    </select>
+
+    <div class="row">
+      <div><label for="start">시작일</label><input id="start" type="date" value="2026-07-20" onchange="recalc()"></div>
+      <div><label for="end">종료일</label><input id="end" type="date" value="2026-07-21" onchange="recalc()"></div>
+    </div>
+
+    <div id="halfWrap" class="hidden">
+      <label for="slot">반차 시간대</label>
+      <select id="slot"><option>오전</option><option>오후</option></select>
+    </div>
+
+    <label for="reason">사유</label>
+    <textarea id="reason" rows="3" placeholder="사유 (병가·경조사는 증빙 메모 대체)"></textarea>
+
+    <div class="preview">
+      <strong>잔액 미리보기</strong>
+      <div>신청 일수(영업일): <span id="days">2일</span></div>
+      <div>대기(pending)로 잡힘: <span id="pend">2일</span></div>
+      <div>예상 잔여: <span id="rem">8일</span></div>
+    </div>
+
+    <div id="warn" class="warn hidden"></div>
+
+    <a id="submit" class="btn" href="requests.html" onclick="return submitReq()">제출</a>
+    <a class="btn" href="home.html">취소</a>
+  </main>
+
+<script>
+  var balance=10; // 연차 잔여 시드
+  function bizDays(s,e){
+    var sd=new Date(s),ed=new Date(e);
+    if(isNaN(sd)||isNaN(ed))return 0;
+    if(ed<sd)return -1; // 역순 표시
+    var n=0,d=new Date(sd);
+    while(d<=ed){var w=d.getDay();if(w!==0&&w!==6)n++;d.setDate(d.getDate()+1);}
+    return n;
+  }
+  function recalc(){
+    var type=document.getElementById('type').value;
+    var s=document.getElementById('start').value, e=document.getElementById('end').value;
+    document.getElementById('halfWrap').classList.toggle('hidden', type!=='half');
+    var warn=document.getElementById('warn'); warn.classList.add('hidden'); warn.textContent='';
+    var submit=document.getElementById('submit'); submit.removeAttribute('disabled');
+    var days;
+    if(type==='half'){ days=0.5; }
+    else {
+      var bd=bizDays(s,e);
+      if(bd===-1){ warn.textContent='⚠ 종료일이 시작일보다 빠릅니다(기간 유효성).'; warn.classList.remove('hidden'); submit.setAttribute('disabled','');
+        document.getElementById('days').textContent='—'; document.getElementById('pend').textContent='—'; document.getElementById('rem').textContent='—'; return; }
+      days=bd;
+    }
+    var deducts=(type==='annual'||type==='half');
+    var pend=deducts?days:0;
+    var rem=balance-pend;
+    document.getElementById('days').textContent=days+'일';
+    document.getElementById('pend').textContent=pend+'일';
+    document.getElementById('rem').textContent=rem+'일';
+    if(deducts && days>balance){ warn.textContent='⚠ 잔액 초과: 신청 '+days+'일 > 가용 '+balance+'일 (음수 잔액 방지로 차단).'; warn.classList.remove('hidden'); submit.setAttribute('disabled',''); }
+    // 본인 겹침(시드 데모): 7/10~7/11에 기존 대기 신청 있다고 가정
+    if(type!=='half' && s<='2026-07-11' && e>='2026-07-10'){ warn.textContent='⚠ 본인 기존 대기 신청(7/10~7/11)과 기간이 겹칩니다(차단).'; warn.classList.remove('hidden'); submit.setAttribute('disabled',''); }
+  }
+  function submitReq(){
+    if(document.getElementById('submit').hasAttribute('disabled')){ return false; }
+    return true; // requests.html로 이동(상태 '대기' 추가는 목업)
+  }
+  recalc();
+</script>
+</body>
+</html>

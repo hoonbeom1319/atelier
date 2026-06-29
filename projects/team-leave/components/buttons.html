@@ -1,0 +1,45 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>버튼 — team-leave Components</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{font-family:var(--font-sans);background:var(--color-bg);color:var(--color-text);margin:0;padding:var(--sp-8)}
+  h2{font-size:var(--fs-h2)}
+  .row{display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap;margin:var(--sp-4) 0}
+  .btn{font:inherit;font-size:var(--fs-body);font-weight:var(--fw-medium);padding:8px 14px;border-radius:var(--r-md);border:1px solid transparent;cursor:pointer;transition:background var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
+  .btn-primary{background:var(--color-primary);color:var(--color-on-primary)}
+  .btn-primary:hover{background:var(--color-primary-hover)}
+  .btn-secondary{background:var(--color-surface);color:var(--color-text);border-color:var(--color-border-strong)}
+  .btn-secondary:hover{background:var(--color-surface-alt)}
+  .btn-ghost{background:transparent;color:var(--color-primary)}
+  .btn-ghost:hover{background:var(--color-primary-soft)}
+  .btn-danger{background:var(--color-surface);color:var(--color-danger);border-color:var(--color-danger)}
+  .btn-sm{padding:5px 10px;font-size:var(--fs-sm)}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .meta{color:var(--color-text-subtle);font-size:var(--fs-xs);min-width:120px}
+</style>
+</head>
+<body>
+  <h2>버튼 (variant · size · state)</h2>
+  <div class="row"><span class="meta">primary</span>
+    <button class="btn btn-primary">휴가 신청</button>
+    <button class="btn btn-primary btn-sm">승인</button>
+    <button class="btn btn-primary" disabled>제출 (비활성)</button>
+  </div>
+  <div class="row"><span class="meta">secondary</span>
+    <button class="btn btn-secondary">취소</button>
+    <button class="btn btn-secondary btn-sm">상세</button>
+  </div>
+  <div class="row"><span class="meta">ghost</span>
+    <button class="btn btn-ghost">충돌 보기</button>
+    <button class="btn btn-ghost btn-sm">모두 읽음</button>
+  </div>
+  <div class="row"><span class="meta">danger</span>
+    <button class="btn btn-danger">반려</button>
+    <button class="btn btn-danger btn-sm">취소(휴가)</button>
+  </div>
+</body>
+</html>

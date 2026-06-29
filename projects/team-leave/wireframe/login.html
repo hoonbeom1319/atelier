@@ -1,0 +1,41 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>로그인 — team-leave 와이어</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#fff;color:#222;margin:0;padding:0;display:flex;min-height:100vh;align-items:center;justify-content:center}
+  .card{border:2px solid #999;padding:28px;width:360px}
+  h1{font-size:18px;margin:0 0 4px}
+  .sub{color:#777;font-size:13px;margin:0 0 20px}
+  label{display:block;font-size:13px;margin:12px 0 4px}
+  input,select{width:100%;box-sizing:border-box;padding:8px;border:1px solid #999;background:#fafafa}
+  .btn{display:block;width:100%;box-sizing:border-box;text-align:center;margin-top:18px;padding:10px;border:2px solid #444;background:#eee;color:#222;text-decoration:none;cursor:pointer}
+  .demo{margin-top:10px;border:1px dashed #bbb;padding:10px;font-size:13px}
+  #roleEcho{font-weight:bold}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>team-leave</h1>
+    <p class="sub">사내 휴가 신청·승인 내부툴 (로그인 — 개념)</p>
+    <label for="email">이메일 / 사번</label>
+    <input id="email" type="text" placeholder="you@company.com">
+    <label for="pw">비밀번호</label>
+    <input id="pw" type="password" placeholder="••••••">
+    <a class="btn" href="home.html">로그인</a>
+
+    <div class="demo">
+      <label for="role">역할 시연 (데모)</label>
+      <select id="role" onchange="document.getElementById('roleEcho').textContent=this.value">
+        <option value="직원">직원</option>
+        <option value="팀장">팀장</option>
+        <option value="HR">HR</option>
+      </select>
+      <p>선택 역할: <span id="roleEcho">직원</span>으로 입장</p>
+      <a class="btn" href="home.html">데모 계정으로 입장</a>
+    </div>
+  </div>
+</body>
+</html>

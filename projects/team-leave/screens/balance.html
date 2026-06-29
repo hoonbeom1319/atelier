@@ -1,0 +1,532 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>잔여 연차 — team-leave</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:var(--font-sans);
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-size:var(--fs-body);
+    line-height:var(--lh-body);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--color-primary-soft)}
+
+  /* ─────────── 사이드 내비 (디밍된 chrome) ─────────── */
+  .side{
+    width:240px;flex:0 0 240px;
+    background:var(--color-surface-alt);
+    border-right:1px solid var(--color-border);
+    display:flex;flex-direction:column;
+    padding:var(--sp-4) var(--sp-3);
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{
+    display:flex;align-items:center;gap:var(--sp-2);
+    padding:var(--sp-2) var(--sp-2) var(--sp-5);
+  }
+  .brand .logo{
+    width:26px;height:26px;border-radius:var(--r-md);
+    background:var(--color-primary);color:var(--color-on-primary);
+    display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-sm);
+    box-shadow:var(--shadow-xs);
+  }
+  .brand .name{font-weight:var(--fw-semibold);font-size:var(--fs-h3);letter-spacing:-.01em}
+  .nav-group{margin-bottom:var(--sp-4)}
+  .nav-cap{
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:.06em;
+    padding:var(--sp-2) var(--sp-2) var(--sp-1);
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:var(--sp-3);
+    height:35px;padding:0 var(--sp-2);border-radius:var(--r-md);
+    color:var(--color-text-muted);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+  }
+  .nav-item svg{width:17px;height:17px;flex:0 0 17px;stroke:currentColor;opacity:.9}
+  .nav-item .count{
+    margin-left:auto;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    background:var(--color-border);color:var(--color-text-muted);
+    border-radius:var(--r-full);padding:1px 7px;min-width:20px;text-align:center;
+  }
+  .nav-item:hover{background:var(--color-border);color:var(--color-text)}
+  .nav-item:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .nav-item.cur{
+    background:var(--color-primary-soft);color:var(--color-primary);font-weight:var(--fw-semibold);
+  }
+  .nav-item.cur svg{opacity:1}
+  .side-foot{margin-top:auto;padding-top:var(--sp-4)}
+  .me{
+    display:flex;align-items:center;gap:var(--sp-3);
+    padding:var(--sp-2);border-radius:var(--r-md);
+    transition:background var(--dur-fast) var(--ease);
+  }
+  .me:hover{background:var(--color-border)}
+  .avatar{
+    width:30px;height:30px;border-radius:var(--r-full);flex:0 0 30px;
+    background:var(--type-event-bg);color:var(--type-event-fg);
+    display:grid;place-items:center;font-weight:var(--fw-semibold);font-size:var(--fs-sm);
+  }
+  .me .who{line-height:1.3;min-width:0}
+  .me .who b{display:block;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text)}
+  .me .who span{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+
+  /* ─────────── 본문 셸 ─────────── */
+  .app{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    height:60px;flex:0 0 60px;
+    background:var(--color-surface);
+    border-bottom:1px solid var(--color-border);
+    display:flex;align-items:center;gap:var(--sp-4);
+    padding:0 var(--sp-8);position:sticky;top:0;z-index:5;
+  }
+  .topbar h1{font-size:var(--fs-h1);font-weight:var(--fw-bold);margin:0;letter-spacing:-.02em}
+  .topbar .crumb{color:var(--color-text-subtle);font-size:var(--fs-sm);font-weight:var(--fw-medium)}
+  .topbar .spacer{flex:1}
+  .role-sel{position:relative;display:flex;align-items:center}
+  .role-sel select{
+    appearance:none;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    color:var(--color-text);background:var(--color-surface);
+    border:1px solid var(--color-border);border-radius:var(--r-md);
+    padding:7px 30px 7px 12px;cursor:pointer;
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  .role-sel select:hover{border-color:var(--color-border-strong)}
+  .role-sel select:focus-visible{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .role-sel::after{content:"▾";position:absolute;right:11px;color:var(--color-text-subtle);font-size:11px;pointer-events:none}
+  .icon-btn{
+    position:relative;width:36px;height:36px;border-radius:var(--r-md);
+    border:1px solid transparent;background:transparent;color:var(--color-text-muted);
+    display:grid;place-items:center;cursor:pointer;
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+  }
+  .icon-btn svg{width:18px;height:18px;stroke:currentColor}
+  .icon-btn:hover{background:var(--color-surface-alt);color:var(--color-text)}
+  .icon-btn:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .icon-btn .dot{
+    position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 4px;
+    background:var(--color-danger);color:#fff;border:2px solid var(--color-surface);
+    border-radius:var(--r-full);font-size:10px;font-weight:var(--fw-bold);
+    display:grid;place-items:center;line-height:1;
+  }
+
+  /* ─────────── 콘텐츠 ─────────── */
+  .content{padding:var(--sp-8);overflow:auto}
+  .wrap{max-width:1160px;margin:0 auto}
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--sp-4);margin-bottom:var(--sp-6)}
+  .page-head .lead{font-size:var(--fs-sm);color:var(--color-text-muted);margin:6px 0 0;max-width:62ch}
+  .basis-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:var(--fs-xs);font-weight:var(--fw-medium);
+    color:var(--color-text-muted);background:var(--color-surface);
+    border:1px solid var(--color-border);border-radius:var(--r-full);
+    padding:5px 11px;white-space:nowrap;
+  }
+  .basis-badge .k{color:var(--color-text-subtle)}
+
+  /* 요약 패널 (전폭) */
+  .summary{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--r-lg);box-shadow:var(--shadow-xs);
+    padding:var(--sp-6);margin-bottom:var(--sp-8);
+    display:grid;grid-template-columns:minmax(220px,260px) 1px 1fr;gap:var(--sp-6);align-items:center;
+  }
+  .summary .hero .cap{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .summary .hero .num{
+    font-size:var(--fs-display);font-weight:var(--fw-bold);color:var(--color-text);
+    letter-spacing:-.02em;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums;
+  }
+  .summary .hero .num small{font-size:var(--fs-h2);font-weight:var(--fw-semibold);color:var(--color-text-muted)}
+  .summary .hero .sub{
+    display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+    font-size:var(--fs-xs);font-weight:var(--fw-medium);
+    color:var(--color-warning);background:var(--color-warning-bg);
+    border-radius:var(--r-full);padding:4px 10px;
+  }
+  .summary .vr{background:var(--color-border);width:1px;height:64px;align-self:center}
+  .summary .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-5)}
+  .stat .k{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .stat .v{font-size:var(--fs-h2);font-weight:var(--fw-semibold);color:var(--color-text);margin-top:4px;font-variant-numeric:tabular-nums}
+  .stat .v .u{font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--color-text-subtle);margin-left:2px}
+  .stat.accent .v{color:var(--color-primary)}
+
+  /* 섹션 헤더 + 필터 */
+  .sec-head{display:flex;align-items:center;gap:var(--sp-4);margin-bottom:var(--sp-4)}
+  .sec-head h2{font-size:var(--fs-h2);font-weight:var(--fw-semibold);margin:0;letter-spacing:-.01em}
+  .filters{display:flex;gap:var(--sp-2);margin-left:auto}
+  .chip{
+    font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    color:var(--color-text-muted);background:var(--color-surface);
+    border:1px solid var(--color-border);border-radius:var(--r-full);
+    padding:6px 14px;cursor:pointer;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .chip:hover{border-color:var(--color-border-strong);color:var(--color-text)}
+  .chip:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .chip.on{background:var(--color-primary-soft);border-color:var(--color-primary);color:var(--color-primary);font-weight:var(--fw-semibold)}
+
+  /* 카드 그리드 */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp-5)}
+  .card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--r-lg);box-shadow:var(--shadow-xs);
+    padding:var(--sp-6);display:flex;flex-direction:column;
+    transition:box-shadow var(--dur) var(--ease),border-color var(--dur) var(--ease),transform var(--dur) var(--ease);
+  }
+  .card.clickable{cursor:pointer}
+  .card.clickable:hover{box-shadow:var(--shadow-md);border-color:var(--color-border-strong);transform:translateY(-2px)}
+  .card.clickable:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+  .card.depleted{background:linear-gradient(180deg,var(--color-surface),var(--color-surface-alt))}
+
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp-3);margin-bottom:var(--sp-5)}
+  .type{display:flex;align-items:center;gap:var(--sp-3)}
+  .type .swatch{width:10px;height:10px;border-radius:3px;flex:0 0 10px}
+  .type .tname{font-size:var(--fs-h3);font-weight:var(--fw-semibold);color:var(--color-text);letter-spacing:-.01em}
+  .type .tnote{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium);margin-top:1px}
+  .pill{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);border-radius:var(--r-full);
+    padding:4px 10px;white-space:nowrap;
+  }
+  .pill .pdot{width:6px;height:6px;border-radius:var(--r-full);background:currentColor}
+  .pill.ok{color:var(--color-success);background:var(--color-success-bg)}
+  .pill.dday{color:var(--color-warning);background:var(--color-warning-bg)}
+  .pill.gone{color:var(--color-danger);background:var(--color-danger-bg)}
+  .pill.info{color:var(--color-info);background:var(--color-info-bg)}
+
+  .remain{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+  .remain .n{font-size:var(--fs-display);font-weight:var(--fw-bold);letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+  .remain .u{font-size:var(--fs-h3);font-weight:var(--fw-semibold);color:var(--color-text-muted)}
+  .remain .lab{font-size:var(--fs-sm);color:var(--color-text-subtle);font-weight:var(--fw-medium);margin-left:2px}
+  .card.depleted .remain .n{color:var(--color-text-muted)}
+  .pending-note{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--color-info);
+    background:var(--color-info-bg);border-radius:var(--r-full);padding:4px 10px;margin-top:2px;
+  }
+  .depleted-note{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium);margin-top:2px}
+
+  /* 진행 바 */
+  .bar-wrap{margin-top:var(--sp-5)}
+  .bar{
+    display:flex;height:10px;border-radius:var(--r-full);overflow:hidden;
+    background:var(--color-surface-alt);border:1px solid var(--color-border);
+  }
+  .bar .seg{height:100%;transition:width var(--dur) var(--ease)}
+  .bar .seg.used{background:var(--color-primary)}
+  .bar .seg.pending{background:repeating-linear-gradient(45deg,var(--indigo-100),var(--indigo-100) 4px,var(--color-primary-soft) 4px,var(--color-primary-soft) 8px)}
+  .bar .seg.used.full{background:var(--color-border-strong)}
+  .legend{display:flex;flex-wrap:wrap;gap:var(--sp-4);margin-top:var(--sp-3)}
+  .legend .li{display:flex;align-items:center;gap:6px;font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .legend .lg{width:9px;height:9px;border-radius:3px}
+  .legend .lg.used{background:var(--color-primary)}
+  .legend .lg.pending{background:repeating-linear-gradient(45deg,var(--indigo-100),var(--indigo-100) 3px,var(--color-primary-soft) 3px,var(--color-primary-soft) 6px)}
+  .legend .lg.left{background:var(--color-surface-alt);border:1px solid var(--color-border-strong)}
+
+  /* 카드 스탯 */
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:var(--sp-5);
+    border-top:1px solid var(--color-border);padding-top:var(--sp-4)}
+  .metrics .m{padding-right:var(--sp-3)}
+  .metrics .m + .m{border-left:1px solid var(--color-border);padding-left:var(--sp-4)}
+  .metrics .mk{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .metrics .mv{font-size:var(--fs-h3);font-weight:var(--fw-semibold);color:var(--color-text);margin-top:3px;font-variant-numeric:tabular-nums}
+  .metrics .mv.rate{color:var(--color-primary)}
+
+  .card-foot{margin-top:auto;padding-top:var(--sp-5)}
+  .go{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-primary);
+    transition:gap var(--dur-fast) var(--ease);
+  }
+  .card.clickable:hover .go{gap:10px}
+
+  /* 무차감 카드 본문 */
+  .nodeduct .remain .n{font-size:var(--fs-h1);color:var(--color-success)}
+  .desc-rows{display:flex;flex-direction:column;gap:var(--sp-3);margin-top:var(--sp-5);
+    border-top:1px solid var(--color-border);padding-top:var(--sp-4)}
+  .desc-rows .row{display:flex;justify-content:space-between;font-size:var(--fs-sm)}
+  .desc-rows .row .dk{color:var(--color-text-muted)}
+  .desc-rows .row .dv{color:var(--color-text);font-weight:var(--fw-medium)}
+
+  /* 불변식 안내 */
+  .note{
+    display:flex;align-items:flex-start;gap:var(--sp-3);
+    margin-top:var(--sp-8);padding:var(--sp-4) var(--sp-5);
+    background:var(--color-surface-alt);border:1px solid var(--color-border);border-radius:var(--r-md);
+    font-size:var(--fs-sm);color:var(--color-text-muted);line-height:var(--lh-body);
+  }
+  .note svg{width:18px;height:18px;flex:0 0 18px;stroke:var(--color-text-subtle);margin-top:1px}
+  .note code{
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:var(--fs-xs);
+    background:var(--color-surface);border:1px solid var(--color-border);border-radius:4px;padding:1px 6px;color:var(--color-text);
+  }
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+  <!-- ════ 사이드 내비 ════ -->
+  <aside class="side">
+    <div class="brand"><span class="logo">TL</span><span class="name">team-leave</span></div>
+
+    <div class="nav-group">
+      <div class="nav-cap">메인</div>
+      <a class="nav-item" href="home.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>홈
+      </a>
+      <a class="nav-item" href="request.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>휴가 신청
+      </a>
+      <a class="nav-item" href="approvals.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>승인 큐<span class="count">3</span>
+      </a>
+      <a class="nav-item" href="calendar.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>팀 캘린더
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-cap">내 휴가</div>
+      <a class="nav-item cur" href="balance.html" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13a9 9 0 1 0 9-9v9z"/></svg>잔여 연차
+      </a>
+      <a class="nav-item" href="requests.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>내 신청
+      </a>
+      <a class="nav-item" href="notifications.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>알림<span class="count">2</span>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-cap">관리</div>
+      <a class="nav-item" href="members.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0M16 6.2a3 3 0 0 1 0 5.6M20.5 20a5 5 0 0 0-3.5-4.8"/></svg>멤버 관리
+      </a>
+      <a class="nav-item" href="settings.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.7 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 3 15M21 12.7V11.3M4.6 9A1.6 1.6 0 0 0 5 7.2l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 10.5 3.4"/></svg>설정
+      </a>
+    </div>
+
+    <div class="side-foot">
+      <a class="me" href="settings.html">
+        <span class="avatar">서</span>
+        <span class="who"><b>서지은</b><span>디자인팀 · 직원</span></span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ════ 앱 ════ -->
+  <div class="app">
+    <header class="topbar">
+      <span class="crumb">내 휴가 /</span>
+      <h1>잔여 연차</h1>
+      <span class="spacer"></span>
+      <label class="role-sel" title="역할 시연 전환">
+        <select id="roleSel" aria-label="역할 전환">
+          <option value="emp" selected>직원 뷰</option>
+          <option value="lead">팀장 뷰</option>
+          <option value="hr">HR 뷰</option>
+        </select>
+      </label>
+      <a class="icon-btn" href="notifications.html" aria-label="알림 2건">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="dot">2</span>
+      </a>
+      <a class="icon-btn" href="settings.html" aria-label="설정">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-2.7 1.1 2 2 0 1 1-4 0A1.6 1.6 0 0 0 6.7 19a2 2 0 1 1-2.8-2.8A1.6 1.6 0 0 0 3 15M21 12v0"/></svg>
+      </a>
+    </header>
+
+    <main class="content">
+      <div class="wrap">
+
+        <div class="page-head">
+          <div>
+            <p class="lead">2026 회계연도 기준 휴가 종류별 잔여 현황입니다. 잔여 = 부여 − 사용 − 대기(대기분은 별도 표시).</p>
+          </div>
+          <span class="basis-badge"><span class="k">부여 기준</span> 입사일 (2022-03-14) · 자동 산정 <code style="font-family:ui-monospace,monospace;font-size:11px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:4px;padding:0 5px;">범위 밖</code></span>
+        </div>
+
+        <!-- 요약 패널 -->
+        <section class="summary" aria-label="연차 요약">
+          <div class="hero">
+            <div class="cap">사용 가능한 연차</div>
+            <div class="num">10<small> / 15일</small></div>
+            <div class="sub"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5M12 16h.01M10.3 3.9 2.5 17.4A2 2 0 0 0 4.2 20.5h15.6a2 2 0 0 0 1.7-3.1L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>승인 대기 2일 포함 — 확정 전</div>
+          </div>
+          <div class="vr"></div>
+          <div class="stats">
+            <div class="stat"><div class="k">총 부여</div><div class="v">15<span class="u">일</span></div></div>
+            <div class="stat"><div class="k">사용</div><div class="v">3<span class="u">일</span></div></div>
+            <div class="stat"><div class="k">대기</div><div class="v">2<span class="u">일</span></div></div>
+            <div class="stat accent"><div class="k">잔여</div><div class="v">10<span class="u">일</span></div></div>
+          </div>
+        </section>
+
+        <!-- 섹션 헤더 + 필터 -->
+        <div class="sec-head">
+          <h2>휴가 종류별 잔여</h2>
+          <div class="filters" role="group" aria-label="종류 필터">
+            <button class="chip on" data-filter="all" aria-pressed="true">전체</button>
+            <button class="chip" data-filter="deduct" aria-pressed="false">차감형</button>
+            <button class="chip" data-filter="nodeduct" aria-pressed="false">무차감</button>
+          </div>
+        </div>
+
+        <div class="grid" id="cardGrid">
+
+          <!-- 연차 (정상 · 대기>0) -->
+          <a class="card clickable" data-cat="deduct" href="requests.html?type=annual" aria-label="연차 잔여 10일, 관련 내 신청 보기">
+            <div class="card-top">
+              <div class="type">
+                <span class="swatch" style="background:var(--type-annual-fg)"></span>
+                <div><div class="tname">연차</div><div class="tnote">2026 회계연도</div></div>
+              </div>
+              <span class="pill dday"><span class="pdot"></span>소멸 D-120</span>
+            </div>
+            <div class="remain"><span class="n" style="color:var(--type-annual-fg)">10</span><span class="u">일</span><span class="lab">잔여</span></div>
+            <span class="pending-note"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>승인 대기 2일 포함 — 확정 시 잔여 8일</span>
+            <div class="bar-wrap">
+              <div class="bar" role="img" aria-label="부여 15일 중 사용 3일, 대기 2일">
+                <span class="seg used" style="width:20%"></span>
+                <span class="seg pending" style="width:13.3%"></span>
+              </div>
+              <div class="legend">
+                <span class="li"><span class="lg used"></span>사용 3</span>
+                <span class="li"><span class="lg pending"></span>대기 2</span>
+                <span class="li"><span class="lg left"></span>잔여 10</span>
+              </div>
+            </div>
+            <div class="metrics">
+              <div class="m"><div class="mk">부여</div><div class="mv">15</div></div>
+              <div class="m"><div class="mk">사용</div><div class="mv">3</div></div>
+              <div class="m"><div class="mk">대기</div><div class="mv">2</div></div>
+              <div class="m"><div class="mk">사용률</div><div class="mv rate">33%</div></div>
+            </div>
+            <div class="card-foot"><span class="go">관련 내 신청 보기 →</span></div>
+          </a>
+
+          <!-- 이월 연차 (소진 · 잔여 0) -->
+          <a class="card clickable depleted" data-cat="deduct" href="requests.html?type=carryover" aria-label="이월 연차 잔여 0일 소진, 관련 내 신청 보기">
+            <div class="card-top">
+              <div class="type">
+                <span class="swatch" style="background:var(--type-annual-fg);opacity:.55"></span>
+                <div><div class="tname">이월 연차</div><div class="tnote">2025년 이월분</div></div>
+              </div>
+              <span class="pill gone"><span class="pdot"></span>소진 완료</span>
+            </div>
+            <div class="remain"><span class="n">0</span><span class="u">일</span><span class="lab">잔여</span></div>
+            <div class="depleted-note">부여 11일을 모두 사용했습니다. 2026-06-30 만료 예정 — 추가 차감 불가.</div>
+            <div class="bar-wrap">
+              <div class="bar" role="img" aria-label="부여 11일 중 사용 11일, 소진">
+                <span class="seg used full" style="width:100%"></span>
+              </div>
+              <div class="legend">
+                <span class="li"><span class="lg" style="background:var(--color-border-strong)"></span>사용 11</span>
+                <span class="li"><span class="lg left"></span>잔여 0</span>
+              </div>
+            </div>
+            <div class="metrics">
+              <div class="m"><div class="mk">부여</div><div class="mv">11</div></div>
+              <div class="m"><div class="mk">사용</div><div class="mv">11</div></div>
+              <div class="m"><div class="mk">대기</div><div class="mv">0</div></div>
+              <div class="m"><div class="mk">사용률</div><div class="mv rate" style="color:var(--color-text-muted)">100%</div></div>
+            </div>
+            <div class="card-foot"><span class="go">사용 내역 보기 →</span></div>
+          </a>
+
+          <!-- 병가 (별도 풀 · 미사용) -->
+          <a class="card clickable" data-cat="deduct" href="requests.html?type=sick" aria-label="병가 잔여 5일, 관련 내 신청 보기">
+            <div class="card-top">
+              <div class="type">
+                <span class="swatch" style="background:var(--type-sick-fg)"></span>
+                <div><div class="tname">병가</div><div class="tnote">연차와 별도 풀</div></div>
+              </div>
+              <span class="pill ok"><span class="pdot"></span>여유</span>
+            </div>
+            <div class="remain"><span class="n" style="color:var(--type-sick-fg)">5</span><span class="u">일</span><span class="lab">잔여</span></div>
+            <div class="depleted-note">올해 사용한 병가가 없습니다. 진단서 제출 규정은 신청 시 안내됩니다.</div>
+            <div class="bar-wrap">
+              <div class="bar" role="img" aria-label="부여 5일 중 사용 0일">
+                <span class="seg used" style="width:0%"></span>
+              </div>
+              <div class="legend">
+                <span class="li"><span class="lg used"></span>사용 0</span>
+                <span class="li"><span class="lg left"></span>잔여 5</span>
+              </div>
+            </div>
+            <div class="metrics">
+              <div class="m"><div class="mk">부여</div><div class="mv">5</div></div>
+              <div class="m"><div class="mk">사용</div><div class="mv">0</div></div>
+              <div class="m"><div class="mk">대기</div><div class="mv">0</div></div>
+              <div class="m"><div class="mk">사용률</div><div class="mv rate">0%</div></div>
+            </div>
+            <div class="card-foot"><span class="go">병가 신청 내역 →</span></div>
+          </a>
+
+          <!-- 경조사 (무차감) -->
+          <a class="card clickable nodeduct" data-cat="nodeduct" href="requests.html?type=event" aria-label="경조사 무차감 한도 내, 관련 내 신청 보기">
+            <div class="card-top">
+              <div class="type">
+                <span class="swatch" style="background:var(--type-event-fg)"></span>
+                <div><div class="tname">경조사</div><div class="tnote">잔여 차감 없음</div></div>
+              </div>
+              <span class="pill info"><span class="pdot"></span>무차감</span>
+            </div>
+            <div class="remain"><span class="n">한도 내</span></div>
+            <div class="depleted-note">규정상 사유별 한도가 적용됩니다 (예: 결혼 5일 · 직계 사망 5일). 연차에서 차감되지 않습니다.</div>
+            <div class="desc-rows">
+              <div class="row"><span class="dk">올해 사용</span><span class="dv">1건 · 3일 (배우자 출산)</span></div>
+              <div class="row"><span class="dk">증빙</span><span class="dv">제출 완료</span></div>
+              <div class="row"><span class="dk">잔여 차감</span><span class="dv" style="color:var(--color-success)">없음</span></div>
+            </div>
+            <div class="card-foot"><span class="go">경조사 신청 내역 →</span></div>
+          </a>
+
+        </div>
+
+        <div class="note">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+          <span><b style="color:var(--color-text);font-weight:var(--fw-semibold)">표시 규칙.</b> 잔여 = 부여 − 사용 − <b style="color:var(--color-text)">대기</b>(불변식). 승인 대기 중인 신청은 잔여에서 미리 빠져 표시되므로 "신청했는데 안 깎인" 혼란을 방지합니다. 소멸 D-day·자동 산정은 개념 표시이며 자동 계산은 <code>범위 밖</code>입니다.</span>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+<script>
+  // ── 종류 필터 칩 (라이브 표시 토글) ──
+  const chips = document.querySelectorAll('.chip');
+  const cards = document.querySelectorAll('#cardGrid .card');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => { c.classList.remove('on'); c.setAttribute('aria-pressed','false'); });
+      chip.classList.add('on'); chip.setAttribute('aria-pressed','true');
+      const f = chip.dataset.filter;
+      cards.forEach(card => {
+        const show = (f === 'all') || (card.dataset.cat === f);
+        card.classList.toggle('hidden', !show);
+      });
+    });
+  });
+
+  // ── 역할 전환 (시연 — 라벨 반영) ──
+  document.getElementById('roleSel').addEventListener('change', (e) => {
+    const map = { emp:'직원', lead:'팀장', hr:'HR' };
+    const who = document.querySelector('.me .who span');
+    if (who) who.textContent = '디자인팀 · ' + map[e.target.value];
+  });
+</script>
+</body>
+</html>

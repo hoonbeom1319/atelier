@@ -1,0 +1,48 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>카드 — team-leave Components</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  body{font-family:var(--font-sans);background:var(--color-bg);color:var(--color-text);margin:0;padding:var(--sp-8)}
+  h2{font-size:var(--fs-h2)}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,240px));gap:var(--sp-4)}
+  .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:var(--sp-5)}
+  .card h3{margin:0 0 var(--sp-2);font-size:var(--fs-h3);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .stat{font-size:var(--fs-display);font-weight:var(--fw-bold);line-height:var(--lh-tight)}
+  .unit{font-size:var(--fs-body);color:var(--color-text-muted);font-weight:var(--fw-regular)}
+  .sub{font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:var(--sp-2)}
+  .bar{height:6px;background:var(--color-surface-alt);border-radius:var(--r-full);overflow:hidden;margin-top:var(--sp-3)}
+  .bar>span{display:block;height:100%;background:var(--color-primary)}
+  .split{display:flex;gap:var(--sp-3);margin-top:var(--sp-3);font-size:var(--fs-xs);color:var(--color-text-muted)}
+  .split b{display:block;color:var(--color-text);font-size:var(--fs-h3)}
+  .cta{display:inline-block;margin-top:var(--sp-3);font-size:var(--fs-sm);color:var(--color-primary);font-weight:var(--fw-medium);text-decoration:none}
+</style>
+</head>
+<body>
+  <h2>대시보드 / 잔여 카드</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>내 잔여 연차</h3>
+      <div class="stat">10<span class="unit">일</span></div>
+      <div class="split"><span><b>15</b>부여</span><span><b>3</b>사용</span><span><b>2</b>대기</span></div>
+      <div class="bar"><span style="width:33%"></span></div>
+      <div class="sub">사용률 33% · 대기 2일 포함</div>
+      <a class="cta" href="#">잔여 상세 →</a>
+    </div>
+    <div class="card">
+      <h3>승인 대기 큐</h3>
+      <div class="stat">4<span class="unit">건</span></div>
+      <div class="sub">내 액션 필요</div>
+      <a class="cta" href="#">승인 큐로 →</a>
+    </div>
+    <div class="card">
+      <h3>잔여 (소진 상태)</h3>
+      <div class="stat" style="color:var(--color-text-muted)">0<span class="unit">일</span></div>
+      <div class="sub">부여 11 · 사용 11 — 소진</div>
+    </div>
+  </div>
+</body>
+</html>

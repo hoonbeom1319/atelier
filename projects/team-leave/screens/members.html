@@ -1,0 +1,783 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>멤버 / 팀 관리 — team-leave</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:var(--font-sans);
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-size:var(--fs-body);
+    line-height:var(--lh-body);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+  .tnum{font-variant-numeric:tabular-nums}
+
+  /* ───────── 사이드 내비 (디밍된 chrome) ───────── */
+  .side{
+    width:240px;flex:0 0 240px;
+    background:var(--color-surface-alt);
+    border-right:1px solid var(--color-border);
+    padding:var(--sp-4) var(--sp-3);
+    display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-2) var(--sp-5);}
+  .brand .mark{
+    width:28px;height:28px;border-radius:var(--r-md);
+    background:var(--color-primary);color:var(--color-on-primary);
+    display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-sm);
+    box-shadow:var(--shadow-xs);
+  }
+  .brand .name{font-weight:var(--fw-semibold);font-size:var(--fs-h3);letter-spacing:-.01em}
+  .navgroup{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-subtle);
+    text-transform:uppercase;letter-spacing:.06em;padding:var(--sp-3) var(--sp-2) var(--sp-1)}
+  .navlink{
+    display:flex;align-items:center;gap:10px;
+    height:35px;padding:0 var(--sp-2);border-radius:var(--r-sm);
+    color:var(--color-text-muted);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+  }
+  .navlink svg{width:17px;height:17px;flex:0 0 17px;stroke:currentColor;fill:none;stroke-width:1.7;opacity:.85}
+  .navlink:hover{background:var(--color-surface);color:var(--color-text)}
+  .navlink .count{margin-left:auto;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    background:var(--color-border);color:var(--color-text-muted);border-radius:var(--r-full);
+    min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center}
+  .navlink[aria-current="page"]{
+    background:var(--color-primary-soft);color:var(--color-primary);font-weight:var(--fw-semibold);
+  }
+  .navlink[aria-current="page"] svg{opacity:1}
+  .side .spacer{flex:1}
+  .userchip{
+    display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2);
+    border-radius:var(--r-md);border:1px solid var(--color-border);background:var(--color-surface);
+  }
+  .userchip .av{width:30px;height:30px;border-radius:var(--r-full);background:var(--indigo-100);
+    color:var(--color-primary-hover);display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-sm)}
+  .userchip .who{line-height:1.2;min-width:0}
+  .userchip .who b{font-size:var(--fs-sm);font-weight:var(--fw-semibold);display:block}
+  .userchip .who span{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+
+  /* ───────── 본문 ───────── */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    position:sticky;top:0;z-index:5;
+    display:flex;align-items:center;gap:var(--sp-4);
+    padding:var(--sp-4) var(--sp-8);
+    background:rgba(255,255,255,.82);backdrop-filter:saturate(1.4) blur(8px);
+    border-bottom:1px solid var(--color-border);
+  }
+  .crumb{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .topbar h1{margin:2px 0 0;font-size:var(--fs-h1);font-weight:var(--fw-bold);letter-spacing:-.02em}
+  .topbar .right{margin-left:auto;display:flex;align-items:center;gap:var(--sp-3)}
+  .rolesel{position:relative;display:flex;align-items:center;gap:var(--sp-2);
+    border:1px solid var(--color-border);background:var(--color-surface);
+    border-radius:var(--r-md);padding:6px 10px;font-size:var(--fs-sm);box-shadow:var(--shadow-xs)}
+  .rolesel label{color:var(--color-text-subtle);font-size:var(--fs-xs);font-weight:var(--fw-medium)}
+  .rolesel select{border:0;background:transparent;font:inherit;font-weight:var(--fw-semibold);
+    color:var(--color-text);cursor:pointer;outline:none}
+  .iconbtn{position:relative;width:36px;height:36px;border-radius:var(--r-md);
+    border:1px solid var(--color-border);background:var(--color-surface);cursor:pointer;
+    display:grid;place-items:center;box-shadow:var(--shadow-xs);
+    transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease)}
+  .iconbtn:hover{background:var(--color-surface-alt);border-color:var(--color-border-strong)}
+  .iconbtn svg{width:18px;height:18px;stroke:var(--color-text-muted);fill:none;stroke-width:1.7}
+  .iconbtn .dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:var(--r-full);
+    background:var(--color-danger);border:2px solid var(--color-surface)}
+  .topbar .av{width:34px;height:34px;border-radius:var(--r-full);background:var(--indigo-100);
+    color:var(--color-primary-hover);display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-sm);cursor:pointer}
+
+  .content{padding:var(--sp-8);max-width:1200px;width:100%}
+
+  /* KPI 카드 행 */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-4);margin-bottom:var(--sp-8)}
+  .kpi{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);
+    padding:var(--sp-5) var(--sp-6);box-shadow:var(--shadow-xs)}
+  .kpi .label{display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .kpi .ic{width:30px;height:30px;border-radius:var(--r-md);display:grid;place-items:center}
+  .kpi .ic svg{width:17px;height:17px;fill:none;stroke-width:1.8}
+  .kpi.ai .ic{background:var(--color-primary-soft)} .kpi.ai .ic svg{stroke:var(--color-primary)}
+  .kpi.aw .ic{background:var(--color-warning-bg)} .kpi.aw .ic svg{stroke:var(--color-warning)}
+  .kpi.ag .ic{background:var(--color-success-bg)} .kpi.ag .ic svg{stroke:var(--color-success)}
+  .kpi .num{font-size:var(--fs-display);font-weight:var(--fw-bold);letter-spacing:-.02em;line-height:1.1;margin-top:var(--sp-4)}
+  .kpi .num small{font-size:var(--fs-h3);font-weight:var(--fw-semibold);color:var(--color-text-muted);margin-left:3px}
+  .kpi .sub{font-size:var(--fs-xs);color:var(--color-text-subtle);margin-top:4px}
+  .kpi .sub.warn{color:var(--color-warning);font-weight:var(--fw-medium)}
+
+  /* 패널(테이블 카드) */
+  .panel{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);
+    box-shadow:var(--shadow-xs);overflow:hidden}
+  .panel-head{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-5) var(--sp-6);
+    border-bottom:1px solid var(--color-border)}
+  .panel-head h2{margin:0;font-size:var(--fs-h2);font-weight:var(--fw-semibold);letter-spacing:-.01em}
+  .panel-head .meta{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-medium)}
+  .toolbar{margin-left:auto;display:flex;align-items:center;gap:var(--sp-2)}
+  .search{position:relative;display:flex;align-items:center}
+  .search svg{position:absolute;left:9px;width:15px;height:15px;stroke:var(--color-text-subtle);fill:none;stroke-width:1.8}
+  .search input{padding:7px 10px 7px 28px;border:1px solid var(--color-border);border-radius:var(--r-md);
+    font:inherit;font-size:var(--fs-sm);width:170px;background:var(--color-surface);color:var(--color-text);
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease)}
+  .search input:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .selbox{padding:7px 26px 7px 10px;border:1px solid var(--color-border);border-radius:var(--r-md);
+    font:inherit;font-size:var(--fs-sm);background:var(--color-surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 8px center;
+    color:var(--color-text);cursor:pointer;-webkit-appearance:none;appearance:none}
+  .selbox:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+
+  /* 버튼 */
+  .btn{display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-md);
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);padding:8px 13px;cursor:pointer;
+    border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);
+    transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease),transform var(--dur-fast) var(--ease)}
+  .btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .btn:hover{background:var(--color-surface-alt);border-color:var(--color-border-strong)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .btn.primary{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-on-primary);box-shadow:var(--shadow-xs)}
+  .btn.primary:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover)}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--color-text-muted);padding:6px 9px}
+  .btn.ghost:hover{background:var(--color-surface-alt);color:var(--color-text)}
+  .btn.sm{padding:5px 10px;font-size:var(--fs-xs)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn.danger{color:var(--color-danger);border-color:var(--color-border)}
+  .btn.danger:hover{background:var(--color-danger-bg);border-color:var(--color-danger)}
+
+  /* 테이블 */
+  table{border-collapse:collapse;width:100%}
+  thead th{position:sticky;top:0;background:var(--color-surface-alt);
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text-muted);
+    text-align:left;padding:11px var(--sp-5);border-bottom:1px solid var(--color-border);white-space:nowrap}
+  thead th.num{text-align:right}
+  tbody td{padding:0 var(--sp-5);height:56px;border-bottom:1px solid var(--color-border);
+    font-size:var(--fs-body);color:var(--color-text);vertical-align:middle}
+  tbody tr{transition:background var(--dur-fast) var(--ease)}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--color-surface-alt)}
+  tbody tr:hover .rowact .btn{color:var(--color-text);border-color:var(--color-border-strong)}
+  td.num{text-align:right}
+  .who-cell{display:flex;align-items:center;gap:10px}
+  .who-cell .av{width:34px;height:34px;border-radius:var(--r-full);display:grid;place-items:center;
+    font-weight:var(--fw-bold);font-size:var(--fs-sm);background:var(--indigo-100);color:var(--color-primary-hover);flex:0 0 34px}
+  .who-cell .nm{font-weight:var(--fw-semibold);line-height:1.2}
+  .who-cell .em{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+  .team-cell{font-weight:var(--fw-medium)}
+  .role-tag{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:var(--fw-medium);
+    padding:2px 9px;border-radius:var(--r-full);background:var(--color-surface-alt);color:var(--color-text-muted);border:1px solid var(--color-border)}
+  .role-tag.mgr{background:var(--color-info-bg);color:var(--color-info);border-color:transparent}
+  .role-tag.hr{background:var(--color-primary-soft);color:var(--color-primary);border-color:transparent}
+  .basis{font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .rem{font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums}
+  .rem.zero{color:var(--color-danger)}
+  .flag{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    padding:3px 9px;border-radius:var(--r-full);background:var(--color-warning-bg);color:var(--color-warning)}
+  .flag .d{width:6px;height:6px;border-radius:var(--r-full);background:currentColor}
+  .rowact{display:flex;gap:6px;justify-content:flex-end}
+  .rowact .btn{color:var(--color-text-muted);transition:color var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease),transform var(--dur-fast) var(--ease)}
+
+  /* 빈 상태 */
+  .empty{display:none;flex-direction:column;align-items:center;text-align:center;padding:var(--sp-10) var(--sp-8)}
+  .empty.show{display:flex}
+  .empty .ill{width:56px;height:56px;border-radius:var(--r-lg);background:var(--color-primary-soft);
+    display:grid;place-items:center;margin-bottom:var(--sp-4)}
+  .empty .ill svg{width:26px;height:26px;stroke:var(--color-primary);fill:none;stroke-width:1.6}
+  .empty h3{margin:0 0 6px;font-size:var(--fs-h2);font-weight:var(--fw-semibold)}
+  .empty p{margin:0 0 var(--sp-5);color:var(--color-text-muted);font-size:var(--fs-sm);max-width:380px}
+
+  /* RBAC 차단 패널 */
+  .rbac{display:none;flex-direction:column;align-items:center;text-align:center;
+    padding:var(--sp-10);background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--r-lg);box-shadow:var(--shadow-xs)}
+  .rbac.show{display:flex}
+  .rbac .ill{width:56px;height:56px;border-radius:var(--r-full);background:var(--color-danger-bg);
+    display:grid;place-items:center;margin-bottom:var(--sp-4)}
+  .rbac .ill svg{width:26px;height:26px;stroke:var(--color-danger);fill:none;stroke-width:1.7}
+  .rbac h3{margin:0 0 6px;font-size:var(--fs-h2)}
+  .rbac p{margin:0 0 var(--sp-5);color:var(--color-text-muted);font-size:var(--fs-sm);max-width:400px}
+
+  /* 푸터 링크 */
+  .crossnav{margin-top:var(--sp-8);display:flex;gap:var(--sp-4)}
+  .crosscard{flex:1;display:flex;align-items:center;gap:var(--sp-3);
+    background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);
+    padding:var(--sp-4) var(--sp-5);box-shadow:var(--shadow-xs);
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease),transform var(--dur-fast) var(--ease)}
+  .crosscard:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+  .crosscard .ci{width:36px;height:36px;border-radius:var(--r-md);background:var(--color-surface-alt);
+    display:grid;place-items:center;flex:0 0 36px}
+  .crosscard .ci svg{width:18px;height:18px;stroke:var(--color-text-muted);fill:none;stroke-width:1.7}
+  .crosscard b{font-size:var(--fs-sm);font-weight:var(--fw-semibold);display:block}
+  .crosscard span{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+  .crosscard .arr{margin-left:auto;color:var(--color-text-subtle)}
+
+  /* ───────── 모달 ───────── */
+  .overlay{position:fixed;inset:0;background:rgba(24,27,32,.42);backdrop-filter:blur(2px);
+    display:flex;align-items:center;justify-content:center;z-index:50;
+    opacity:0;visibility:hidden;transition:opacity var(--dur) var(--ease),visibility var(--dur) var(--ease)}
+  .overlay.show{opacity:1;visibility:visible}
+  .modal{background:var(--color-surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);
+    width:460px;max-width:calc(100vw - 32px);overflow:hidden;
+    transform:translateY(8px) scale(.98);transition:transform var(--dur) var(--ease)}
+  .overlay.show .modal{transform:none}
+  .modal-head{padding:var(--sp-5) var(--sp-6) var(--sp-4)}
+  .modal-head h3{margin:0;font-size:var(--fs-h2);font-weight:var(--fw-semibold)}
+  .modal-head p{margin:5px 0 0;font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .modal-head .target{display:inline-flex;align-items:center;gap:7px;margin-top:var(--sp-3);
+    background:var(--color-surface-alt);border:1px solid var(--color-border);border-radius:var(--r-full);
+    padding:4px 12px 4px 4px;font-size:var(--fs-sm);font-weight:var(--fw-medium)}
+  .modal-head .target .av{width:24px;height:24px;border-radius:var(--r-full);background:var(--indigo-100);
+    color:var(--color-primary-hover);display:grid;place-items:center;font-weight:var(--fw-bold);font-size:var(--fs-xs)}
+  .modal-body{padding:0 var(--sp-6) var(--sp-5)}
+  .field{margin-top:var(--sp-4)}
+  .field label{display:block;font-size:var(--fs-sm);font-weight:var(--fw-medium);margin-bottom:6px;color:var(--color-text)}
+  .field .hint{font-weight:var(--fw-regular);color:var(--color-text-subtle);font-size:var(--fs-xs)}
+  .field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--color-border);border-radius:var(--r-md);
+    font:inherit;font-size:var(--fs-body);background:var(--color-surface);color:var(--color-text);
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease)}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-soft)}
+  .field input.invalid{border-color:var(--color-danger);box-shadow:0 0 0 3px var(--color-danger-bg)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3)}
+
+  /* 라이브 미리보기 패널 */
+  .preview{margin-top:var(--sp-5);border:1px solid var(--color-border);border-radius:var(--r-md);
+    background:var(--color-surface-alt);overflow:hidden}
+  .preview .pv-h{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-subtle);
+    text-transform:uppercase;letter-spacing:.05em;padding:9px var(--sp-4);border-bottom:1px solid var(--color-border)}
+  .preview .pv-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+  .preview .pv-cell{padding:var(--sp-4);text-align:center;border-right:1px solid var(--color-border)}
+  .preview .pv-cell:last-child{border-right:0}
+  .preview .pv-cell .k{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+  .preview .pv-cell .v{font-size:var(--fs-h1);font-weight:var(--fw-bold);font-variant-numeric:tabular-nums;margin-top:2px;letter-spacing:-.01em}
+  .preview .pv-cell.result .v{color:var(--color-primary)}
+  .preview .pv-cell.result .v.neg{color:var(--color-danger)}
+  .pv-delta{font-size:var(--fs-xs);font-weight:var(--fw-medium);margin-top:2px}
+  .pv-delta.up{color:var(--color-success)} .pv-delta.down{color:var(--color-danger)}
+
+  .warn{display:none;align-items:flex-start;gap:8px;margin-top:var(--sp-4);padding:10px 12px;
+    background:var(--color-danger-bg);border:1px solid var(--red-50);border-radius:var(--r-md);
+    color:var(--color-danger);font-size:var(--fs-sm);font-weight:var(--fw-medium)}
+  .warn.show{display:flex}
+  .warn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex:0 0 16px;margin-top:1px}
+  .modal-foot{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-4) var(--sp-6);
+    border-top:1px solid var(--color-border);background:var(--color-surface-alt)}
+  .modal-foot .note{font-size:var(--fs-xs);color:var(--color-text-subtle);margin-right:auto;max-width:230px;line-height:1.4}
+
+  /* 토스트 */
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);
+    background:var(--color-text);color:var(--color-surface);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    padding:11px 16px;border-radius:var(--r-md);box-shadow:var(--shadow-lg);z-index:80;
+    display:flex;align-items:center;gap:9px;opacity:0;visibility:hidden;
+    transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease),visibility var(--dur)}
+  .toast.show{opacity:1;visibility:visible;transform:translateX(-50%)}
+  .toast svg{width:16px;height:16px;stroke:var(--color-success);fill:none;stroke-width:2.2}
+  .scope{font-size:var(--fs-xs);color:var(--color-text-subtle);font-style:italic}
+</style>
+</head>
+<body>
+  <!-- ───────── 사이드 내비 ───────── -->
+  <aside class="side">
+    <div class="brand"><div class="mark">TL</div><div class="name">team-leave</div></div>
+    <div class="navgroup">워크스페이스</div>
+    <a class="navlink" href="home.html"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>홈</a>
+    <a class="navlink" href="request.html"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>휴가 신청</a>
+    <a class="navlink" href="approvals.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>승인 큐<span class="count">3</span></a>
+    <a class="navlink" href="calendar.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>팀 캘린더</a>
+    <a class="navlink" href="balance.html"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg>잔여 연차</a>
+    <a class="navlink" href="requests.html"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>내 신청</a>
+    <a class="navlink" href="notifications.html"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>알림<span class="count">2</span></a>
+    <div class="navgroup">관리 (HR)</div>
+    <a class="navlink" href="members.html" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2A5 5 0 0 1 21 19"/></svg>멤버 관리</a>
+    <a class="navlink" href="settings.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L16 2H8l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 3 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L8 22h8l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6A7 7 0 0 0 19 12z"/></svg>설정</a>
+    <div class="spacer"></div>
+    <div class="userchip">
+      <div class="av">정</div>
+      <div class="who"><b>정현우</b><span>HR 매니저</span></div>
+    </div>
+  </aside>
+
+  <!-- ───────── 본문 ───────── -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="crumb">관리 / HR</div>
+        <h1>멤버 · 팀 관리</h1>
+      </div>
+      <div class="right">
+        <div class="rolesel">
+          <label for="roleSel">역할 보기</label>
+          <select id="roleSel" onchange="switchRole(this.value)">
+            <option value="hr">HR 매니저</option>
+            <option value="manager">팀장</option>
+            <option value="employee">직원</option>
+          </select>
+        </div>
+        <button class="iconbtn" onclick="toast('알림 2건 — 알림 화면에서 확인')" aria-label="알림">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="dot"></span>
+        </button>
+        <div class="av" title="정현우 · HR">정</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- HR 뷰 -->
+      <div id="hrView">
+        <!-- KPI -->
+        <section class="kpis">
+          <div class="kpi ai">
+            <div class="label"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2A5 5 0 0 1 21 19"/></svg></span>전체 직원</div>
+            <div class="num tnum" id="kpiTotal">6<small>명</small></div>
+            <div class="sub">2개 팀 · 팀장 2명 · HR 1명</div>
+          </div>
+          <div class="kpi aw">
+            <div class="label"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a1.8 1.8 0 0 0 1.6 2.7h16.8A1.8 1.8 0 0 0 22 18L13.7 3.9a1.9 1.9 0 0 0-3.4 0z"/></svg></span>부여 미설정</div>
+            <div class="num tnum" id="kpiUnset">2<small>명</small></div>
+            <div class="sub warn">시드 부여 필요 — 잔여 계산 불가</div>
+          </div>
+          <div class="kpi ag">
+            <div class="label"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg></span>이번 분기 조정</div>
+            <div class="num tnum">8<small>건</small></div>
+            <div class="sub">최근 변경 이력 · 전사 승인 이력에서 확인</div>
+          </div>
+        </section>
+
+        <!-- 테이블 패널 -->
+        <section class="panel">
+          <div class="panel-head">
+            <h2>직원 목록</h2>
+            <span class="meta" id="rowMeta">6명 표시 중</span>
+            <div class="toolbar">
+              <div class="search">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input type="search" id="searchInput" placeholder="이름·팀 검색" oninput="filterRows()" aria-label="직원 검색">
+              </div>
+              <select class="selbox" id="teamFilter" onchange="filterRows()" aria-label="팀 필터">
+                <option value="">전체 팀</option>
+                <option>개발팀</option>
+                <option>사업팀</option>
+                <option>디자인팀</option>
+              </select>
+              <button class="btn" onclick="toast('직원 계정 생성은 [범위 밖] — 외부 인사 시스템 연동')">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>직원 추가
+              </button>
+            </div>
+          </div>
+
+          <div id="tableWrap" style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>팀</th>
+                  <th>역할</th>
+                  <th>입사일</th>
+                  <th>부여 기준</th>
+                  <th class="num">현재 잔여</th>
+                  <th class="num" style="width:220px">액션</th>
+                </tr>
+              </thead>
+              <tbody id="memberBody">
+                <tr data-name="김민수" data-team="개발팀">
+                  <td><div class="who-cell"><div class="av">김</div><div><div class="nm">김민수</div><div class="em">minsu.kim@corp.io</div></div></div></td>
+                  <td class="team-cell">개발팀</td>
+                  <td><span class="role-tag">직원</span></td>
+                  <td class="tnum">2023.03.02</td>
+                  <td class="basis">입사일</td>
+                  <td class="num"><span class="rem" data-rem>10일</span></td>
+                  <td class="num"><div class="rowact">
+                    <button class="btn sm" onclick="openSeed(this,15,3,2)">부여 시드 편집</button>
+                    <button class="btn sm" onclick="openAssign(this)">팀/승인자</button>
+                  </div></td>
+                </tr>
+                <tr data-name="이서연" data-team="사업팀">
+                  <td><div class="who-cell"><div class="av">이</div><div><div class="nm">이서연</div><div class="em">seoyeon.lee@corp.io</div></div></div></td>
+                  <td class="team-cell">사업팀</td>
+                  <td><span class="role-tag">직원</span></td>
+                  <td class="tnum">2024.09.01</td>
+                  <td class="basis">회계연도</td>
+                  <td class="num"><span class="rem" data-rem>11일</span></td>
+                  <td class="num"><div class="rowact">
+                    <button class="btn sm" onclick="openSeed(this,11,0,0)">부여 시드 편집</button>
+                    <button class="btn sm" onclick="openAssign(this)">팀/승인자</button>
+                  </div></td>
+                </tr>
+                <tr data-name="박지훈" data-team="개발팀">
+                  <td><div class="who-cell"><div class="av">박</div><div><div class="nm">박지훈</div><div class="em">jihoon.park@corp.io</div></div></div></td>
+                  <td class="team-cell">개발팀</td>
+                  <td><span class="role-tag mgr">팀장</span></td>
+                  <td class="tnum">2020.01.06</td>
+                  <td class="basis">입사일</td>
+                  <td class="num"><span class="flag" data-rem><span class="d"></span>부여 미설정</span></td>
+                  <td class="num"><div class="rowact">
+                    <button class="btn sm" onclick="openSeed(this,0,0,0)">부여 시드 편집</button>
+                    <button class="btn sm" onclick="openAssign(this)">팀/승인자</button>
+                  </div></td>
+                </tr>
+                <tr data-name="최유진" data-team="사업팀">
+                  <td><div class="who-cell"><div class="av">최</div><div><div class="nm">최유진</div><div class="em">yujin.choi@corp.io</div></div></div></td>
+                  <td class="team-cell">사업팀</td>
+                  <td><span class="role-tag mgr">팀장</span></td>
+                  <td class="tnum">2019.07.15</td>
+                  <td class="basis">회계연도</td>
+                  <td class="num"><span class="rem" data-rem>16일</span></td>
+                  <td class="num"><div class="rowact">
+                    <button class="btn sm" onclick="openSeed(this,18,2,0)">부여 시드 편집</button>
+                    <button class="btn sm" onclick="openAssign(this)">팀/승인자</button>
+                  </div></td>
+                </tr>
+                <tr data-name="정다은" data-team="개발팀">
+                  <td><div class="who-cell"><div class="av">정</div><div><div class="nm">정다은</div><div class="em">daeun.jung@corp.io</div></div></div></td>
+                  <td class="team-cell">개발팀</td>
+                  <td><span class="role-tag">직원</span></td>
+                  <td class="tnum">2025.02.10</td>
+                  <td class="basis">입사일</td>
+                  <td class="num"><span class="flag" data-rem><span class="d"></span>부여 미설정</span></td>
+                  <td class="num"><div class="rowact">
+                    <button class="btn sm" onclick="openSeed(this,0,0,0)">부여 시드 편집</button>
+                    <button class="btn sm" onclick="openAssign(this)">팀/승인자</button>
+                  </div></td>
+                </tr>
+                <tr data-name="한소영" data-team="사업팀">
+                  <td><div class="who-cell"><div class="av">한</div><div><div class="nm">한소영</div><div class="em">soyoung.han@corp.io</div></div></div></td>
+                  <td class="team-cell">사업팀</td>
+                  <td><span class="role-tag">직원</span></td>
+                  <td class="tnum">2022.11.21</td>
+                  <td class="basis">회계연도</td>
+                  <td class="num"><span class="rem zero" data-rem>0일</span></td>
+                  <td class="num"><div class="rowact">
+                    <button class="btn sm" onclick="openSeed(this,15,12,3)">부여 시드 편집</button>
+                    <button class="btn sm" onclick="openAssign(this)">팀/승인자</button>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 검색 결과 없음 -->
+          <div class="empty" id="noResult">
+            <div class="ill"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+            <h3>검색 결과가 없습니다</h3>
+            <p>다른 이름이나 팀으로 다시 찾아보세요.</p>
+            <button class="btn" onclick="resetFilter()">필터 초기화</button>
+          </div>
+
+          <!-- 직원 0명 빈 상태 -->
+          <div class="empty" id="emptyState">
+            <div class="ill"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M19 8v6M22 11h-6"/></svg></div>
+            <h3>등록된 직원이 없습니다</h3>
+            <p>인사 시스템에서 직원을 가져오거나 추가한 뒤, 부여 연차 시드를 설정해 잔여 계산을 시작하세요.</p>
+            <div style="display:flex;gap:var(--sp-2)">
+              <button class="btn primary" onclick="toast('직원 계정 생성은 [범위 밖] — 외부 인사 시스템 연동')">직원 추가</button>
+              <button class="btn" onclick="toggleEmpty(false)">샘플 데이터 보기</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 전사 현황 / 이력 -->
+        <section class="crossnav">
+          <a class="crosscard" href="calendar.html">
+            <span class="ci"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span>
+            <span><b>전사 캘린더</b><span>모든 팀의 부재 현황을 월 단위로</span></span>
+            <span class="arr">→</span>
+          </a>
+          <a class="crosscard" href="approvals.html">
+            <span class="ci"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
+            <span><b>전사 승인 이력</b><span>승인·반려·부여 조정(BalanceAdjustment) 기록</span></span>
+            <span class="arr">→</span>
+          </a>
+        </section>
+
+        <p class="scope" style="margin-top:var(--sp-5)">
+          데모: 빈 상태 보기 <button class="btn ghost sm" onclick="toggleEmpty(true)">직원 0명 시뮬레이션</button>
+        </p>
+      </div>
+
+      <!-- RBAC 차단 (직원/팀장 진입 시) -->
+      <div class="rbac" id="rbacBlock">
+        <div class="ill"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>HR 전용 화면입니다</h3>
+        <p id="rbacMsg">[범위 밖: HR 전용] — 현재 역할에는 멤버 관리 권한이 없습니다. 상단 역할 보기를 'HR 매니저'로 전환하면 접근할 수 있습니다.</p>
+        <button class="btn primary" onclick="switchRoleBack()">HR 매니저로 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── 시드 편집 모달 ───────── -->
+  <div class="overlay" id="seedModal" role="dialog" aria-modal="true" aria-labelledby="seedTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="seedTitle">부여 연차 시드 편집</h3>
+        <p>연간 부여일수와 부여 기준을 설정합니다. 저장 시 잔여가 재계산되고 변경 이력이 기록됩니다.</p>
+        <span class="target"><span class="av" id="seedAv">김</span><span id="seedName">김민수</span></span>
+      </div>
+      <div class="modal-body">
+        <div class="row2">
+          <div class="field">
+            <label for="total">부여일수 (total) <span class="hint">연간</span></label>
+            <input id="total" type="number" min="0" step="0.5" inputmode="decimal" oninput="onSeedInput()" onblur="markBlur()">
+          </div>
+          <div class="field">
+            <label for="basis">부여 기준</label>
+            <select id="basis">
+              <option>입사일</option>
+              <option>회계연도</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="pv-h">잔여 미리보기 (실시간)</div>
+          <div class="pv-grid">
+            <div class="pv-cell"><div class="k">사용 (used)</div><div class="v tnum" id="pvUsed">3</div></div>
+            <div class="pv-cell"><div class="k">대기 (pending)</div><div class="v tnum" id="pvPending">2</div></div>
+            <div class="pv-cell result"><div class="k">예상 잔여</div><div class="v tnum" id="pvRem">10</div><div class="pv-delta" id="pvDelta"></div></div>
+          </div>
+        </div>
+
+        <div class="warn" id="seedWarn">
+          <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+          <span id="seedWarnText"></span>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <span class="note">잔여 = 부여 − (사용+대기). 사용+대기보다 낮출 수 없습니다.</span>
+        <button class="btn" onclick="closeM('seedModal')">취소</button>
+        <button class="btn primary" id="seedSave" onclick="saveSeed()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── 팀/승인자 배정 모달 ───────── -->
+  <div class="overlay" id="assignModal" role="dialog" aria-modal="true" aria-labelledby="assignTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="assignTitle">팀 / 승인자 배정</h3>
+        <p>소속 팀과 휴가 신청을 승인할 1차 승인자(팀장)를 지정합니다.</p>
+        <span class="target"><span class="av" id="assignAv">김</span><span id="assignName">김민수</span></span>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="team2">소속 팀</label>
+          <select id="team2">
+            <option>개발팀</option>
+            <option>사업팀</option>
+            <option>디자인팀</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mgr">승인자 (팀장) <span class="hint">1차 승인</span></label>
+          <select id="mgr">
+            <option>박지훈 · 개발팀장</option>
+            <option>최유진 · 사업팀장</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <span class="note">다단계 승인·위임은 [범위 밖]</span>
+        <button class="btn" onclick="closeM('assignModal')">취소</button>
+        <button class="btn primary" onclick="saveAssign()">배정 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span id="toastText"></span></div>
+
+<script>
+  var curRow=null, curUsed=0, curPending=0, prevRem=0, blurred=false;
+
+  function avLetter(name){ return name ? name.charAt(0) : '?'; }
+
+  /* ───── 시드 모달 ───── */
+  function openSeed(btn,total,used,pending){
+    curRow=btn.closest('tr');
+    curUsed=used; curPending=pending; blurred=false;
+    var name=curRow.getAttribute('data-name');
+    document.getElementById('seedName').textContent=name;
+    document.getElementById('seedAv').textContent=avLetter(name);
+    var t=document.getElementById('total');
+    t.value=total; t.classList.remove('invalid');
+    document.getElementById('pvUsed').textContent=used;
+    document.getElementById('pvPending').textContent=pending;
+    // 현재 잔여 기억(델타 비교용)
+    var remEl=curRow.querySelector('[data-rem]');
+    prevRem = remEl.classList.contains('flag') ? null : parseFloat(remEl.textContent);
+    document.getElementById('seedWarn').classList.remove('show');
+    document.getElementById('seedSave').disabled=false;
+    onSeedInput();
+    document.getElementById('seedModal').classList.add('show');
+    setTimeout(function(){ t.focus(); t.select(); },60);
+  }
+  function markBlur(){ blurred=true; onSeedInput(); }
+
+  function onSeedInput(){
+    var raw=document.getElementById('total').value;
+    var t=parseFloat(raw);
+    var floor=curUsed+curPending;
+    var input=document.getElementById('total');
+    var warn=document.getElementById('seedWarn');
+    var warnText=document.getElementById('seedWarnText');
+    var save=document.getElementById('seedSave');
+    var pvRem=document.getElementById('pvRem');
+    var pvDelta=document.getElementById('pvDelta');
+
+    // 라이브 계산(reward early): 입력 즉시 미리보기 갱신
+    var rem = isNaN(t) ? 0 : (t - floor);
+    pvRem.textContent = isNaN(t) ? '—' : rem;
+    pvRem.classList.toggle('neg', rem<0);
+
+    // 델타 표시
+    if(!isNaN(t) && prevRem!==null){
+      var d = rem - prevRem;
+      if(d>0){ pvDelta.textContent='+'+d+'일'; pvDelta.className='pv-delta up'; }
+      else if(d<0){ pvDelta.textContent=d+'일'; pvDelta.className='pv-delta down'; }
+      else { pvDelta.textContent='변동 없음'; pvDelta.className='pv-delta'; }
+    } else { pvDelta.textContent= isNaN(t)?'':'신규 부여'; pvDelta.className='pv-delta up'; }
+
+    // 검증 (punish late: 에러는 blur 후 또는 명백한 음수일 때)
+    var invalid=false, msg='';
+    if(raw===''){ invalid=true; msg='부여일수를 입력하세요.'; }
+    else if(isNaN(t)||t<0){ invalid=true; msg='부여일수는 0 미만일 수 없습니다.'; }
+    else if(t<floor){ invalid=true; msg='기존 사용+대기('+floor+'일)보다 낮게 설정할 수 없습니다 — 잔여가 음수가 됩니다.'; }
+
+    if(invalid){
+      save.disabled=true;
+      if(blurred || (!isNaN(t) && t<0) || (!isNaN(t) && t<floor && raw!=='')){
+        input.classList.add('invalid');
+        warnText.textContent=msg;
+        warn.classList.add('show');
+      }
+    } else {
+      save.disabled=false;
+      input.classList.remove('invalid');
+      warn.classList.remove('show');
+    }
+    return !invalid;
+  }
+
+  function saveSeed(){
+    blurred=true;
+    if(!onSeedInput()) return;
+    var t=parseFloat(document.getElementById('total').value);
+    var rem=t-curUsed-curPending;
+    var basis=document.getElementById('basis').value;
+    var remEl=curRow.querySelector('[data-rem]');
+    // 플래그였다면 잔여 span으로 교체
+    var span=document.createElement('span');
+    span.className='rem'+(rem<=0?' zero':'');
+    span.setAttribute('data-rem','');
+    span.textContent=rem+'일';
+    remEl.replaceWith(span);
+    // 부여 기준 셀 갱신
+    curRow.querySelector('.basis').textContent=basis;
+    // 시드 버튼 인자 갱신(다음 편집 시 반영)
+    var seedBtn=curRow.querySelector('.rowact .btn');
+    seedBtn.setAttribute('onclick','openSeed(this,'+t+','+curUsed+','+curPending+')');
+    refreshKpi();
+    closeM('seedModal');
+    toast(curRow.getAttribute('data-name')+' 부여 시드 저장 — 잔여 '+rem+'일 (이력 기록됨)');
+  }
+
+  /* ───── 배정 모달 ───── */
+  function openAssign(btn){
+    curRow=btn.closest('tr');
+    var name=curRow.getAttribute('data-name');
+    document.getElementById('assignName').textContent=name;
+    document.getElementById('assignAv').textContent=avLetter(name);
+    document.getElementById('team2').value=curRow.getAttribute('data-team');
+    document.getElementById('assignModal').classList.add('show');
+  }
+  function saveAssign(){
+    var team=document.getElementById('team2').value;
+    var mgr=document.getElementById('mgr').value.split(' · ')[0];
+    curRow.querySelector('.team-cell').textContent=team;
+    curRow.setAttribute('data-team',team);
+    closeM('assignModal');
+    toast(curRow.getAttribute('data-name')+' → '+team+' 배정, 승인자 '+mgr);
+  }
+
+  function closeM(id){ document.getElementById(id).classList.remove('show'); }
+
+  /* ───── 필터/검색 ───── */
+  function filterRows(){
+    var q=document.getElementById('searchInput').value.trim().toLowerCase();
+    var team=document.getElementById('teamFilter').value;
+    var rows=document.querySelectorAll('#memberBody tr');
+    var shown=0;
+    rows.forEach(function(r){
+      var n=r.getAttribute('data-name').toLowerCase();
+      var t=r.getAttribute('data-team');
+      var ok=(n.indexOf(q)>-1) && (team===''||t===team);
+      r.style.display=ok?'':'none';
+      if(ok)shown++;
+    });
+    document.getElementById('rowMeta').textContent=shown+'명 표시 중';
+    document.getElementById('noResult').classList.toggle('show', shown===0);
+    document.getElementById('tableWrap').style.display = shown===0 ? 'none':'';
+  }
+  function resetFilter(){
+    document.getElementById('searchInput').value='';
+    document.getElementById('teamFilter').value='';
+    filterRows();
+  }
+
+  /* ───── KPI 재계산 ───── */
+  function refreshKpi(){
+    var rows=document.querySelectorAll('#memberBody tr');
+    var unset=0;
+    rows.forEach(function(r){ if(r.querySelector('.flag')) unset++; });
+    document.getElementById('kpiUnset').innerHTML=unset+'<small>명</small>';
+    var sub=document.querySelector('.kpi.aw .sub');
+    if(unset===0){ sub.textContent='모든 직원 부여 완료'; sub.classList.remove('warn'); }
+    else { sub.textContent='시드 부여 필요 — 잔여 계산 불가'; sub.classList.add('warn'); }
+  }
+
+  /* ───── 빈 상태 토글(데모) ───── */
+  function toggleEmpty(on){
+    document.getElementById('emptyState').classList.toggle('show', on);
+    document.querySelector('.panel-head').style.display = on?'none':'';
+    document.getElementById('tableWrap').style.display = on?'none':'';
+    document.querySelector('.kpis').style.display = on?'none':'';
+    if(on){ resetFilter(); }
+  }
+
+  /* ───── RBAC 역할 전환 ───── */
+  function switchRole(role){
+    var isHr = role==='hr';
+    document.getElementById('hrView').style.display = isHr?'':'none';
+    document.getElementById('rbacBlock').classList.toggle('show', !isHr);
+    if(!isHr){
+      var label = role==='manager' ? '팀장' : '직원';
+      document.getElementById('rbacMsg').textContent='[범위 밖: HR 전용] — 현재 역할('+label+')에는 멤버 관리 권한이 없습니다. 상단 역할 보기를 ‘HR 매니저’로 전환하면 접근할 수 있습니다.';
+    }
+  }
+  function switchRoleBack(){
+    document.getElementById('roleSel').value='hr';
+    switchRole('hr');
+  }
+
+  /* ───── 토스트 ───── */
+  var toastTimer;
+  function toast(msg){
+    document.getElementById('toastText').textContent=msg;
+    var el=document.getElementById('toast');
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){ el.classList.remove('show'); },2600);
+  }
+
+  /* ESC로 모달 닫기 + 오버레이 클릭 */
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeM('seedModal'); closeM('assignModal'); }});
+  ['seedModal','assignModal'].forEach(function(id){
+    document.getElementById(id).addEventListener('mousedown',function(e){ if(e.target===this) closeM(id); });
+  });
+</script>
+</body>
+</html>

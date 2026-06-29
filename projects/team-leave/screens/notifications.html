@@ -1,0 +1,658 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>알림 — team-leave</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:var(--font-sans);
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-size:var(--fs-body);
+    line-height:var(--lh-body);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+
+  /* ───────── 좌측 사이드 내비 (디밍된 chrome) ───────── */
+  .side{
+    width:240px;
+    flex:0 0 240px;
+    background:var(--color-surface-alt);
+    border-right:1px solid var(--color-border);
+    display:flex;
+    flex-direction:column;
+    padding:var(--sp-4) var(--sp-3);
+    position:sticky;
+    top:0;
+    height:100vh;
+  }
+  .brand{
+    display:flex;align-items:center;gap:var(--sp-2);
+    padding:var(--sp-2) var(--sp-2) var(--sp-4);
+  }
+  .brand-mark{
+    width:28px;height:28px;border-radius:var(--r-md);
+    background:var(--color-primary);
+    color:var(--color-on-primary);
+    display:grid;place-items:center;
+    font-weight:var(--fw-bold);font-size:var(--fs-sm);
+    box-shadow:var(--shadow-xs);
+  }
+  .brand-name{font-weight:var(--fw-semibold);font-size:var(--fs-h3);letter-spacing:-.01em}
+  .nav-group{margin-top:var(--sp-3)}
+  .nav-cap{
+    font-size:var(--fs-xs);
+    font-weight:var(--fw-semibold);
+    color:var(--color-text-subtle);
+    text-transform:uppercase;letter-spacing:.06em;
+    padding:var(--sp-2) var(--sp-2) var(--sp-1);
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:var(--sp-3);
+    height:35px;padding:0 var(--sp-2);
+    border-radius:var(--r-sm);
+    color:var(--color-text-muted);
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+  }
+  .nav-item svg{width:17px;height:17px;flex:0 0 17px;stroke:currentColor}
+  .nav-item .nav-count{
+    margin-left:auto;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    background:var(--color-border);color:var(--color-text-muted);
+    min-width:18px;height:18px;padding:0 5px;border-radius:var(--r-full);
+    display:grid;place-items:center;
+  }
+  .nav-item:hover{background:var(--color-border);color:var(--color-text)}
+  .nav-item:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .nav-item.cur{
+    background:var(--color-primary-soft);
+    color:var(--color-primary);
+    font-weight:var(--fw-semibold);
+  }
+  .nav-item.cur svg{stroke:var(--color-primary)}
+  .nav-item.cur .nav-count{background:var(--color-primary);color:var(--color-on-primary)}
+  .side-foot{margin-top:auto;padding-top:var(--sp-3);border-top:1px solid var(--color-border)}
+  .side-user{
+    display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2);border-radius:var(--r-sm);
+    transition:background var(--dur-fast) var(--ease);
+  }
+  .side-user:hover{background:var(--color-border)}
+  .avatar{
+    width:30px;height:30px;border-radius:var(--r-full);
+    background:var(--type-event-bg);color:var(--type-event-fg);
+    display:grid;place-items:center;font-size:var(--fs-xs);font-weight:var(--fw-bold);flex:0 0 30px;
+  }
+  .side-user-meta{min-width:0}
+  .side-user-name{font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text)}
+  .side-user-role{font-size:var(--fs-xs);color:var(--color-text-subtle)}
+
+  /* ───────── 본문 ───────── */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    height:60px;flex:0 0 60px;
+    background:var(--color-surface);
+    border-bottom:1px solid var(--color-border);
+    display:flex;align-items:center;gap:var(--sp-4);
+    padding:0 var(--sp-8);
+    position:sticky;top:0;z-index:5;
+  }
+  .topbar h1{
+    font-size:var(--fs-h1);font-weight:var(--fw-bold);letter-spacing:-.02em;margin:0;
+  }
+  .topbar .scope-note{font-size:var(--fs-xs);color:var(--color-text-subtle);font-weight:var(--fw-regular)}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:var(--sp-3)}
+  .role-select{
+    appearance:none;
+    background:var(--color-surface);
+    border:1px solid var(--color-border-strong);
+    color:var(--color-text-muted);
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    height:34px;padding:0 30px 0 var(--sp-3);border-radius:var(--r-sm);cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center;
+    transition:border-color var(--dur-fast) var(--ease);
+  }
+  .role-select:hover{border-color:var(--color-primary)}
+  .role-select:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .icon-btn{
+    position:relative;width:34px;height:34px;border-radius:var(--r-sm);
+    border:1px solid var(--color-border);background:var(--color-surface);
+    display:grid;place-items:center;cursor:pointer;color:var(--color-text-muted);
+    transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+  }
+  .icon-btn:hover{background:var(--color-surface-alt);border-color:var(--color-border-strong);color:var(--color-text)}
+  .icon-btn svg{width:18px;height:18px;stroke:currentColor}
+  .icon-btn.active{border-color:var(--color-primary);color:var(--color-primary);background:var(--color-primary-soft)}
+  .topbar-badge{
+    position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;
+    background:var(--color-danger);color:#fff;border:2px solid var(--color-surface);
+    border-radius:var(--r-full);font-size:10px;font-weight:var(--fw-bold);
+    display:grid;place-items:center;line-height:1;
+  }
+  .topbar-badge.hidden{display:none}
+
+  /* 콘텐츠 컨테이너 */
+  .content{padding:var(--sp-8);overflow:auto}
+  .wrap{max-width:760px;margin:0 auto}
+
+  /* 페이지 헤더 행 */
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--sp-4);margin-bottom:var(--sp-5)}
+  .page-head .lede{display:flex;flex-direction:column;gap:var(--sp-1)}
+  .unread-line{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .unread-count{
+    font-size:var(--fs-display);font-weight:var(--fw-bold);color:var(--color-text);
+    line-height:1;font-variant-numeric:tabular-nums;
+  }
+  .unread-sub{font-size:var(--fs-sm);color:var(--color-text-muted)}
+  .btn{
+    height:34px;padding:0 var(--sp-3);border-radius:var(--r-sm);cursor:pointer;
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    display:inline-flex;align-items:center;gap:6px;
+    border:1px solid var(--color-border-strong);background:var(--color-surface);color:var(--color-text);
+    transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),opacity var(--dur-fast) var(--ease);
+  }
+  .btn svg{width:15px;height:15px;stroke:currentColor}
+  .btn:hover{background:var(--color-surface-alt);border-color:var(--color-text-subtle)}
+  .btn:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* 필터 탭 */
+  .tabs{display:flex;gap:var(--sp-1);margin-bottom:var(--sp-5);border-bottom:1px solid var(--color-border)}
+  .tab{
+    appearance:none;background:none;border:none;cursor:pointer;
+    padding:var(--sp-2) var(--sp-3);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    color:var(--color-text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;
+    display:inline-flex;align-items:center;gap:6px;
+    transition:color var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);
+  }
+  .tab:hover{color:var(--color-text)}
+  .tab:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:var(--r-sm)}
+  .tab[aria-selected="true"]{color:var(--color-primary);border-bottom-color:var(--color-primary);font-weight:var(--fw-semibold)}
+  .tab .pill{
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums;
+    background:var(--color-border);color:var(--color-text-muted);
+    min-width:18px;height:18px;padding:0 5px;border-radius:var(--r-full);display:grid;place-items:center;
+  }
+  .tab[aria-selected="true"] .pill{background:var(--color-primary-soft);color:var(--color-primary)}
+
+  /* 시간 그룹 라벨 */
+  .group-cap{
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-subtle);
+    text-transform:uppercase;letter-spacing:.05em;
+    margin:var(--sp-5) 0 var(--sp-2);
+  }
+  .group-cap:first-of-type{margin-top:0}
+
+  /* 알림 카드 리스트 */
+  .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+  .n-item{
+    position:relative;
+    display:flex;align-items:flex-start;gap:var(--sp-3);
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--r-md);
+    padding:var(--sp-4) var(--sp-5) var(--sp-4) var(--sp-4);
+    box-shadow:var(--shadow-xs);
+    transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease),transform var(--dur-fast) var(--ease),opacity var(--dur) var(--ease);
+  }
+  .n-item:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-sm);background:var(--color-surface)}
+  .n-item:hover .n-actions{opacity:1}
+  /* 안읽음: 왼쪽 액센트 바 + 미묘한 틴트 */
+  .n-item[data-n]:not(.read){background:var(--color-primary-soft)}
+  .n-item[data-n]:not(.read)::before{
+    content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;
+    background:var(--color-primary);border-radius:0 var(--r-full) var(--r-full) 0;
+  }
+  /* 읽음 항목은 opacity로 흐리게 하면 대비가 무너진다(axe) — 틴트/점 부재로만 구분, 텍스트는 AA 유지 */
+  .n-item.read{background:var(--color-surface)}
+  .n-item.read .n-msg{color:var(--color-text-muted)}
+  /* a11y: 틴트(안읽음) 배경 위 대비 보강 — 시간/링크를 진한 단계로 (WCAG AA 4.5) */
+  .n-item[data-n]:not(.read) .n-time{color:var(--color-text-muted)}
+  .n-item[data-n]:not(.read) .n-link{color:var(--color-primary-hover)}
+
+  /* 종류 아이콘 */
+  .n-ico{
+    flex:0 0 38px;width:38px;height:38px;border-radius:var(--r-md);
+    display:grid;place-items:center;margin-top:1px;
+  }
+  .n-ico svg{width:19px;height:19px;stroke-width:2}
+  .n-ico.t-approved{background:var(--color-success-bg);color:var(--color-success)}
+  .n-ico.t-request{background:var(--color-info-bg);color:var(--color-info)}
+  .n-ico.t-rejected{background:var(--color-danger-bg);color:var(--color-danger)}
+  .n-ico.t-reminder{background:var(--color-warning-bg);color:var(--color-warning)}
+  .n-ico.t-cancelled{background:var(--color-surface-alt);color:var(--color-text-subtle)}
+
+  .n-body{flex:1;min-width:0}
+  .n-top{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:2px;flex-wrap:wrap}
+  .n-tag{
+    font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    padding:1px 8px;border-radius:var(--r-full);
+    display:inline-flex;align-items:center;gap:5px;line-height:1.5;
+  }
+  .n-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .n-tag.t-approved{background:var(--color-success-bg);color:var(--color-success)}
+  .n-tag.t-request{background:var(--color-info-bg);color:var(--color-info)}
+  .n-tag.t-rejected{background:var(--color-danger-bg);color:var(--color-danger)}
+  .n-tag.t-reminder{background:var(--color-warning-bg);color:var(--color-warning)}
+  .n-tag.t-cancelled{background:var(--color-surface-alt);color:var(--color-text-muted)}
+  .n-time{font-size:var(--fs-xs);color:var(--color-text-subtle);margin-left:auto;white-space:nowrap}
+  /* n-msg: 항목의 명시적 클릭 타깃(링크) — 카드 전체를 덮는 stretched link */
+  .n-msg{
+    font-size:var(--fs-body);color:var(--color-text);line-height:var(--lh-body);
+    display:block;cursor:pointer;
+  }
+  .n-msg::after{content:"";position:absolute;inset:0;border-radius:var(--r-md);z-index:0}
+  .n-msg:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:var(--r-sm)}
+  .n-msg strong{font-weight:var(--fw-semibold)}
+  .n-msg .muted{color:var(--color-text-muted)}
+  .n-meta{font-size:var(--fs-sm);color:var(--color-text-muted);margin-top:3px;position:relative;z-index:1}
+
+  /* 행 액션 — stretched link 위에 오도록 z-index 부여 */
+  .n-actions{
+    display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-3);
+    opacity:.85;transition:opacity var(--dur) var(--ease);
+    position:relative;z-index:1;
+  }
+  .n-link{
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-primary);
+    display:inline-flex;align-items:center;gap:4px;padding:3px 0;
+    transition:color var(--dur-fast) var(--ease);
+  }
+  .n-link svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.2;transition:transform var(--dur-fast) var(--ease)}
+  .n-link:hover{color:var(--color-primary-hover)}
+  .n-link:hover svg{transform:translateX(2px)}
+  .n-link:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:3px}
+  .n-readbtn{
+    font-size:var(--fs-sm);color:var(--color-text-muted);background:none;border:none;cursor:pointer;
+    padding:3px 6px;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:4px;
+    transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+  }
+  .n-readbtn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.2}
+  .n-readbtn:hover{background:var(--color-surface-alt);color:var(--color-text)}
+  .n-readbtn:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+
+  /* 빈 상태 */
+  .empty{
+    display:none;flex-direction:column;align-items:center;text-align:center;
+    padding:var(--sp-10) var(--sp-6);
+    background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);
+    box-shadow:var(--shadow-xs);
+  }
+  .empty.show{display:flex}
+  .empty-ico{
+    width:56px;height:56px;border-radius:var(--r-full);
+    background:var(--color-surface-alt);color:var(--color-text-subtle);
+    display:grid;place-items:center;margin-bottom:var(--sp-4);
+  }
+  .empty-ico svg{width:26px;height:26px;stroke-width:1.8}
+  .empty h3{margin:0 0 var(--sp-1);font-size:var(--fs-h3);font-weight:var(--fw-semibold)}
+  .empty p{margin:0 0 var(--sp-5);font-size:var(--fs-sm);color:var(--color-text-muted);max-width:300px}
+  .btn-primary{
+    border:1px solid var(--color-primary);background:var(--color-primary);color:var(--color-on-primary);
+  }
+  .btn-primary:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover)}
+
+  /* 토스트 */
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);
+    background:var(--color-text);color:var(--color-surface);
+    font-size:var(--fs-sm);font-weight:var(--fw-medium);
+    padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);box-shadow:var(--shadow-lg);
+    display:flex;align-items:center;gap:var(--sp-2);
+    opacity:0;pointer-events:none;transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease);
+    z-index:50;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast svg{width:16px;height:16px;stroke:var(--color-success);stroke-width:2.5}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>
+</head>
+<body>
+  <!-- ═══════ 좌측 내비 ═══════ -->
+  <nav class="side" aria-label="주 메뉴">
+    <div class="brand">
+      <div class="brand-mark">TL</div>
+      <div class="brand-name">team-leave</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-cap">워크스페이스</div>
+      <a class="nav-item" href="home.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>홈</a>
+      <a class="nav-item" href="request.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>휴가 신청</a>
+      <a class="nav-item" href="approvals.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>승인 큐<span class="nav-count">3</span></a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-cap">현황</div>
+      <a class="nav-item" href="calendar.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>팀 캘린더</a>
+      <a class="nav-item" href="balance.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/></svg>잔여 연차</a>
+      <a class="nav-item" href="requests.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>내 신청</a>
+      <a class="nav-item cur" href="notifications.html" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>알림<span class="nav-count" id="navCount">3</span></a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-cap">관리</div>
+      <a class="nav-item" href="members.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>멤버 관리</a>
+      <a class="nav-item" href="settings.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 6 19.5l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H2a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 3.3 6l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H8a1.7 1.7 0 0 0 1-1.5V2a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V8a1.7 1.7 0 0 0 1.5 1H22a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>설정</a>
+    </div>
+
+    <div class="side-foot">
+      <a class="side-user" href="settings.html">
+        <span class="avatar">이지은</span>
+        <span class="side-user-meta">
+          <span class="side-user-name" style="display:block">이지은</span>
+          <span class="side-user-role">프로덕트팀 · 팀장</span>
+        </span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══════ 본문 ═══════ -->
+  <div class="main">
+    <header class="topbar">
+      <h1>알림 <span class="scope-note">(인앱 개념 — 실 발송 [범위 밖])</span></h1>
+      <div class="topbar-right">
+        <label class="sr-only" for="role">역할 전환</label>
+        <select class="role-select" id="role" title="역할 전환 (데모)">
+          <option>팀장 뷰</option>
+          <option>직원 뷰</option>
+          <option>HR 뷰</option>
+        </select>
+        <button class="icon-btn active" title="알림" aria-label="알림">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="topbar-badge" id="topBadge">3</span>
+        </button>
+        <a class="icon-btn" href="settings.html" title="프로필" aria-label="프로필" style="background:var(--type-event-bg);border-color:transparent;color:var(--type-event-fg);font-size:var(--fs-xs);font-weight:var(--fw-bold)">이</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="wrap">
+        <!-- 페이지 헤더 -->
+        <div class="page-head">
+          <div class="lede">
+            <div class="unread-line">
+              <span class="unread-count" id="badge">3</span>
+              <span class="unread-sub">건의 안읽은 알림</span>
+            </div>
+          </div>
+          <button class="btn" id="readAllBtn" onclick="readAll()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+            모두 읽음
+          </button>
+        </div>
+
+        <!-- 필터 탭 -->
+        <div class="tabs" role="tablist" aria-label="알림 필터">
+          <button class="tab" role="tab" aria-selected="true" data-filter="all" onclick="setFilter(this)">
+            전체 <span class="pill" id="cAll">5</span>
+          </button>
+          <button class="tab" role="tab" aria-selected="false" data-filter="unread" onclick="setFilter(this)">
+            안읽음 <span class="pill" id="cUnread">3</span>
+          </button>
+        </div>
+
+        <!-- 알림 리스트 -->
+        <ul class="list" id="list">
+
+          <li class="group-head" data-day="오늘"><div class="group-cap">오늘</div></li>
+
+          <li class="n-item" data-n data-day="오늘">
+            <span class="n-ico t-approved" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+            </span>
+            <div class="n-body">
+              <div class="n-top">
+                <span class="n-tag t-approved">승인됨</span>
+                <span class="n-time">14분 전 · 14:38</span>
+              </div>
+              <a class="n-msg" href="requests.html" onclick="openItem(this)">내 연차 신청 <strong>7/20(월)~7/21(화)</strong>이 <strong>승인</strong>되었습니다.</a>
+              <div class="n-meta">승인자 박성호 팀장 · 사용 2.0일 확정 · 잔여 11.5일</div>
+              <div class="n-actions">
+                <a class="n-link" href="requests.html" onclick="event.stopPropagation()">내 신청에서 보기
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                <button class="n-readbtn" onclick="event.stopPropagation();readOne(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>읽음</button>
+              </div>
+            </div>
+          </li>
+
+          <li class="n-item" data-n data-day="오늘">
+            <span class="n-ico t-request" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M12 9v6"/><circle cx="12" cy="12" r="9"/></svg>
+            </span>
+            <div class="n-body">
+              <div class="n-top">
+                <span class="n-tag t-request">승인 요청</span>
+                <span class="n-time">1시간 전 · 13:05</span>
+              </div>
+              <a class="n-msg" href="approvals.html" onclick="openItem(this)"><strong>김민수</strong>님의 병가 신청 <span class="muted">7/24(금), 1.0일</span> 에 대한 <strong>승인 요청</strong>이 도착했습니다.</a>
+              <div class="n-meta">사유: 정기 건강검진 · 같은 기간 팀 부재 1명</div>
+              <div class="n-actions">
+                <a class="n-link" href="approvals.html" onclick="event.stopPropagation()">승인 큐에서 처리
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                <button class="n-readbtn" onclick="event.stopPropagation();readOne(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>읽음</button>
+              </div>
+            </div>
+          </li>
+
+          <li class="group-head" data-day="이번 주"><div class="group-cap">이번 주</div></li>
+
+          <li class="n-item" data-n data-day="이번 주">
+            <span class="n-ico t-reminder" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </span>
+            <div class="n-body">
+              <div class="n-top">
+                <span class="n-tag t-reminder">리마인더</span>
+                <span class="n-time">6/27(금) · 09:00</span>
+              </div>
+              <a class="n-msg" href="approvals.html" onclick="openItem(this)">승인 대기 중인 휴가 신청이 <strong>3건</strong> 있습니다. 처리를 기다리고 있어요.</a>
+              <div class="n-meta">가장 오래된 건: 김민수 · 2일 경과</div>
+              <div class="n-actions">
+                <a class="n-link" href="approvals.html" onclick="event.stopPropagation()">대기 큐 보기
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                <button class="n-readbtn" onclick="event.stopPropagation();readOne(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>읽음</button>
+              </div>
+            </div>
+          </li>
+
+          <li class="n-item read" data-n data-day="이번 주">
+            <span class="n-ico t-approved" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+            </span>
+            <div class="n-body">
+              <div class="n-top">
+                <span class="n-tag t-approved">승인됨</span>
+                <span class="n-time">6/25(수) · 16:20</span>
+              </div>
+              <a class="n-msg" href="requests.html" onclick="openItem(this)">반차 신청 <strong>6/15(일) 오후</strong>가 승인되었습니다.</a>
+              <div class="n-meta">승인자 박성호 팀장 · 사용 0.5일 확정</div>
+              <div class="n-actions">
+                <a class="n-link" href="requests.html" onclick="event.stopPropagation()">내 신청에서 보기
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+              </div>
+            </div>
+          </li>
+
+          <li class="n-item read" data-n data-day="이번 주">
+            <span class="n-ico t-rejected" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>
+            </span>
+            <div class="n-body">
+              <div class="n-top">
+                <span class="n-tag t-rejected">반려됨</span>
+                <span class="n-time">6/24(화) · 11:42</span>
+              </div>
+              <a class="n-msg" href="requests.html" onclick="openItem(this)">연차 신청 <strong>7/1(수)~7/3(금)</strong>이 <strong>반려</strong>되었습니다.</a>
+              <div class="n-meta">사유: 동일 기간 팀 부재 과다(3명) — 일정 조정 후 재신청 바랍니다.</div>
+              <div class="n-actions">
+                <a class="n-link" href="requests.html" onclick="event.stopPropagation()">상세·사유 보기
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+              </div>
+            </div>
+          </li>
+
+        </ul>
+
+        <!-- 빈 상태 -->
+        <div class="empty" id="empty">
+          <div class="empty-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          </div>
+          <h3 id="emptyTitle">모두 확인했습니다</h3>
+          <p id="emptyText">새 알림이 오면 여기에서 신청 승인·반려·리마인더를 한눈에 볼 수 있어요.</p>
+          <a class="btn btn-primary" href="request.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            휴가 신청하러 가기
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+    <span id="toastMsg">읽음으로 표시했습니다</span>
+  </div>
+
+<script>
+  var curFilter = "all";
+  var toastTimer;
+
+  function items(){ return Array.prototype.slice.call(document.querySelectorAll('#list li[data-n]')); }
+
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  function refresh(){
+    var all = items();
+    var unread = all.filter(function(li){ return !li.classList.contains('read'); }).length;
+    var total = all.length;
+
+    // 카운트 동기화 (뱃지·탭 pill·내비·상단바)
+    document.getElementById('badge').textContent = unread;
+    document.getElementById('cAll').textContent = total;
+    document.getElementById('cUnread').textContent = unread;
+    document.getElementById('navCount').textContent = unread;
+    var topB = document.getElementById('topBadge');
+    topB.textContent = unread;
+    topB.classList.toggle('hidden', unread === 0);
+
+    // 안읽음 항목 없을 때 '모두 읽음' 비활성
+    document.getElementById('readAllBtn').disabled = (unread === 0);
+
+    applyFilter();
+  }
+
+  function applyFilter(){
+    var all = items();
+    var visibleCount = 0;
+    all.forEach(function(li){
+      var show = (curFilter === 'all') || !li.classList.contains('read');
+      li.style.display = show ? '' : 'none';
+      if(show) visibleCount++;
+    });
+
+    // 시간 그룹 헤더: 보이는 항목 있는 그룹만 표시
+    document.querySelectorAll('#list li.group-head').forEach(function(h){
+      var day = h.getAttribute('data-day');
+      var anyVisible = all.some(function(li){
+        return li.getAttribute('data-day') === day && li.style.display !== 'none';
+      });
+      h.style.display = anyVisible ? '' : 'none';
+    });
+
+    // 빈 상태 토글
+    var empty = document.getElementById('empty');
+    var listEl = document.getElementById('list');
+    var isEmpty = (visibleCount === 0);
+    empty.classList.toggle('show', isEmpty);
+    listEl.style.display = isEmpty ? 'none' : '';
+
+    if(isEmpty){
+      var unreadOnly = (curFilter === 'unread');
+      document.getElementById('emptyTitle').textContent = unreadOnly ? '안읽은 알림이 없습니다' : '모두 확인했습니다';
+      document.getElementById('emptyText').textContent = unreadOnly
+        ? '모든 알림을 읽었어요. 전체 탭에서 지난 알림을 다시 볼 수 있어요.'
+        : '새 알림이 오면 여기에서 신청 승인·반려·리마인더를 한눈에 볼 수 있어요.';
+    }
+  }
+
+  function setFilter(btn){
+    curFilter = btn.getAttribute('data-filter');
+    document.querySelectorAll('.tab').forEach(function(t){
+      t.setAttribute('aria-selected', t === btn ? 'true' : 'false');
+    });
+    applyFilter();
+  }
+
+  function markRead(li){
+    if(li.classList.contains('read')) return false;
+    li.classList.add('read');
+    var b = li.querySelector('.n-readbtn');
+    if(b) b.remove();
+    refresh();
+    return true;
+  }
+
+  // 행의 [읽음] 버튼
+  function readOne(btn){
+    var li = btn.closest('li');
+    if(markRead(li)) showToast('읽음으로 표시했습니다');
+  }
+
+  // 항목 제목(링크) 클릭: 읽음 처리 후 링크 href로 이동(기본 동작)
+  function openItem(el){
+    var li = el.closest('li');
+    markRead(li);
+    // 네비게이션은 a[href]의 기본 동작으로 진행 — preventDefault 하지 않음
+  }
+
+  function readAll(){
+    var changed = false;
+    items().forEach(function(li){
+      if(!li.classList.contains('read')){ changed = true; }
+      li.classList.add('read');
+      var b = li.querySelector('.n-readbtn'); if(b) b.remove();
+    });
+    refresh();
+    if(changed) showToast('모든 알림을 읽음 처리했습니다');
+  }
+
+  // 역할 전환 (데모 — home에서 뷰가 바뀜, 여기선 라벨 반영)
+  document.getElementById('role').addEventListener('change', function(){
+    showToast(this.value + '로 전환했습니다');
+  });
+
+  refresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>승인 큐 — team-leave 와이어</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#fff;color:#222;margin:0;display:flex;min-height:100vh}
+  nav{width:200px;border-right:2px solid #999;padding:16px;box-sizing:border-box}
+  nav a{display:block;padding:6px 8px;color:#222;text-decoration:none;border-bottom:1px solid #eee}
+  nav .cur{display:block;padding:6px 8px;border-bottom:1px solid #eee;font-weight:bold;background:#eee}
+  main{flex:1;padding:20px}
+  h2{font-size:16px}
+  .tabs{margin:10px 0}
+  .tab{padding:6px 12px;border:1px solid #999;background:#fff;cursor:pointer}
+  .tab.cur{background:#eee;font-weight:bold}
+  table{border-collapse:collapse;width:100%;margin-top:8px}
+  th,td{border:1px solid #ccc;padding:8px;font-size:13px;text-align:left}
+  .tag{border:1px solid #999;padding:2px 6px;font-size:12px}
+  .btn{padding:5px 9px;border:1px solid #444;background:#eee;color:#222;cursor:pointer;text-decoration:none}
+  .hidden{display:none!important}
+  .panel{border:1px solid #999;padding:12px;margin-top:12px}
+  .modalbg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+  .modal{background:#fff;border:2px solid #444;padding:20px;width:380px}
+  textarea{width:100%;box-sizing:border-box;padding:8px;border:1px solid #999}
+</style>
+</head>
+<body>
+  <nav>
+    <strong>team-leave</strong><div style="margin-top:12px"></div>
+    <a href="home.html">홈</a>
+    <a href="request.html">휴가 신청</a>
+    <span class="cur" aria-current="page">승인 큐</span>
+    <a href="calendar.html">팀 캘린더</a>
+    <a href="balance.html">잔여 연차</a>
+    <a href="requests.html">내 신청</a>
+    <a href="notifications.html">알림</a>
+    <a href="members.html">멤버 관리</a>
+    <a href="settings.html">설정</a>
+  </nav>
+  <main>
+    <h2>승인 큐 <span style="font-size:13px;color:#777">(팀장/HR)</span></h2>
+    <div class="tabs">
+      <button class="tab cur" id="tab-pending" onclick="showTab('pending')">대기 (<span id="cnt">3</span>)</button>
+      <button class="tab" id="tab-done" onclick="showTab('done')">처리됨</button>
+    </div>
+
+    <div id="pane-pending">
+      <table>
+        <thead><tr><th>신청자</th><th>종류</th><th>기간</th><th>일수</th><th>사유</th><th>상태</th><th>액션</th></tr></thead>
+        <tbody id="rows">
+          <tr data-row><td>김민수</td><td>연차</td><td>7/20~7/21</td><td>2</td><td>개인 사정</td><td><span class="tag" data-status>대기</span></td>
+            <td><button class="btn" onclick="togglePanel(this)">충돌보기</button>
+                <button class="btn" onclick="approve(this)">승인</button>
+                <button class="btn" onclick="openReject(this)">반려</button></td></tr>
+          <tr data-row><td>이서연</td><td>반차</td><td>7/22 오전</td><td>0.5</td><td>병원</td><td><span class="tag" data-status>대기</span></td>
+            <td><button class="btn" onclick="togglePanel(this)">충돌보기</button>
+                <button class="btn" onclick="approve(this)">승인</button>
+                <button class="btn" onclick="openReject(this)">반려</button></td></tr>
+          <tr data-row><td>박지훈</td><td>연차</td><td>7/25~7/29</td><td>5</td><td>여름휴가</td><td><span class="tag" data-status>대기</span></td>
+            <td><button class="btn" onclick="togglePanel(this)">충돌보기</button>
+                <button class="btn" onclick="approve(this)">승인</button>
+                <button class="btn" onclick="openReject(this)">반려</button></td></tr>
+        </tbody>
+      </table>
+      <div id="emptyq" class="panel hidden">대기 중인 신청이 없습니다. <a href="calendar.html">팀 캘린더</a>에서 부재 현황을 확인하세요. (막다른 길 0)</div>
+    </div>
+
+    <div id="pane-done" class="hidden">
+      <table>
+        <thead><tr><th>신청자</th><th>종류</th><th>기간</th><th>처리</th><th>처리자</th></tr></thead>
+        <tbody>
+          <tr><td>최유진</td><td>연차</td><td>7/3~7/4</td><td><span class="tag">승인</span></td><td>나(팀장)</td></tr>
+          <tr><td>정해성</td><td>연차</td><td>7/1</td><td><span class="tag">반려</span> (Q3 출시 겹침)</td><td>나(팀장)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- 충돌 미리보기 패널(행별 인라인) -->
+  <div id="conflictPanel" class="modalbg hidden" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="modal">
+      <h3>같은 기간 팀 부재 미리보기</h3>
+      <p style="font-size:13px">해당 기간 동료 부재: <strong>1명</strong> (이서연 7/22 오전). 자동 차단 아님 — 가시화만.</p>
+      <button class="btn" onclick="document.getElementById('conflictPanel').classList.add('hidden')">닫기</button>
+    </div>
+  </div>
+
+  <!-- 반려 사유 모달(필수) -->
+  <div id="rejectModal" class="modalbg hidden">
+    <div class="modal">
+      <h3>반려 사유 (필수)</h3>
+      <textarea id="rejReason" rows="3" placeholder="예: Q3 출시 주간과 겹침" oninput="document.getElementById('rejSubmit').disabled=this.value.trim()===''"></textarea>
+      <div style="margin-top:12px">
+        <button class="btn" id="rejSubmit" disabled onclick="doReject()">반려 제출</button>
+        <button class="btn" onclick="closeReject()">취소</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var curRej=null;
+  function showTab(t){
+    document.getElementById('pane-pending').classList.toggle('hidden',t!=='pending');
+    document.getElementById('pane-done').classList.toggle('hidden',t!=='done');
+    document.getElementById('tab-pending').classList.toggle('cur',t==='pending');
+    document.getElementById('tab-done').classList.toggle('cur',t==='done');
+  }
+  function refreshCount(){
+    var n=document.querySelectorAll('#rows tr[data-row] [data-status]');
+    var pend=0; n.forEach(function(s){if(s.textContent==='대기')pend++;});
+    document.getElementById('cnt').textContent=pend;
+    document.getElementById('emptyq').classList.toggle('hidden',pend!==0);
+  }
+  function approve(btn){
+    var s=btn.closest('tr').querySelector('[data-status]');
+    s.textContent='승인'; btn.closest('td').innerHTML='<span style="font-size:12px;color:#777">확정 (pending→used)</span>';
+    refreshCount();
+  }
+  function openReject(btn){ curRej=btn.closest('tr'); document.getElementById('rejReason').value=''; document.getElementById('rejSubmit').disabled=true; document.getElementById('rejectModal').classList.remove('hidden'); }
+  function closeReject(){ document.getElementById('rejectModal').classList.add('hidden'); curRej=null; }
+  function doReject(){
+    if(!curRej)return;
+    curRej.querySelector('[data-status]').textContent='반려';
+    curRej.querySelector('td:last-child').innerHTML='<span style="font-size:12px;color:#777">반려됨 (pending 복원)</span>';
+    closeReject(); refreshCount();
+  }
+  function togglePanel(){ document.getElementById('conflictPanel').classList.remove('hidden'); }
+  refreshCount();
+</script>
+</body>
+</html>
