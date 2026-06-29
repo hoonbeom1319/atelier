@@ -8,12 +8,12 @@ metadata:
 2026-06-26 작업. atelier 하네스에 "에이전트"를 *이름뿐 산문*에서 *실제 구현*으로 끌어올림.
 
 **도입한 것 (design):**
-- `.claude/agents/`: `design-verifier`(독립 render-check), `screen-builder`(화면 1개 빌더), `design-trend-expert`(웹검색 트렌드 감정 0~100).
-- `.claude/workflows/forge-design.js`: 무인 디자인 핵심을 코드로 — 빌드 fan-out → **화면당 N명(기본3) 적대적 검증 다수결** → 트렌드 점수 → 임계값(80) 미달 시 리디자인 1회 → design-verify.md·design-critique.md·STATUS chosen 기록.
+- `.claude/agents/`: `design-verifier`(독립 render-check **7항목** — thin/bad/variantsIdentical/off-brief/deadControl/stateInert/**wireframey**, **렌더 PNG 기반**), `screen-builder`(화면 1개 빌더 + **anti-wireframe 바**), `design-trend-expert`(두 모드: 빌드 전 **레퍼런스 브리프** + 빌드 후 **렌더 기반** 트렌드 감정 0~100), `screen-shooter`(**Bash+Playwright 렌더러** → `scripts/shoot.js`로 PNG, 픽셀맹 해소 D1).
+- `.claude/workflows/forge-design.js`: 무인 디자인 핵심을 코드로 — **(빌드 전)비주얼 레퍼런스 브리프** → 빌드 fan-out(anti-wireframe·브리프 입력) → **렌더 스크린샷(screen-shooter→PNG, scripts/shoot.js)** → **화면당 N명(기본3) 적대적 검증(렌더 기반·다수결, render-check 7항목 wireframey 포함)** → 트렌드 점수(렌더 기반) → 임계값(80) 미달 시 리디자인 1회 → design-verify.md·design-critique.md·STATUS chosen 기록. **D1 픽셀맹 해소**: 검증·트렌드가 소스 아니라 PNG를 본다.
 - `scripts/lint-verify.js`: 독립 검증 산출물(`design-verify.md`) 게이트. `_smoke/design-verify.md`가 good 회귀 픽스처.
 
 **도입한 것 (plan — design과 대칭):**
-- `.claude/agents/`: `prd-critic`(PRD 7차원 실질 비평 — measurable/justified/prioritized/dataCoherent/consistent/assumptionsSurfaced/scoped), `market-researcher`(웹검색 plan 질문 근거화).
+- `.claude/agents/`: `prd-critic`(PRD 8차원 실질 비평 — measurable/justified/prioritized/dataCoherent/consistent/assumptionsSurfaced/scoped/**surfaceComplete**; scoped=범위 부풀림·surfaceComplete=표준 화면 골격 빈약, 양방향), `market-researcher`(웹검색 plan 질문 근거화 — IA/표준 화면 구성 축 포함).
 - `.claude/workflows/forge-plan.js`: 무인 기획을 코드로 — 시장조사(축 분할 병렬) → PRD 초안(PM 페르소나) → **N명 prd-critic 다측면 비평 다수결** → 미달 시 개정 1회 → PRD.md·plan-decisions.md·prd-review.md·STATUS 기록.
 - `scripts/lint-prd-review.js`: PRD 실질 비평 산출물(`prd-review.md`) 게이트. lint-prd(형식)와 2단 게이트. `_smoke/prd-review.md`가 good 픽스처.
 - 핵심 통찰: lint-prd는 *형식(섹션 존재)* 만 봄 → prd-critic이 *실질* 을 봄. design의 honor-system 구멍과 정확히 대칭.
