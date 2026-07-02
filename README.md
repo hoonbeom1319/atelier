@@ -1,10 +1,30 @@
 # 🎨 Atelier
 
+[![npm](https://img.shields.io/npm/v/%40hb-kit%2Fatelier)](https://www.npmjs.com/package/@hb-kit/atelier)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/hoonbeom1319/atelier/blob/main/LICENSE)
+
 > 터미널 안의 아틀리에 — 아이디어 한 줄을 넣으면, 개발에 넘길 **디자인 인계 패키지**가 통째로 나온다.
+>
+> *An atelier in your terminal — one prompt forges an idea into a dev-ready design hand-off: PRD, clickable wireframes, design tokens, hi-fi screens.*
+
+![Atelier — 아이디어 한 줄에서 디자인 인계 패키지까지](https://raw.githubusercontent.com/hoonbeom1319/atelier/main/docs/hero.png)
 
 **Atelier**(아틀리에)는 아이디어를 받아 **PRD → 와이어프레임 → 디자인 시스템 → 하이파이 → 인계 패키지**까지 짓는 작업장이다. 완성본은 *인계 패키지*(`hand-off.md`)로 묶여 다른 Claude Code 프로젝트(앱 레포)에 넘어간다.
 
 여기서 만드는 건 "최종 앱 코드"가 아니라 **개발에 넘길 기획·디자인 산출물**이다.
+
+---
+
+## ⚙️ 설치 (30초)
+
+```bash
+npx @hb-kit/atelier init my-atelier   # 새 작업장 스캐폴드 (폴더명 생략 시 현재 폴더)
+cd my-atelier
+npm install && npx playwright install chromium
+claude                                # Claude Code 세션에서 → /forge
+```
+
+> 필요한 건 [Claude Code](https://claude.com/claude-code)·Node.js 18+뿐. 빌드도 서버도 없고, 외부 계정·로그인 없이 전부 로컬에서 돈다. 설치부터 첫 handoff까지 단계별 가이드는 **[GETTING-STARTED.md](https://github.com/hoonbeom1319/atelier/blob/main/GETTING-STARTED.md)**.
 
 ---
 
@@ -54,7 +74,7 @@
 
 - **검증은 3층** — 내비게이션(자동)·화면이 책임지는 **기능 완결성**(자동, 죽은 컨트롤 0)·느낌과 "옳은 흐름인가"(사람). 자동 2층은 Playwright로 green까지 루프, 반복 로직은 `scripts/lib/`에 골격으로 박혀 매 프로젝트 재발명하지 않는다.
 - **a11y도 자동** — 토큰 대비비(값 차원) + 렌더 화면 axe(대비·역할·포커스).
-- **경계마다 린트 게이트** — `lint-prd`(plan→design) · `lint-handoff`(design→dev).
+- **경계마다 린트 게이트** — `lint-prd`+`lint-prd-review`(plan→design: 형식 + 독립 비평 확인) · `lint-verify`(하이파이: 독립 검증 확인) · `lint-handoff`(design→dev: self-contained 완결성).
 - **와이어는 진짜 클릭된다** — 페이지끼리 `<a href>`로 잇고, 선택·토글·카운터 같은 상태도 실제로 변한다(인라인 JS 허용). *느낌*만 하이파이 몫.
 - **에이전트 동적 편성** — 생성량 많은 단계는 빌더를 병렬로 띄우고, **만들지 않은 독립 에이전트**가 적대적으로 검증한다.
 
@@ -73,21 +93,27 @@ atelier/                            # (레포. 로컬 폴더명은 달라도 무
 │   ├── forge/                      # ⚡ /forge  — 무인 오케스트레이터 (메인 무대)
 │   ├── plan/                       #   /plan    — 기획 (→ PRD)         ← forge가 내부 구동 / 수동도 가능
 │   └── design/                     #   /design  — 디자인 (PRD → handoff) ← forge가 내부 구동 / 수동도 가능
+├── .claude/agents/                 # 서브에이전트 (시장조사·PRD 비평·화면 빌더·렌더러·독립 검증·트렌드 감정)
+├── .claude/workflows/              # forge-plan.js · forge-design.js — 무인 구간 결정론적 오케스트레이션
 ├── scripts/                        # 검증 도구
 │   ├── test-project.js             #   프로젝트별 Playwright 실행기(증빙 라우팅)
-│   ├── lint-prd.js                 #   PRD 완결성 자동 검사 (plan→design 게이트)
-│   ├── lint-handoff.js             #   handoff 완결성 자동 검사 (design→dev 게이트)
+│   ├── shoot.js                    #   hi-fi 헤드리스 렌더 → PNG (검증·트렌드가 픽셀을 봄)
+│   ├── lint-prd.js · lint-prd-review.js    # PRD 형식 + 독립 비평 게이트 (plan→design)
+│   ├── lint-verify.js              #   하이파이 독립 검증 게이트
+│   ├── pack-handoff.js · lint-handoff.js   # handoff self-contained 패키징 + 완결성 게이트 (design→dev)
 │   └── lib/                        #   재사용 검증 골격(crawl·controls·selectors·a11y)
 └── projects/                        # 프로젝트마다 폴더 하나 (서로 독립)
     └── my-first-app/
         ├── PRD.md                  # 기획 산출물 (= 디자인 입력)
         ├── plan-decisions.md       # (/forge) 시장조사가 plan 질문에 답한 근거·출처
+        ├── prd-review.md           # PRD 독립 비평 (별도 에이전트의 8차원 판정)
         ├── STATUS.md               # 지금 어느 단계인지 (0 기획 ~ 7 handoff)
         ├── 00-flow.md              # 화면·플로우 합의본
         ├── wireframe/              # 클릭되는 lo-fi (*.html)
         ├── foundation/             # tokens.css + colors/typography
         ├── components/             # *.html
         ├── screens/                # 하이파이 (*.html)  ·  screens-<variant>/ = 리디자인 후보
+        ├── design-verify.md        # 하이파이 독립 검증 (별도 에이전트의 render-check 판정)
         ├── design-critique.md      # (/forge) 트렌드 전문가 감정 점수·지적
         └── handoff/                # ★ 최종 인계 패키지 (hand-off.md + 비주얼 문서·매핑표·인벤토리)
 ```
@@ -101,7 +127,7 @@ atelier/                            # (레포. 로컬 폴더명은 달라도 무
 
 ## 🚀 쓰는 법
 
-> 처음이라면 **[GETTING-STARTED.md](./GETTING-STARTED.md)** — 설치부터 첫 `/forge`, 검증, handoff까지 단계별 가이드.
+> 처음이라면 **[GETTING-STARTED.md](https://github.com/hoonbeom1319/atelier/blob/main/GETTING-STARTED.md)** — 설치부터 첫 `/forge`, 검증, handoff까지 단계별 가이드.
 
 작업장 폴더에서 Claude Code 세션을 열고:
 

@@ -1,6 +1,6 @@
 {
   "name": "@hb-kit/atelier",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "터미널 안의 아틀리에 — 아이디어를 받아 PRD부터 개발에 넘길 디자인까지 (/forge 무인 · /plan + /design harness). Claude Code 작업장 템플릿.",
   "bin": {
     "atelier": "bin/init.js"
@@ -31,9 +31,26 @@
     "type": "git",
     "url": "git+https://github.com/hoonbeom1319/atelier.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "skills",
+    "agents",
+    "prd",
+    "design",
+    "wireframe",
+    "hi-fi",
+    "design-tokens",
+    "handoff",
+    "playwright",
+    "scaffold",
+    "cli",
+    "template",
+    "workflow",
+    "orchestrator"
+  ],
+  "author": "polaris (https://github.com/hoonbeom1319)",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/hoonbeom1319/atelier/issues"
   },

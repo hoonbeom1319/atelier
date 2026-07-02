@@ -59,6 +59,7 @@ start "" "projects\<name>\handoff\index.html"      # Windows
 - `handoff/hand-off.md` — 받는 쪽에 붙여넣는 **인계 프롬프트**(이게 최종 결과물)
 - `handoff/` — 비주얼 문서·토큰 매핑표·컴포넌트 인벤토리
 - `plan-decisions.md` — 시장조사가 기획 질문에 **무슨 근거로** 답했나(출처 URL)
+- `prd-review.md` · `design-verify.md` — 만든 쪽이 아닌 **별도 에이전트**의 독립 비평·검증 판정
 - `design-critique.md` — 트렌드 전문가 감정 점수·지적(미달 시 리디자인 기록)
 - `STATUS.md` — `0 기획 → 7 handoff`까지 어떻게 흘러갔는지 한눈에
 
@@ -128,8 +129,10 @@ node scripts/test-project.js <name> projects/<name>/screens.spec.js
 npx playwright show-report projects/<name>/playwright-report
 
 # 경계 게이트
-node scripts/lint-prd.js <name>
-node scripts/lint-handoff.js <name>
+node scripts/lint-prd.js <name>          # PRD 형식 (plan→design)
+node scripts/lint-prd-review.js <name>   # PRD 독립 비평이 있었나
+node scripts/lint-verify.js <name>       # 하이파이 독립 검증이 있었나
+node scripts/lint-handoff.js <name>      # handoff 완결성 + self-contained (design→dev)
 ```
 
 증빙은 `projects/<name>/playwright-report`·`test-results`에 프로젝트별로 쌓인다. (git에는 안 올라간다 — `.gitignore` 처리.)
@@ -167,7 +170,7 @@ node scripts/lint-handoff.js <name>
 /design     PRD → 와이어 → 디자인시스템 → hi-fi → handoff  ← 손으로 몰 때
 
 node scripts/test-project.js <name> [spec경로]                  검증 실행
-node scripts/lint-prd.js <name>  /  lint-handoff.js <name>      경계 게이트
+node scripts/lint-{prd,prd-review,verify,handoff}.js <name>     경계 게이트 4종
 npx playwright show-report projects/<name>/playwright-report    증빙 보기
 
 projects/<name>/STATUS.md     현재 어느 단계인지 (항상 여기부터)

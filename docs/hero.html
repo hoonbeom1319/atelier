@@ -1,0 +1,184 @@
+<!doctype html>
+<!-- README 히어로 배너 — docs/hero.png 원본. 렌더: node docs/shoot-hero.js -->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  :root{
+    --bg-0:#0b1020; --bg-1:#141b33; --ink:#eef1f8; --ink-dim:#9aa3bd;
+    --coral:#ff6b57; --coral-soft:#ff8a72; --mint:#3ecfa5; --gold:#f5b84d;
+    --card:#ffffff; --card-ink:#1c2333; --card-dim:#6b7386; --card-line:#e6e9f0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1600px;height:840px;overflow:hidden}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(900px 600px at 85% -10%, #24305c 0%, transparent 60%),
+      radial-gradient(700px 500px at -10% 110%, #1d2a4a 0%, transparent 55%),
+      linear-gradient(135deg,var(--bg-0),var(--bg-1));
+    display:flex;align-items:center;gap:64px;padding:0 72px;position:relative;
+  }
+  /* 은은한 그리드 텍스처 */
+  body::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(1200px 700px at 50% 40%,#000 40%,transparent 100%);}
+
+  /* ── 왼쪽: 브랜드 ── */
+  .brand{width:640px;flex:none;position:relative;z-index:1}
+  .kicker{display:inline-flex;align-items:center;gap:10px;font-size:15px;letter-spacing:.14em;
+    color:var(--coral-soft);font-weight:600;text-transform:uppercase;margin-bottom:22px}
+  .kicker::before{content:"";width:34px;height:2px;background:var(--coral);border-radius:2px}
+  h1{font-size:88px;line-height:1;letter-spacing:-.02em;font-weight:800;margin-bottom:8px}
+  h1 .tool{background:linear-gradient(100deg,#fff 30%,#ffb4a5 75%,var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tag-ko{font-size:26px;line-height:1.5;color:var(--ink);margin-top:26px;font-weight:600}
+  .tag-ko em{font-style:normal;color:var(--coral-soft)}
+  .tag-en{font-size:17px;line-height:1.6;color:var(--ink-dim);margin-top:14px}
+  .pipe{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:40px}
+  .chip{font-size:15.5px;font-weight:600;padding:9px 16px;border-radius:999px;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:var(--ink)}
+  .chip.hot{background:rgba(255,107,87,.16);border-color:rgba(255,107,87,.55);color:#ffc2b5}
+  .arrow{color:var(--ink-dim);font-size:15px}
+  .cmd{margin-top:38px;display:inline-flex;align-items:center;gap:14px;font-family:Consolas,'Cascadia Mono',monospace;
+    font-size:17px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;padding:14px 20px;color:#d7ddec}
+  .cmd .dollar{color:var(--mint)}
+  .cmd .accent{color:var(--coral-soft)}
+
+  /* ── 오른쪽: handoff 패키지 목업 ── */
+  .stage{flex:1;position:relative;height:660px;z-index:1}
+  .win{position:absolute;background:var(--card);color:var(--card-ink);border-radius:16px;
+    box-shadow:0 30px 70px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.3);overflow:hidden}
+  .winbar{height:38px;background:#f4f5f9;border-bottom:1px solid var(--card-line);
+    display:flex;align-items:center;gap:7px;padding:0 16px}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .winbar .t{margin-left:8px;font-size:12.5px;color:var(--card-dim);font-family:Consolas,monospace}
+
+  /* 메인 창: 하이파이 화면 */
+  .win.main{width:520px;height:566px;left:60px;top:80px;transform:rotate(-1.2deg)}
+  .app{padding:22px 24px}
+  .app-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .app-head .hi{font-size:20px;font-weight:700}
+  .app-head .hi small{display:block;font-size:12px;color:var(--card-dim);font-weight:500;margin-top:3px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--coral),var(--gold))}
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px}
+  .stat{border:1px solid var(--card-line);border-radius:12px;padding:12px 14px}
+  .stat b{font-size:22px;display:block}
+  .stat span{font-size:11.5px;color:var(--card-dim)}
+  .stat .up{color:var(--mint);font-size:11px;font-weight:700}
+  .bars{display:flex;align-items:flex-end;gap:10px;height:110px;border:1px solid var(--card-line);
+    border-radius:12px;padding:14px 16px 12px;margin-bottom:18px}
+  .bar{flex:1;border-radius:6px 6px 3px 3px;background:#eceef4}
+  .bar.on{background:linear-gradient(180deg,var(--coral-soft),var(--coral))}
+  .row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--card-line)}
+  .row:last-child{border-bottom:none}
+  .ico{width:34px;height:34px;border-radius:10px;flex:none}
+  .row .tx{flex:1}
+  .row .tx b{font-size:14px;display:block}
+  .row .tx span{font-size:12px;color:var(--card-dim)}
+  .pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px}
+
+  /* 뒤 창: tokens.css */
+  .win.tokens{width:400px;height:300px;right:0;top:0;transform:rotate(1.6deg);z-index:-1;opacity:.98}
+  .code{font-family:Consolas,'Cascadia Mono',monospace;font-size:13px;line-height:1.85;padding:16px 20px;color:#37415a}
+  .code .c{color:#98a0b3}.code .v{color:#c2453a;font-weight:600}.code .k{color:#2456c4}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:1px solid rgba(0,0,0,.12)}
+
+  /* 앞 창: hand-off.md */
+  .win.brief{width:340px;height:250px;right:36px;bottom:36px;transform:rotate(2.2deg)}
+  .md{padding:18px 22px;font-size:13.5px;line-height:1.8;color:#414a61}
+  .md h4{font-size:15px;margin-bottom:6px;color:var(--card-ink)}
+  .md .ok{color:#1e9e77;font-weight:700}
+  .md code{font-family:Consolas,monospace;background:#f1f3f8;border-radius:4px;padding:1px 6px;font-size:12px;color:#c2453a}
+
+  .stamp{position:absolute;left:24px;bottom:26px;display:flex;align-items:center;gap:10px;
+    font-size:13.5px;color:#c6cde0;z-index:2;background:rgba(11,16,32,.88);
+    border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:10px 18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  .stamp .ok{color:var(--mint);font-weight:700}
+</style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="kicker">Claude Code Workshop</div>
+    <h1>🎨 Atelier <span class="tool">/forge</span></h1>
+    <p class="tag-ko">아이디어 한 줄 → 개발에 넘길 <em>디자인 인계 패키지</em>,<br>터미널에서 통째로.</p>
+    <p class="tag-en">An atelier in your terminal — one prompt forges an idea into a dev-ready design hand-off: PRD, clickable wireframes, design tokens, hi-fi screens.</p>
+    <div class="pipe">
+      <span class="chip">PRD</span><span class="arrow">→</span>
+      <span class="chip">와이어</span><span class="arrow">→</span>
+      <span class="chip">토큰</span><span class="arrow">→</span>
+      <span class="chip">하이파이</span><span class="arrow">→</span>
+      <span class="chip hot">handoff</span>
+    </div>
+    <div class="cmd"><span><span class="dollar">$</span> npx @hb-kit/atelier init <span class="accent">&amp;&amp;</span> claude <span class="accent">/forge</span></span></div>
+  </div>
+
+  <div class="stage">
+    <div class="win tokens">
+      <div class="winbar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="t">foundation/tokens.css</span></div>
+      <div class="code">
+        <span class="c">/* primitive → semantic 2단 */</span><br>
+        <span class="v">--coral-500</span>: <span class="sw" style="background:#ff6b57"></span>#ff6b57;<br>
+        <span class="v">--gray-900</span>: <span class="sw" style="background:#1c2333"></span>#1c2333;<br>
+        <span class="v">--gray-50</span>: <span class="sw" style="background:#f7f8fb"></span>#f7f8fb;<br>
+        <span class="v">--color-primary</span>: <span class="k">var(--coral-500)</span>;<br>
+        <span class="v">--color-text</span>: <span class="k">var(--gray-900)</span>;<br>
+        <span class="v">--color-surface</span>: <span class="k">var(--gray-50)</span>;
+      </div>
+    </div>
+
+    <div class="win main">
+      <div class="winbar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="t">screens/dashboard.html</span></div>
+      <div class="app">
+        <div class="app-head">
+          <div class="hi">좋은 아침, 지수님 ☀️<small>오늘 마감 3건 · 진행 중 5건</small></div>
+          <div class="avatar"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span>이번 주 완료</span><b>24</b><span class="up">▲ 12%</span></div>
+          <div class="stat"><span>평균 처리</span><b>1.8일</b><span class="up">▲ 0.3일</span></div>
+          <div class="stat"><span>팀 부하</span><b>67%</b><span style="color:#f5a623;font-size:11px;font-weight:700">● 보통</span></div>
+        </div>
+        <div class="bars">
+          <div class="bar" style="height:34%"></div><div class="bar" style="height:52%"></div>
+          <div class="bar" style="height:41%"></div><div class="bar on" style="height:88%"></div>
+          <div class="bar" style="height:63%"></div><div class="bar" style="height:47%"></div>
+          <div class="bar" style="height:71%"></div>
+        </div>
+        <div class="row">
+          <div class="ico" style="background:#ffe6e1"></div>
+          <div class="tx"><b>결제 플로우 개편</b><span>디자인 리뷰 대기 · D-1</span></div>
+          <span class="pill" style="background:#ffe6e1;color:#c2453a">긴급</span>
+        </div>
+        <div class="row">
+          <div class="ico" style="background:#e2f7ef"></div>
+          <div class="tx"><b>온보딩 A/B 결과 정리</b><span>수·목 공유 예정</span></div>
+          <span class="pill" style="background:#e2f7ef;color:#1e9e77">진행</span>
+        </div>
+        <div class="row">
+          <div class="ico" style="background:#eef1fb"></div>
+          <div class="tx"><b>다크 모드 토큰 매핑</b><span>범위 확정 필요</span></div>
+          <span class="pill" style="background:#eef1fb;color:#2456c4">대기</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="win brief">
+      <div class="winbar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="t">handoff/hand-off.md</span></div>
+      <div class="md">
+        <h4>📦 인계 브리프</h4>
+        <span class="ok">✔</span> 화면 7 · 컴포넌트 12 · 토큰 매핑표<br>
+        <span class="ok">✔</span> Playwright 게이트 green · 죽은 컨트롤 0<br>
+        <span class="ok">✔</span> self-contained — <code>lint-handoff</code> 통과
+      </div>
+    </div>
+
+    <div class="stamp"><span class="ok">●</span> 자동 게이트 green — lint-prd · Playwright · a11y · lint-handoff</div>
+  </div>
+
+</body>
+</html>
