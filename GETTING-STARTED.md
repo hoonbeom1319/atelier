@@ -19,6 +19,20 @@
 
 ## ⚙️ 2. 설치
 
+두 가지 방법 중 하나로 — 결과는 같다.
+
+**A. npm으로 (권장 — 새 작업장을 어디든 깐다):**
+
+```bash
+npx @hb-kit/atelier init my-atelier   # 폴더명 생략 시 현재 폴더에
+cd my-atelier
+
+npm install                       # Playwright 등 의존성
+npx playwright install chromium   # 검증용 브라우저 (1회)
+```
+
+**B. git clone으로 (repo를 통째로 — 아틀리에 자체를 고치며 쓸 때):**
+
 ```bash
 git clone https://github.com/hoonbeom1319/atelier.git
 cd atelier
