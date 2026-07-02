@@ -1,0 +1,223 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>feed — 요기조기</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* screen-local lo-fi additions */
+.demobar{display:flex;align-items:center;gap:8px;margin:10px 14px;font-size:12px;color:#777}
+.demobar button{font:inherit;font-size:12px;border:1px dashed #999;background:#fafafa;border-radius:6px;padding:6px 10px;cursor:pointer;color:#333}
+.card{border:1px solid #ccc;border-radius:12px;margin:12px 14px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:10px;padding:10px}
+.author{display:flex;align-items:center;gap:8px;text-decoration:none;color:#222}
+.author .avatar{width:34px;height:34px;min-height:0;border-radius:50%;font-size:11px;flex:none}
+.author .nm{font-weight:600;font-size:14px;line-height:1.2}
+.author .sub{font-size:11px;color:#888}
+.poi-chip{margin-left:auto;text-decoration:none;color:#222;border:1px solid #999;border-radius:14px;padding:5px 10px;font-size:12px;white-space:nowrap}
+.minimap{margin:0 10px 8px}
+.minimap .mm{min-height:46px;font-size:12px;text-decoration:none;color:#888}
+.carousel{position:relative}
+.carousel .photo{display:block;min-height:230px;border-left:0;border-right:0;border-radius:0;text-decoration:none;color:#888;font-size:13px}
+.cbtn{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:1px solid #888;background:rgba(255,255,255,.85);font-size:16px;line-height:1;cursor:pointer;color:#222;display:flex;align-items:center;justify-content:center}
+.cbtn.prev{left:8px}
+.cbtn.next{right:8px}
+.dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px}
+.dots span{width:6px;height:6px;border-radius:50%;background:#bbb}
+.dots span.on{background:#444}
+.memo{font-size:13px;color:#333;line-height:1.5;padding:10px 12px 4px}
+.tags{padding:0 8px 10px}
+.detail{display:block;margin:0 12px 12px;text-align:center}
+.empty{text-align:center;margin:64px 24px}
+.empty .ic{width:64px;height:64px;margin:0 auto 14px;border:1px dashed #999;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px}
+.empty h2{font-size:16px;margin-bottom:6px}
+.empty p{font-size:13px;color:#777;margin-bottom:16px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- 상단 앱바 (셸) -->
+<div class="appbar">
+  <a class="title" href="search.html" style="text-decoration:none;color:inherit">🔍 <span>피드</span></a>
+  <div class="icons"><a href="notifications.html">🔔</a><a href="profile-me.html">👤</a></div>
+</div>
+
+<!-- 데모: 빈 피드 ↔ 카드 토글 (필수 상태 ①) -->
+<div class="demobar">
+  <span>데모 상태:</span>
+  <button id="demoToggle" type="button" aria-pressed="false">빈 피드 보기</button>
+</div>
+
+<!-- 빈 상태 (팔로잉 0) -->
+<section id="emptyState" class="hidden" aria-live="polite">
+  <div class="empty">
+    <div class="ic">팔로우 0</div>
+    <h2>팔로우하고 피드를 채워보세요</h2>
+    <p>아직 팔로우한 사람이 없어요.<br>관심 있는 사람·장소를 찾아 팔로우하면 여기에 피드가 쌓입니다.</p>
+    <a class="btn primary" href="search.html">추천 친구 찾기</a>
+  </div>
+</section>
+
+<!-- 채워진 카드 목록 -->
+<section id="feedList" aria-live="polite">
+
+  <!-- 카드 1 : 사진 3장 (캐러셀) -->
+  <article class="card">
+    <div class="card-head">
+      <a class="author" href="profile-friend.html">
+        <span class="ph avatar">사진</span>
+        <span><span class="nm">김여기</span><br><span class="sub">2시간 전</span></span>
+      </a>
+      <a class="poi-chip" href="map-home.html">📍 블루보틀 성수</a>
+    </div>
+    <div class="minimap">
+      <a class="ph mm" href="map-home.html">🗺 미니맵 · 성수동 · 핀 위치 보기</a>
+    </div>
+    <div class="carousel" data-count="3" data-idx="0">
+      <a class="ph photo" href="post-detail.html">사진 1 / 3</a>
+      <button class="cbtn prev" type="button" aria-label="이전 사진">‹</button>
+      <button class="cbtn next" type="button" aria-label="다음 사진">›</button>
+      <div class="dots"><span class="on"></span><span></span><span></span></div>
+    </div>
+    <p class="memo">성수 골목 끝 블루보틀. 오후 햇살 들어오는 창가 자리 추천 ☕</p>
+    <div class="tags">
+      <span class="chip">#성수카페</span><span class="chip">#커피</span><span class="chip">#창가자리</span>
+    </div>
+    <a class="btn detail" href="post-detail.html">게시물 보기</a>
+  </article>
+
+  <!-- 카드 2 : 사진 1장 (캐러셀 버튼 없음) -->
+  <article class="card">
+    <div class="card-head">
+      <a class="author" href="profile-friend.html">
+        <span class="ph avatar">사진</span>
+        <span><span class="nm">박조기</span><br><span class="sub">어제</span></span>
+      </a>
+      <a class="poi-chip" href="map-home.html">📍 남산서울타워</a>
+    </div>
+    <div class="minimap">
+      <a class="ph mm" href="map-home.html">🗺 미니맵 · 남산 · 핀 위치 보기</a>
+    </div>
+    <div class="carousel" data-count="1" data-idx="0">
+      <a class="ph photo" href="post-detail.html">사진 1 / 1</a>
+      <!-- 단일 사진: 좌우 버튼/도트 없음 (죽은 컨트롤 방지) -->
+    </div>
+    <p class="memo">해질녘 남산. 케이블카 타고 올라가서 야경까지 기다렸다 🌆</p>
+    <div class="tags">
+      <span class="chip">#남산</span><span class="chip">#야경</span>
+    </div>
+    <a class="btn detail" href="post-detail.html">게시물 보기</a>
+  </article>
+
+  <!-- 카드 3 : 사진 4장 (캐러셀) -->
+  <article class="card">
+    <div class="card-head">
+      <a class="author" href="profile-friend.html">
+        <span class="ph avatar">사진</span>
+        <span><span class="nm">이여행</span><br><span class="sub">2일 전</span></span>
+      </a>
+      <a class="poi-chip" href="map-home.html">📍 연남동 경의선숲길</a>
+    </div>
+    <div class="minimap">
+      <a class="ph mm" href="map-home.html">🗺 미니맵 · 연남동 · 핀 위치 보기</a>
+    </div>
+    <div class="carousel" data-count="4" data-idx="0">
+      <a class="ph photo" href="post-detail.html">사진 1 / 4</a>
+      <button class="cbtn prev" type="button" aria-label="이전 사진">‹</button>
+      <button class="cbtn next" type="button" aria-label="다음 사진">›</button>
+      <div class="dots"><span class="on"></span><span></span><span></span><span></span></div>
+    </div>
+    <p class="memo">연트럴파크 산책. 잔디밭 피크닉 하기 좋은 날씨였다 🌳</p>
+    <div class="tags">
+      <span class="chip">#연남동</span><span class="chip">#경의선숲길</span><span class="chip">#피크닉</span>
+    </div>
+    <a class="btn detail" href="post-detail.html">게시물 보기</a>
+  </article>
+
+</section>
+
+<!-- 하단 탭바 (피드 활성) -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a href="map-home.html">🗺 지도</a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+  <a href="feed.html" aria-current="page">📋 피드</a>
+</nav>
+
+<script>
+(function(){
+  /* ① 데모: 빈 피드 ↔ 카드 토글 (상태 실재) */
+  var toggle = document.getElementById('demoToggle');
+  var empty = document.getElementById('emptyState');
+  var list = document.getElementById('feedList');
+  toggle.addEventListener('click', function(){
+    var showEmpty = empty.classList.contains('hidden'); // 지금 숨겨져 있으면 이제 보여줌
+    if(showEmpty){
+      empty.classList.remove('hidden');
+      list.classList.add('hidden');
+      toggle.textContent = '카드 피드 보기';
+      toggle.setAttribute('aria-pressed','true');
+    } else {
+      empty.classList.add('hidden');
+      list.classList.remove('hidden');
+      toggle.textContent = '빈 피드 보기';
+      toggle.setAttribute('aria-pressed','false');
+    }
+  });
+
+  /* ② 카드별 사진 캐러셀 (인덱스/도트 변경) */
+  var carousels = document.querySelectorAll('.carousel');
+  carousels.forEach(function(c){
+    var count = parseInt(c.getAttribute('data-count'), 10) || 1;
+    var photo = c.querySelector('.photo');
+    var dots = c.querySelectorAll('.dots span');
+    var prev = c.querySelector('.cbtn.prev');
+    var next = c.querySelector('.cbtn.next');
+    if(count <= 1 || !prev || !next) return; // 단일 사진은 버튼 없음
+
+    function render(){
+      var idx = parseInt(c.getAttribute('data-idx'), 10) || 0;
+      photo.textContent = '사진 ' + (idx + 1) + ' / ' + count;
+      dots.forEach(function(d, i){
+        if(i === idx){ d.classList.add('on'); } else { d.classList.remove('on'); }
+      });
+    }
+    prev.addEventListener('click', function(){
+      var idx = parseInt(c.getAttribute('data-idx'), 10) || 0;
+      idx = (idx - 1 + count) % count;
+      c.setAttribute('data-idx', idx);
+      render();
+    });
+    next.addEventListener('click', function(){
+      var idx = parseInt(c.getAttribute('data-idx'), 10) || 0;
+      idx = (idx + 1) % count;
+      c.setAttribute('data-idx', idx);
+      render();
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

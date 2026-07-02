@@ -1,0 +1,103 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요기조기 — 디자인 인계 패키지 (3차 · 지도 히어로 피드)</title>
+<link rel="stylesheet" href="./foundation/tokens.css">
+<style>
+body{font-family:var(--font-sans);background:var(--color-bg);color:var(--color-text);margin:0;line-height:var(--lh-body)}
+header{background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:28px 24px}
+header h1{margin:0 0 8px;font-size:var(--fs-display);font-weight:var(--fw-display);letter-spacing:-.02em}
+header p{margin:0;color:var(--color-text-secondary);max-width:860px}
+.wrap{max-width:1180px;margin:0 auto;padding:24px}
+h2{font-size:var(--fs-h1);margin:36px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--color-border)}
+.flow{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-1);white-space:pre-wrap;font-size:var(--fs-sm);color:var(--color-text-secondary);overflow-x:auto}
+.grp{font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:var(--fw-semibold);margin:28px 0 8px}
+.screen{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);overflow:hidden;margin-bottom:20px}
+.sh{padding:14px 18px;border-bottom:1px solid var(--color-border);display:flex;align-items:baseline;gap:10px}
+.sh h3{margin:0;font-size:var(--fs-h2)}
+.sh .id{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-on-primary);background:var(--color-primary);padding:2px 8px;border-radius:var(--radius-full)}
+.sh a{margin-left:auto;font-size:var(--fs-sm);color:var(--color-primary);text-decoration:none;font-weight:var(--fw-semibold)}
+.bodyg{display:grid;grid-template-columns:300px 1fr;gap:0}
+.shot{border-right:1px solid var(--color-border);background:var(--color-surface-alt);display:flex;align-items:flex-start;justify-content:center;padding:16px}
+.shot img{width:100%;max-width:260px;display:block;border:1px solid var(--color-border);border-radius:var(--radius-md);box-shadow:var(--shadow-2)}
+.spec{padding:18px 20px;font-size:var(--fs-sm)}
+.spec ul{margin:6px 0 0;padding-left:18px;color:var(--color-text-secondary)}
+.spec li{margin:4px 0}
+.live{padding:12px 18px;border-top:1px solid var(--color-border);background:var(--color-surface-alt)}
+.live summary{cursor:pointer;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-primary)}
+.live .frame{height:560px;overflow:hidden;margin-top:12px;border:1px solid var(--color-border);border-radius:var(--radius-md);background:#fff}
+.live iframe{width:390px;height:844px;border:0;transform:scale(.66);transform-origin:top left}
+</style></head><body>
+<header>
+  <h1>요기조기 — 디자인 인계 패키지 <span style="font-size:var(--fs-sm);color:var(--color-text-muted)">다크모드 · 지도 히어로 피드</span></h1>
+  <p>장소 중심 사진 SNS(모바일 390×844 · 라이트 · 한국어). <b>다크모드(검정 배경) UI + 사진은 컬러 실사.</b> chosen final = <b>screens/</b> 14화면. **홈=피드 하나**(토글 없음), 각 카드가 <b>지도(동선)가 메인 + 작은 컬러 사진</b>. map-home=장소 상세. 업로드는 미분류를 분류 화면에서 카카오맵 검색으로 in-place 배정. 구현 브리프 <b>hand-off.md</b>, 토큰 <b>token-mapping.md</b>, 컴포넌트 <b>component-inventory.md</b>.</p>
+</header>
+<div class="wrap">
+<h2>사용자 흐름</h2>
+<div class="flow">진입:  로그인 → 온보딩(가치·권한) → 팔로우 시드 → 홈(피드)
+홈:  피드 카드(지도 동선 히어로 + 작은 컬러 사진) → 카드 탭 post-detail / POI칩 장소 상세(map-home)
+업로드:  ＋ → 갤러리 → 자동분류 + 미분류 in-place 배정(카카오맵 검색 / 없는 장소만 직접 핀) → 태그·메모·공개범위 → 게시 → 홈
+발견:  검색(카카오 장소/사람/태그) → 장소 상세 · 친구 프로필</div>
+<h2>화면 (14)</h2>
+<div class="grp">진입/온보딩</div>
+<div class="screen"><div class="sh"><span class="id">SC-01·02</span><h3>로그인 / 회원가입</h3><a href="./screens/auth.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/auth.png" alt="로그인 / 회원가입 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>소셜 3종(카카오·구글·이메일)</li><li>로그인↔회원가입 토글·인라인 검증</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/auth.html" title="로그인 / 회원가입"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-03·04·05</span><h3>온보딩</h3><a href="./screens/onboarding.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/onboarding.png" alt="온보딩 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>가치소개 캐러셀</li><li>위치·사진 권한 프라이밍 + 폴백</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/onboarding.html" title="온보딩"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-06</span><h3>팔로우 시드</h3><a href="./screens/follow-seed.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/follow-seed.png" alt="팔로우 시드 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>추천 사람/장소 + 팔로우 토글</li><li>"요즘 뜨는 동네" 칩 → 검색</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/follow-seed.html" title="팔로우 시드"></iframe></div></details></div>
+<div class="grp">홈</div>
+<div class="screen"><div class="sh"><span class="id">SC-09·07</span><h3>홈 (지도 히어로 피드) ★</h3><a href="./screens/feed.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/feed.png" alt="홈 (지도 히어로 피드) ★ 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>세로 피드 — 토글 없음, 홈=피드 하나</li><li>**각 카드: 지도(동선 폴리라인+핀)가 메인** + 아래 작은 **컬러 사진** 썸네일</li><li>좋아요♥(레드)·POI 칩·메모·태그. 하단 [홈][＋][프로필]</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/feed.html" title="홈 (지도 히어로 피드) ★"></iframe></div></details></div>
+<div class="grp">핵심</div>
+<div class="screen"><div class="sh"><span class="id">SC-08</span><h3>장소(POI) 상세</h3><a href="./screens/map-home.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/map-home.png" alt="장소(POI) 상세 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>한 장소의 지도 + 그곳 포스트·컬러 사진 그리드</li><li>방문 친구 · 저장 (피드 POI칩/검색 장소에서 진입)</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/map-home.html" title="장소(POI) 상세"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-15</span><h3>검색</h3><a href="./screens/search.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/search.png" alt="검색 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>[장소｜사람｜태그] — 장소=카카오맵 검색 결과→장소 상세</li><li>태그=컬러 사진 그리드</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/search.html" title="검색"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-18</span><h3>게시물 상세</h3><a href="./screens/post-detail.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/post-detail.png" alt="게시물 상세 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>지도(그 포스트 동선) + 컬러 사진 캐러셀</li><li>POI 칩·좋아요♥·메모·태그</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/post-detail.html" title="게시물 상세"></iframe></div></details></div>
+<div class="grp">업로드</div>
+<div class="screen"><div class="sh"><span class="id">SC-10</span><h3>업로드 1 — 갤러리</h3><a href="./screens/upload-1-gallery.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/upload-1-gallery.png" alt="업로드 1 — 갤러리 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>컬러 썸네일 다중선택·순번 배지·카운트</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/upload-1-gallery.html" title="업로드 1 — 갤러리"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-11·12·13</span><h3>업로드 2 — 분류 + 미분류 배정 ★</h3><a href="./screens/upload-2-classify.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/upload-2-classify.png" alt="업로드 2 — 분류 + 미분류 배정 ★ 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>POI 그룹(추정/확정) + "미분류" 그룹</li><li>미분류 사진 선택 → 카카오맵 검색 배정 / 없는 장소만 직접 핀</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/upload-2-classify.html" title="업로드 2 — 분류 + 미분류 배정 ★"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-14</span><h3>업로드 3 — 태그·메모·공개범위</h3><a href="./screens/upload-4-meta.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/upload-4-meta.png" alt="업로드 3 — 태그·메모·공개범위 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>메모·태그 칩</li><li>공개범위(모노 라인 아이콘, 기본 팔로워)</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/upload-4-meta.html" title="업로드 3 — 태그·메모·공개범위"></iframe></div></details></div>
+<div class="grp">프로필/보조</div>
+<div class="screen"><div class="sh"><span class="id">SC-16</span><h3>내 프로필</h3><a href="./screens/profile-me.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/profile-me.png" alt="내 프로필 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>헤더·카운트 + [그리드｜지도] 토글</li><li>컬러 사진 3열 그리드 / 방문 핀+동선</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/profile-me.html" title="내 프로필"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-17</span><h3>친구 프로필</h3><a href="./screens/profile-friend.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/profile-friend.png" alt="친구 프로필 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>팔로우/팔로잉/요청됨</li><li>비공개 잠금</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/profile-friend.html" title="친구 프로필"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-19</span><h3>알림</h3><a href="./screens/notifications.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/notifications.png" alt="알림 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>좋아요·팔로우·장소 액티비티</li><li>미열람 레드닷·팔로우백</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/notifications.html" title="알림"></iframe></div></details></div>
+<div class="screen"><div class="sh"><span class="id">SC-20</span><h3>설정</h3><a href="./screens/settings.html" target="_blank">화면 열기 ↗</a></div>
+  <div class="bodyg"><div class="shot"><img src="./_shots/screens/settings.png" alt="설정 렌더"></div>
+    <div class="spec"><b>핵심 구성·동작</b><ul><li>공개범위 기본값(팔로워)·동선 공개·로그아웃</li></ul></div></div>
+  <details class="live"><summary>라이브 화면 (클릭 가능) ▾</summary><div class="frame"><iframe src="./screens/settings.html" title="설정"></iframe></div></details></div>
+</div></body></html>

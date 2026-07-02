@@ -1,0 +1,246 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>알림 — 요기조기 (와이어)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+
+/* --- notifications 전용 (lo-fi: 회색/점선만, 레드닷만 상태색) --- */
+.backbtn{text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 9px}
+.appbtn{font:inherit;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 9px;background:#f7f7f7;cursor:pointer}
+.demobar{display:flex;align-items:center;gap:8px;margin:10px 14px 0;font-size:13px;color:#555}
+.sectlabel{margin:14px 14px 4px;font-size:12px;color:#888;letter-spacing:.3px}
+.nlist{list-style:none}
+.nitem{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid #eee;position:relative}
+.nitem.unread{background:#f6f6f6}
+.dot{width:9px;height:9px;border-radius:50%;background:#e23b3b;margin-top:6px;flex:0 0 9px}
+.nitem.read .dot{visibility:hidden}
+.av{width:38px;height:38px;border-radius:50%;background:#ddd;border:1px solid #aaa;display:flex;align-items:center;justify-content:center;font-size:12px;color:#666;flex:0 0 38px}
+.nbody{flex:1;min-width:0}
+.nlink{text-decoration:none;color:inherit;display:block}
+.ntext{font-size:14px;line-height:1.4}
+.ntext b{font-weight:700}
+.ntime{font-size:12px;color:#999;margin-top:2px}
+.nthumb{width:42px;height:42px;flex:0 0 42px}
+.nthumb .ph{min-height:0;height:42px;font-size:11px}
+.followbtn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:7px;padding:7px 11px;cursor:pointer;font-size:13px;white-space:nowrap;align-self:center}
+.followbtn[aria-pressed="true"]{background:#333;color:#fff;border-color:#333}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:60px 24px;color:#666}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#333;color:#fff;font-size:12px;padding:7px 14px;border-radius:14px;z-index:9}
+</style>
+</head>
+<body>
+
+<!-- 상단 앱바 (← 뒤로) -->
+<div class="appbar">
+  <a class="backbtn" href="map-home.html" aria-label="뒤로">← 뒤로</a>
+  <span class="title">알림 <span class="badge" id="unreadCount">4</span></span>
+  <button class="appbtn" id="readAllBtn" onclick="markAllRead()">모두 읽음</button>
+</div>
+
+<!-- 데모 토글: 알림 목록 ↔ 알림 0 빈상태 -->
+<div class="demobar">
+  <span>데모:</span>
+  <button class="btn" id="emptyToggle" aria-pressed="false" onclick="toggleEmpty()">알림 0 빈상태 보기</button>
+</div>
+
+<!-- 알림 목록 -->
+<div id="listWrap">
+  <div class="sectlabel">새 소식</div>
+  <ul class="nlist">
+
+    <!-- 좋아요 (동종 그룹핑) → post-detail -->
+    <li class="nitem unread" id="n1" onclick="markRead('n1')">
+      <span class="dot" aria-label="미열람"></span>
+      <span class="av">지민</span>
+      <div class="nbody">
+        <a class="nlink" href="post-detail.html" aria-label="지민 외 3명이 좋아한 게시물 보기">
+          <div class="ntext"><b>지민</b>님 외 <b>3명</b>이 회원님의 사진을 좋아합니다</div>
+          <div class="ntime">2시간 전 · 블루보틀 성수</div>
+        </a>
+      </div>
+      <a class="nthumb" href="post-detail.html" aria-label="해당 게시물 썸네일"><div class="ph">사진</div></a>
+    </li>
+
+    <!-- 장소 액티비티 → post-detail -->
+    <li class="nitem unread" id="n2" onclick="markRead('n2')">
+      <span class="dot" aria-label="미열람"></span>
+      <span class="av">현우</span>
+      <div class="nbody">
+        <a class="nlink" href="post-detail.html" aria-label="현우님이 블루보틀 성수에 올린 사진 보기">
+          <div class="ntext"><b>현우</b>님이 <b>블루보틀 성수</b>에 사진을 올렸어요</div>
+          <div class="ntime">5시간 전 · 내가 방문한 장소</div>
+        </a>
+      </div>
+      <a class="nthumb" href="post-detail.html" aria-label="해당 게시물 썸네일"><div class="ph">사진</div></a>
+    </li>
+
+    <!-- 팔로우 (동종 그룹핑) + 팔로우백 → profile-friend -->
+    <li class="nitem unread" id="n3" onclick="markRead('n3')">
+      <span class="dot" aria-label="미열람"></span>
+      <span class="av">수아</span>
+      <div class="nbody">
+        <a class="nlink" href="profile-friend.html" aria-label="수아 외 1명의 프로필 보기">
+          <div class="ntext"><b>수아</b>님 외 <b>1명</b>이 회원님을 팔로우하기 시작했어요</div>
+          <div class="ntime">어제</div>
+        </a>
+      </div>
+      <button class="followbtn" id="fb3" aria-pressed="false" onclick="followBack(event,'fb3')">팔로우백</button>
+    </li>
+
+    <!-- 장소 액티비티 (그룹핑) → post-detail -->
+    <li class="nitem unread" id="n4" onclick="markRead('n4')">
+      <span class="dot" aria-label="미열람"></span>
+      <span class="av">친구</span>
+      <div class="nbody">
+        <a class="nlink" href="post-detail.html" aria-label="친구들이 성수동 카페거리에 올린 사진 보기">
+          <div class="ntext"><b>지민</b>님 외 <b>2명</b>이 <b>성수동 카페거리</b>에 사진을 올렸어요</div>
+          <div class="ntime">어제 · 내가 저장한 장소</div>
+        </a>
+      </div>
+      <a class="nthumb" href="post-detail.html" aria-label="해당 게시물 썸네일"><div class="ph">사진</div></a>
+    </li>
+  </ul>
+
+  <div class="sectlabel">이전 (열람함)</div>
+  <ul class="nlist">
+    <!-- 팔로우 (이미 열람) → profile-friend -->
+    <li class="nitem read" id="n5">
+      <span class="dot" aria-label="열람함"></span>
+      <span class="av">도윤</span>
+      <div class="nbody">
+        <a class="nlink" href="profile-friend.html" aria-label="도윤님 프로필 보기">
+          <div class="ntext"><b>도윤</b>님이 회원님을 팔로우하기 시작했어요</div>
+          <div class="ntime">3일 전</div>
+        </a>
+      </div>
+      <button class="followbtn" id="fb5" aria-pressed="true" onclick="followBack(event,'fb5')">팔로잉</button>
+    </li>
+
+    <!-- 좋아요 (이미 열람) → post-detail -->
+    <li class="nitem read" id="n6">
+      <span class="dot" aria-label="열람함"></span>
+      <span class="av">민서</span>
+      <div class="nbody">
+        <a class="nlink" href="post-detail.html" aria-label="민서님이 좋아한 게시물 보기">
+          <div class="ntext"><b>민서</b>님이 회원님의 사진을 좋아합니다</div>
+          <div class="ntime">3일 전 · 대림창고</div>
+        </a>
+      </div>
+      <a class="nthumb" href="post-detail.html" aria-label="해당 게시물 썸네일"><div class="ph">사진</div></a>
+    </li>
+  </ul>
+</div>
+
+<!-- 빈 상태 (알림 0) -->
+<div class="empty hidden" id="emptyState">
+  <div style="font-size:34px">🔔</div>
+  <div style="font-weight:700">아직 알림이 없어요</div>
+  <div style="font-size:13px">친구를 팔로우하고 장소를 저장하면<br>새 소식이 여기에 모여요</div>
+  <a class="btn primary" href="search.html">친구·장소 찾아보기</a>
+</div>
+
+<!-- 하단 탭바 (알림은 별도 탭 아님 — 셸 탭바 노출, 활성 없음) -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a href="map-home.html">🗺 지도</a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+  <a href="feed.html">📋 피드</a>
+</nav>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.remove('hidden');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(function(){t.classList.add('hidden');},1500);
+}
+
+function refreshCount(){
+  var n=document.querySelectorAll('.nitem.unread').length;
+  var b=document.getElementById('unreadCount');
+  if(n>0){ b.textContent=n; b.classList.remove('hidden'); }
+  else { b.classList.add('hidden'); }
+}
+
+// 상태 ① 항목 탭 → 미열람 레드닷 사라짐 (열람 상태)
+function markRead(id){
+  var el=document.getElementById(id);
+  if(el.classList.contains('unread')){
+    el.classList.remove('unread');
+    el.classList.add('read');
+    var d=el.querySelector('.dot');
+    if(d) d.setAttribute('aria-label','열람함');
+    refreshCount();
+  }
+  // (실제 앱은 곧 링크로 이동 — 링크는 nlink/nthumb가 처리)
+}
+
+// 상태 ① [모두 읽음] → 모든 레드닷 사라짐
+function markAllRead(){
+  var items=document.querySelectorAll('.nitem.unread');
+  items.forEach(function(el){
+    el.classList.remove('unread'); el.classList.add('read');
+    var d=el.querySelector('.dot'); if(d) d.setAttribute('aria-label','열람함');
+  });
+  refreshCount();
+  showToast('모든 알림을 읽음 처리했어요');
+}
+
+// 상태 ② [팔로우백] → "팔로잉" 토글
+function followBack(ev, id){
+  ev.preventDefault(); ev.stopPropagation();
+  var b=document.getElementById(id);
+  var on=b.getAttribute('aria-pressed')==='true';
+  if(on){ b.setAttribute('aria-pressed','false'); b.textContent='팔로우백'; showToast('팔로우를 취소했어요'); }
+  else  { b.setAttribute('aria-pressed','true');  b.textContent='팔로잉';   showToast('맞팔로우했어요'); }
+}
+
+// 상태 ③ 데모: 알림 0 빈상태 토글
+function toggleEmpty(){
+  var list=document.getElementById('listWrap');
+  var empty=document.getElementById('emptyState');
+  var btn=document.getElementById('emptyToggle');
+  var readAll=document.getElementById('readAllBtn');
+  var goEmpty=empty.classList.contains('hidden');
+  if(goEmpty){
+    list.classList.add('hidden'); empty.classList.remove('hidden');
+    btn.textContent='알림 목록 보기'; btn.setAttribute('aria-pressed','true');
+    readAll.classList.add('hidden');
+    document.getElementById('unreadCount').classList.add('hidden');
+  } else {
+    list.classList.remove('hidden'); empty.classList.add('hidden');
+    btn.textContent='알림 0 빈상태 보기'; btn.setAttribute('aria-pressed','false');
+    readAll.classList.remove('hidden');
+    refreshCount();
+  }
+}
+
+refreshCount();
+</script>
+</body>
+</html>

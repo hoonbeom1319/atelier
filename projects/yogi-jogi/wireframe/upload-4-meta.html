@@ -1,0 +1,178 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>업로드4 · 태그·메모·공개범위</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* 화면 전용 (lo-fi: 회색/점선만) */
+.uphead{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.uphead .step{font-size:12px;color:#888}
+.poicard{border:1px dashed #999;border-radius:8px;margin:10px 14px;padding:12px}
+.poirow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.poirow .ph{width:64px;min-height:64px;flex:0 0 64px}
+.poiname{font-weight:700;font-size:14px}
+.poisub{font-size:12px;color:#888}
+.field{margin:8px 0}
+.field label{display:block;font-size:12px;color:#666;margin-bottom:4px}
+textarea,input[type=text]{width:100%;font:inherit;border:1px solid #999;border-radius:6px;padding:8px;background:#fafafa}
+.chip .x{margin-left:6px;cursor:pointer;color:#777;border:0;background:none;font:inherit;padding:0}
+.tagrow{display:flex;gap:6px;margin-top:4px}
+.tagrow input{flex:1}
+.scopedesc{font-size:12px;color:#666;margin:0 14px 10px}
+.sectit{font-size:12px;color:#999;margin:14px 14px 0;text-transform:uppercase;letter-spacing:.5px}
+.toggle{display:inline-block;border:1px solid #888;border-radius:14px;padding:3px 10px;font-size:12px;cursor:pointer;background:#f3f3f3}
+.toggle[aria-pressed="true"]{background:#333;color:#fff;border-color:#333}
+</style>
+</head>
+<body>
+
+<!-- 업로드 풀스크린 헤더 (탭바 없음 — 풀스크린) -->
+<div class="uphead">
+  <a class="btn" href="upload-3-manual.html" aria-label="뒤로" style="padding:6px 10px">←</a>
+  <div style="text-align:center"><div class="title">마무리</div><div class="step">4 / 4 · 태그·메모·공개범위</div></div>
+  <button class="btn primary" id="publish" style="padding:8px 12px">게시</button>
+</div>
+
+<!-- 공통/그룹별 메모 토글 -->
+<div class="sectit">메모</div>
+<div class="box" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+  <span>메모 적용 범위</span>
+  <button class="toggle" id="memoMode" aria-pressed="false" onclick="toggleMemoMode()">그룹별로 따로 쓰기</button>
+</div>
+
+<!-- 공통 메모 (기본 표시) -->
+<div class="box hidden" id="commonMemo">
+  <div class="field">
+    <label for="commonMemoInput">공통 메모 (모든 장소에 적용)</label>
+    <textarea id="commonMemoInput" rows="2" placeholder="이번 나들이에 대한 메모를 적어요" oninput="markTyped(this)"></textarea>
+    <div class="poisub" id="commonMemoCount">0자 입력</div>
+  </div>
+</div>
+
+<!-- POI 그룹별 카드 -->
+<div class="sectit">장소 그룹</div>
+
+<!-- 그룹 1 -->
+<div class="poicard">
+  <div class="poirow">
+    <div class="ph">사진</div>
+    <div><div class="poiname">블루보틀 성수</div><div class="poisub">카페 · 사진 4장</div></div>
+  </div>
+  <div class="field groupMemo hidden">
+    <label for="memo1">이 장소 메모</label>
+    <textarea id="memo1" rows="2" placeholder="블루보틀 성수에 대한 메모" oninput="markTyped(this)"></textarea>
+  </div>
+</div>
+
+<!-- 그룹 2 -->
+<div class="poicard">
+  <div class="poirow">
+    <div class="ph">사진</div>
+    <div><div class="poiname">서울숲</div><div class="poisub">자연 · 사진 3장</div></div>
+  </div>
+  <div class="field groupMemo hidden">
+    <label for="memo2">이 장소 메모</label>
+    <textarea id="memo2" rows="2" placeholder="서울숲에 대한 메모" oninput="markTyped(this)"></textarea>
+  </div>
+</div>
+
+<!-- 태그 입력 -->
+<div class="sectit">태그</div>
+<div class="box">
+  <div class="field">
+    <label for="tagInput">태그 (엔터로 추가)</label>
+    <div class="tagrow">
+      <input type="text" id="tagInput" placeholder="예: 성수동, 주말, 카페투어" onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}">
+      <button class="btn" id="addTagBtn" onclick="addTag()">추가</button>
+    </div>
+    <small id="tagHint" class="hidden" style="color:#a33;margin-top:4px">태그를 입력하세요</small>
+    <div id="tagList" style="margin-top:8px">
+      <span class="chip">성수동<button class="x" aria-label="태그 삭제" onclick="removeTag(this)">✕</button></span>
+    </div>
+  </div>
+</div>
+
+<!-- 공개범위 세그먼트 -->
+<div class="sectit">공개 범위</div>
+<div class="seg" role="tablist" aria-label="공개 범위 선택">
+  <button role="tab" aria-selected="false" onclick="selectScope(this,'공개 — 누구나 이 게시물을 볼 수 있어요')">공개</button>
+  <button role="tab" aria-selected="true" onclick="selectScope(this,'팔로워에게만 공개됩니다')">팔로워</button>
+  <button role="tab" aria-selected="false" onclick="selectScope(this,'비공개 — 나만 볼 수 있어요')">비공개</button>
+</div>
+<p class="scopedesc" id="scopeDesc">팔로워에게만 공개됩니다</p>
+
+<div style="margin:18px 14px">
+  <button class="btn primary" style="width:100%;padding:14px" onclick="doPublish()">게시</button>
+</div>
+
+<!-- 게시 완료 시트 -->
+<div class="sheet hidden" id="doneSheet" role="dialog" aria-label="게시 완료">
+  <div class="title" style="margin-bottom:6px">게시 완료</div>
+  <p style="font-size:13px;color:#555;margin-bottom:12px">지도에 핀과 동선이 갱신되었어요. 지도홈으로 이동합니다.</p>
+  <a class="btn primary" href="map-home.html" style="width:100%;text-align:center">지도홈으로</a>
+</div>
+
+<script>
+function toggleMemoMode(){
+  var b=document.getElementById('memoMode');
+  var on=b.getAttribute('aria-pressed')==='true';
+  on=!on;
+  b.setAttribute('aria-pressed',String(on));
+  b.textContent=on?'공통 메모로 합치기':'그룹별로 따로 쓰기';
+  document.getElementById('commonMemo').classList.toggle('hidden',on);
+  document.querySelectorAll('.groupMemo').forEach(function(el){el.classList.toggle('hidden',!on);});
+}
+function markTyped(t){
+  var c=document.getElementById('commonMemoCount');
+  if(t.id==='commonMemoInput'&&c){c.textContent=t.value.length+'자 입력';}
+}
+function addTag(){
+  var inp=document.getElementById('tagInput');
+  var v=inp.value.trim();
+  var hint=document.getElementById('tagHint');
+  if(!v){ hint.classList.remove('hidden'); return; }
+  hint.classList.add('hidden');
+  var chip=document.createElement('span');
+  chip.className='chip';
+  chip.appendChild(document.createTextNode(v));
+  var x=document.createElement('button');
+  x.className='x';x.setAttribute('aria-label','태그 삭제');x.textContent='✕';
+  x.onclick=function(){removeTag(x);};
+  chip.appendChild(x);
+  document.getElementById('tagList').appendChild(chip);
+  inp.value='';inp.focus();
+}
+function removeTag(btn){btn.parentNode.remove();}
+function selectScope(btn,desc){
+  document.querySelectorAll('.seg [role=tab]').forEach(function(t){t.setAttribute('aria-selected','false');});
+  btn.setAttribute('aria-selected','true');
+  document.getElementById('scopeDesc').textContent=desc;
+}
+function doPublish(){document.getElementById('doneSheet').classList.remove('hidden');}
+document.getElementById('publish').onclick=doPublish;
+</script>
+</body>
+</html>

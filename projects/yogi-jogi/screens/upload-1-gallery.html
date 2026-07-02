@@ -1,0 +1,346 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>새 게시물 · 갤러리 선택 (SC-10)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--color-bg);font-family:var(--font-sans)}
+body{
+  width:var(--app-width);min-height:844px;margin:0 auto;position:relative;
+  color:var(--color-text);background:var(--color-bg);padding-bottom:24px;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.hidden{display:none !important}
+
+/* ───────── 업로드 헤더 (풀스크린 — 탭바 없음, 인스타식 슬림) ───────── */
+.uphead{
+  height:var(--appbar-h);display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--space-1);position:sticky;top:0;z-index:var(--z-appbar);
+  background:rgba(16,16,18,.86);backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--color-border);
+}
+.htitle{font-size:var(--fs-h2);font-weight:var(--fw-h2);letter-spacing:-.3px}
+.hbtn{
+  font:inherit;font-size:var(--fs-body);font-weight:var(--fw-medium);
+  text-decoration:none;color:var(--color-text-secondary);
+  border:0;background:transparent;border-radius:var(--radius-sm);
+  padding:8px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  transition:background .15s,transform .08s,color .15s;min-width:64px;
+}
+.hbtn.close{color:var(--color-text)}
+.hbtn.close svg{width:20px;height:20px}
+.hbtn:hover{background:var(--color-surface-alt)}
+.hbtn:active{transform:scale(.94)}
+.hbtn.next{color:var(--color-primary);font-weight:var(--fw-semibold);justify-content:flex-end}
+.hbtn.next:disabled{color:var(--color-text-muted);opacity:.55;cursor:not-allowed}
+
+/* ───────── 앨범 선택 행 (data-scope=out) ───────── */
+.albumrow{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-3) var(--space-4) var(--space-2);
+}
+.albumsel{
+  display:inline-flex;align-items:center;gap:7px;font:inherit;background:transparent;border:0;cursor:pointer;
+  font-size:var(--fs-h2);font-weight:var(--fw-semibold);color:var(--color-text);letter-spacing:-.3px;
+  padding:6px 8px;margin-left:-8px;border-radius:var(--radius-sm);transition:background .15s;
+}
+.albumsel:hover{background:var(--color-surface-alt)}
+.albumsel .cnt{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-muted);
+  background:var(--color-surface-sunken);border-radius:var(--radius-full);padding:2px 8px}
+.albumsel svg{width:16px;height:16px;color:var(--color-text-secondary)}
+.cambtn{
+  width:38px;height:38px;border-radius:var(--radius-full);border:1px solid var(--color-border);
+  background:var(--color-surface);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  color:var(--color-text);transition:background .15s,transform .08s;
+}
+.cambtn:hover{background:var(--color-surface-alt)}
+.cambtn:active{transform:scale(.92)}
+.cambtn svg{width:20px;height:20px}
+
+/* ───────── 선택 상태 바 ───────── */
+.selbar{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);
+  padding:var(--space-1) var(--space-4) var(--space-3);
+}
+.selinfo{display:flex;align-items:baseline;gap:8px;font-size:var(--fs-sm)}
+.selinfo .n{font-size:var(--fs-body);font-weight:var(--fw-semibold);color:var(--color-text);
+  font-variant-numeric:tabular-nums}
+.selinfo .max{color:var(--color-text-muted);font-weight:var(--fw-medium)}
+.clearbtn{
+  font:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text-secondary);
+  border:0;background:transparent;cursor:pointer;padding:6px 8px;margin-right:-8px;border-radius:var(--radius-sm);
+  transition:background .15s,color .15s;
+}
+.clearbtn:hover{background:var(--color-surface-alt);color:var(--color-text)}
+.clearbtn:active{transform:scale(.96)}
+
+/* ───────── 그리드 (role 미지정 — 썸네일 button aria-pressed로 관측) ───────── */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 0 2px}
+.cell{position:relative;cursor:pointer;border:0;padding:0;background:var(--color-surface-sunken);
+  aspect-ratio:1/1;overflow:hidden;display:block}
+.cell .thumb{position:absolute;inset:0}
+/* 사진 톤(컬러 실사 그라데 — 회색 절대 금지) */
+.thumb::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.04) 55%,rgba(0,0,0,.16));}
+.thumb::after{content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:overlay;
+  background:repeating-linear-gradient(115deg,rgba(255,255,255,.06) 0 2px,transparent 2px 5px);}
+.sc-cafe   {background:radial-gradient(120% 80% at 30% 18%,rgba(255,242,222,.6),transparent 60%),radial-gradient(100% 90% at 82% 92%,rgba(90,42,12,.5),transparent 55%),linear-gradient(150deg,#e9cca2,#b8733e)}
+.sc-park   {background:radial-gradient(90% 70% at 72% 14%,rgba(233,255,210,.55),transparent 60%),linear-gradient(160deg,#b7d38f,#4d7e39)}
+.sc-night  {background:radial-gradient(78% 58% at 62% 80%,rgba(242,164,84,.6),transparent 55%),radial-gradient(60% 50% at 20% 20%,rgba(126,146,206,.55),transparent 60%),linear-gradient(160deg,#2b3a5f,#6c4a6b)}
+.sc-sunset {background:radial-gradient(100% 70% at 50% 20%,rgba(255,224,152,.65),transparent 60%),linear-gradient(170deg,#f3b76c,#d9603d)}
+.sc-ocean  {background:radial-gradient(80% 60% at 40% 24%,rgba(222,246,255,.55),transparent 60%),linear-gradient(165deg,#84bad2,#33708f)}
+.sc-food   {background:radial-gradient(90% 70% at 66% 30%,rgba(255,222,160,.55),transparent 55%),linear-gradient(150deg,#da8b4a,#a2332a)}
+.sc-blossom{background:radial-gradient(90% 70% at 30% 24%,rgba(255,238,246,.65),transparent 60%),linear-gradient(160deg,#f1b8c9,#c66890)}
+.sc-forest {background:radial-gradient(80% 60% at 60% 18%,rgba(202,232,182,.5),transparent 60%),linear-gradient(165deg,#5f9067,#26492f)}
+
+/* 순번 배지 (검정 액센트 규율) */
+.cell .num{
+  position:absolute;top:7px;right:7px;width:24px;height:24px;border-radius:50%;
+  border:1.5px solid rgba(16,16,18,.86);background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:transparent;
+  box-shadow:0 1px 3px rgba(0,0,0,.35);transition:background .12s,color .12s,transform .12s;z-index:2;
+}
+.cell[aria-pressed="true"] .num{
+  background:var(--color-primary);color:var(--color-on-primary);border-color:var(--color-on-primary);
+}
+.cell[aria-pressed="true"] .thumb{transform:scale(.9);transition:transform .16s cubic-bezier(.2,.8,.3,1)}
+.cell[aria-pressed="true"]::after{
+  content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--color-primary);
+  background:rgba(0,0,0,.12);z-index:1;pointer-events:none}
+.cell:focus-visible{outline:none}
+.cell:focus-visible .num{box-shadow:0 0 0 3px rgba(0,0,0,.85)}
+
+/* ───────── 빈/권한거부 상태 ───────── */
+.emptywrap{padding:var(--space-10) var(--space-6) 0;text-align:center}
+.emptyart{
+  width:96px;height:96px;margin:0 auto var(--space-5);border-radius:var(--radius-lg);
+  background:var(--color-surface-alt);border:1px solid var(--color-border);
+  display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);
+}
+.emptyart svg{width:44px;height:44px}
+.empty-h{font-size:var(--fs-h1);font-weight:var(--fw-h1);letter-spacing:-.4px;line-height:var(--lh-h1)}
+.empty-p{margin-top:var(--space-3);font-size:var(--fs-body);line-height:var(--lh-body);
+  color:var(--color-text-secondary);max-width:280px;margin-left:auto;margin-right:auto}
+.btn-primary{
+  margin-top:var(--space-6);font:inherit;font-size:var(--fs-body);font-weight:var(--fw-semibold);
+  color:var(--color-on-primary);background:var(--color-primary);border:0;border-radius:var(--radius-sm);
+  padding:13px 22px;cursor:pointer;transition:background .15s,transform .08s;
+}
+.btn-primary:hover{background:var(--color-primary-hover)}
+.btn-primary:active{transform:scale(.97)}
+.permMsg{margin-top:var(--space-4);font-size:var(--fs-sm);color:var(--color-text-muted);
+  display:inline-flex;align-items:center;gap:7px}
+.permMsg .spin{width:13px;height:13px;border-radius:50%;border:2px solid var(--color-border);
+  border-top-color:var(--color-text);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ───────── 데모 토글 (검증용, 절제) ───────── */
+.demobar{display:flex;justify-content:center;padding:var(--space-4) var(--space-4) var(--space-2)}
+.demobtn{font:inherit;font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-muted);
+  background:transparent;border:1px solid var(--color-border);border-radius:var(--radius-full);
+  padding:6px 12px;cursor:pointer;transition:background .15s}
+.demobtn:hover{background:var(--color-surface-alt)}
+.demobtn[aria-pressed="true"]{color:var(--color-text);border-color:var(--color-border-strong)}
+
+/* ───────── 토스트 ───────── */
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%) translateY(8px);bottom:40px;
+  background:var(--color-text);color:var(--color-on-primary);
+  padding:11px 18px;border-radius:var(--radius-full);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+  z-index:var(--z-toast);box-shadow:var(--shadow-3);opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;max-width:320px;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ───────── 업로드 풀스크린 헤더: [✕] · "새 게시물" · [다음] ───────── -->
+<header class="uphead">
+  <a class="hbtn close" href="feed.html" aria-label="업로드 닫기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </a>
+  <span class="htitle">새 게시물</span>
+  <button class="hbtn next" id="nextBtn" type="button" onclick="goNext()" aria-disabled="true" disabled>다음</button>
+</header>
+
+<!-- ───────── 앨범 선택 + 카메라 (범위 밖: data-scope=out) ───────── -->
+<div class="albumrow">
+  <button class="albumsel" type="button" data-scope="out" onclick="scopeOut('앨범 선택')" aria-label="앨범 선택: 최근 항목">
+    최근 항목
+    <span class="cnt" aria-hidden="true">1,284</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
+  <button class="cambtn" type="button" data-scope="out" onclick="scopeOut('카메라')" aria-label="카메라로 촬영">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
+  </button>
+</div>
+
+<!-- ───────── 선택 카운트 바 ───────── -->
+<div class="selbar" id="selbar">
+  <span class="selinfo">
+    <span class="n" id="count">2</span><span>장 선택</span>
+    <span class="max">· 최대 30장</span>
+  </span>
+  <button class="clearbtn" id="clearBtn" type="button" onclick="clearAll()">모두 해제</button>
+</div>
+
+<!-- ───────── 채움 상태: 컬러 썸네일 그리드 (role 미지정) ───────── -->
+<div id="galleryState">
+  <div class="grid" id="grid" aria-label="갤러리 사진">
+    <!-- 셀은 JS로 생성 -->
+  </div>
+</div>
+
+<!-- ───────── 빈/권한 거부 상태 ───────── -->
+<div id="emptyState" class="hidden">
+  <div class="emptywrap">
+    <div class="emptyart" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M4 17l4.5-4.5L13 16l3-2.5L20 17"/></svg>
+    </div>
+    <h1 class="empty-h">사진에 접근할 수 없어요</h1>
+    <p class="empty-p">갤러리가 비어 있거나 사진 접근 권한이 거부되었습니다. 권한을 허용하면 사진을 선택할 수 있어요.</p>
+    <button class="btn-primary" type="button" onclick="requestPerm()">권한 다시 요청</button>
+    <div id="permMsg" class="permMsg hidden" role="status"><span class="spin" aria-hidden="true"></span>권한을 다시 요청했어요. 갤러리로 돌아갑니다…</div>
+  </div>
+</div>
+
+<!-- ───────── 데모 토글 (검증: 빈/권한 상태 확인용) ───────── -->
+<div class="demobar">
+  <button class="demobtn" id="demoToggle" type="button" onclick="toggleDemo()" aria-pressed="false">빈 갤러리 / 권한 거부 상태 보기</button>
+</div>
+
+<!-- ───────── 토스트 ───────── -->
+<div id="toast" class="toast" role="status">최대 30장까지 선택할 수 있어요</div>
+<div id="zeroMsg" class="toast" role="status">사진을 1장 이상 선택해 주세요</div>
+<div id="scopeMsg" class="toast" role="status"></div>
+
+<script>
+var MAX = 30;
+var order = []; // 선택 순서(셀 인덱스)
+
+// 8종 컬러 실사 톤 순환 — 회색 금지
+var SCENES = ['sc-cafe','sc-park','sc-night','sc-sunset','sc-ocean','sc-food','sc-blossom','sc-forest'];
+
+(function buildGrid(){
+  var g = document.getElementById('grid');
+  for(var i=1;i<=21;i++){
+    var b = document.createElement('button');
+    b.className = 'cell';
+    b.type = 'button';
+    b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-label','사진 '+i+' 선택');
+    b.dataset.idx = i;
+    b.onclick = (function(idx, btn){ return function(){ toggleCell(idx, btn); }; })(i, b);
+    b.innerHTML = '<span class="thumb '+SCENES[(i-1)%SCENES.length]+'" aria-hidden="true"></span><span class="num" aria-hidden="true"></span>';
+    g.appendChild(b);
+  }
+  // 로드 시 2장 사전선택
+  preselect([3,7]);
+})();
+
+function preselect(list){
+  list.forEach(function(idx){
+    var btn = document.querySelector('#grid .cell[data-idx="'+idx+'"]');
+    if(btn){ order.push(idx); btn.setAttribute('aria-pressed','true'); }
+  });
+  renumber(); updateCount();
+}
+
+function toggleCell(idx, btn){
+  var pos = order.indexOf(idx);
+  if(pos === -1){
+    if(order.length >= MAX){ showToast('toast'); return; }
+    order.push(idx);
+    btn.setAttribute('aria-pressed','true');
+  } else {
+    order.splice(pos,1);
+    btn.setAttribute('aria-pressed','false');
+  }
+  renumber(); updateCount();
+}
+
+function renumber(){
+  document.querySelectorAll('#grid .cell').forEach(function(c){
+    var idx = parseInt(c.dataset.idx,10);
+    var pos = order.indexOf(idx);
+    c.querySelector('.num').textContent = (pos === -1) ? '' : (pos+1);
+  });
+}
+
+function updateCount(){
+  document.getElementById('count').textContent = order.length;
+  var nb = document.getElementById('nextBtn');
+  var clear = document.getElementById('clearBtn');
+  if(order.length > 0){
+    nb.disabled = false; nb.setAttribute('aria-disabled','false');
+    clear.classList.remove('hidden');
+  } else {
+    nb.disabled = true; nb.setAttribute('aria-disabled','true');
+    clear.classList.add('hidden');
+  }
+}
+
+function clearAll(){
+  order = [];
+  document.querySelectorAll('#grid .cell[aria-pressed="true"]').forEach(function(c){
+    c.setAttribute('aria-pressed','false');
+  });
+  renumber(); updateCount();
+}
+
+function goNext(){
+  if(order.length === 0){ showToast('zeroMsg'); return; }
+  window.location.href = 'upload-2-classify.html';
+}
+
+var toastTimer;
+function showToast(id, msg){
+  ['toast','zeroMsg','scopeMsg'].forEach(function(t){ document.getElementById(t).classList.remove('show'); });
+  var t = document.getElementById(id);
+  if(msg) t.textContent = msg;
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1900);
+}
+
+function scopeOut(what){
+  showToast('scopeMsg', what + '은 이 프로토타입 범위 밖이에요');
+}
+
+function toggleDemo(){
+  var gal = document.getElementById('galleryState');
+  var emp = document.getElementById('emptyState');
+  var tg = document.getElementById('demoToggle');
+  var selbar = document.getElementById('selbar');
+  var isEmpty = !emp.classList.contains('hidden');
+  if(isEmpty){
+    emp.classList.add('hidden'); gal.classList.remove('hidden'); selbar.classList.remove('hidden');
+    tg.setAttribute('aria-pressed','false'); tg.textContent = '빈 갤러리 / 권한 거부 상태 보기';
+  } else {
+    gal.classList.add('hidden'); selbar.classList.add('hidden'); emp.classList.remove('hidden');
+    tg.setAttribute('aria-pressed','true'); tg.textContent = '갤러리로 돌아가기';
+    document.getElementById('permMsg').classList.add('hidden');
+  }
+}
+
+function requestPerm(){
+  document.getElementById('permMsg').classList.remove('hidden');
+  setTimeout(function(){
+    document.getElementById('emptyState').classList.add('hidden');
+    document.getElementById('galleryState').classList.remove('hidden');
+    document.getElementById('selbar').classList.remove('hidden');
+    var tg = document.getElementById('demoToggle');
+    tg.setAttribute('aria-pressed','false'); tg.textContent = '빈 갤러리 / 권한 거부 상태 보기';
+    document.getElementById('permMsg').classList.add('hidden');
+  }, 1100);
+}
+</script>
+</body>
+</html>

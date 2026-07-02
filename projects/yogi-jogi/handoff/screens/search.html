@@ -1,0 +1,521 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>검색 — 요기조기</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  width:var(--app-width);min-height:844px;margin:0 auto;position:relative;
+  font-family:var(--font-sans);color:var(--color-text);background:var(--color-bg);
+  padding-bottom:calc(var(--tabbar-h) + 8px);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─────────── 상단 검색 헤더 (검색바 + 탭, sticky) ─────────── */
+.searchhead{position:sticky;top:0;z-index:var(--z-appbar);background:var(--color-surface)}
+
+.searchbar{
+  display:flex;align-items:center;gap:var(--space-2);
+  padding:8px var(--space-3) 10px;
+}
+.back{
+  width:36px;height:36px;flex:none;margin-left:-6px;border:0;background:transparent;cursor:pointer;
+  color:var(--color-text);text-decoration:none;border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;transition:background .12s ease, transform .1s ease;
+}
+.back:hover{background:var(--color-surface-alt)}
+.back:active{transform:scale(.9)}
+.back svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.field{
+  flex:1;display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;
+  background:var(--color-surface-sunken);border-radius:var(--radius-sm);
+  transition:box-shadow .14s ease, background .14s ease;
+}
+.field:focus-within{background:var(--color-surface);box-shadow:inset 0 0 0 1.5px var(--color-text)}
+.field .ico{width:17px;height:17px;flex:none;stroke:var(--color-text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.field input{
+  flex:1;min-width:0;border:0;background:transparent;outline:none;
+  font-family:inherit;font-size:var(--fs-body);color:var(--color-text);
+}
+.field input::placeholder{color:var(--color-text-muted)}
+.field input::-webkit-search-cancel-button{display:none}
+.clear{
+  width:20px;height:20px;flex:none;border:0;border-radius:50%;cursor:pointer;
+  background:var(--color-border-strong);color:var(--color-surface);
+  display:none;align-items:center;justify-content:center;transition:transform .1s ease;
+}
+.clear.show{display:flex}
+.clear:active{transform:scale(.85)}
+.clear svg{width:11px;height:11px;stroke:currentColor;stroke-width:2.8;fill:none;stroke-linecap:round}
+
+/* 세그먼트 = 인스타 검색 언더라인 탭 */
+.tabs{display:flex;box-shadow:inset 0 -1px 0 var(--color-border)}
+.tabs [role="tab"]{
+  flex:1;position:relative;height:44px;border:0;background:transparent;cursor:pointer;
+  font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+  color:var(--color-text-muted);letter-spacing:-.01em;transition:color .14s ease;
+}
+.tabs [role="tab"]::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
+  background:var(--color-text);transform:scaleX(0);transition:transform .18s cubic-bezier(.3,.8,.3,1);
+}
+.tabs [role="tab"]:hover{color:var(--color-text-secondary)}
+.tabs [role="tab"][aria-selected="true"]{color:var(--color-text)}
+.tabs [role="tab"][aria-selected="true"]::after{transform:scaleX(1)}
+
+/* ─────────── 공통: 컬러 사진 표면 ─────────── */
+.photo{position:relative;overflow:hidden;background:var(--color-surface-sunken)}
+.photo::after{ /* 실사 느낌 깊이(하이라이트 + 하단 비네트) */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(115% 80% at 20% 12%, rgba(255,255,255,.4), transparent 46%),
+    linear-gradient(180deg, transparent 52%, rgba(0,0,0,.24));
+}
+.ph-cafe{background:linear-gradient(150deg,#f0d6ad 0%,#d69c62 52%,#a8672f 100%)}
+.ph-park{background:linear-gradient(150deg,#bfd99a 0%,#7cae5b 50%,#3f7a34 100%)}
+.ph-night{background:linear-gradient(160deg,#324067 0%,#6b5a86 55%,#d1935a 100%)}
+.ph-gallery{background:linear-gradient(150deg,#241e16 0%,#bda588 55%,#7d6a52 100%)}
+.ph-alley{background:linear-gradient(150deg,#e8c39a 0%,#c48a55 55%,#8a5a2f 100%)}
+.ph-food{background:linear-gradient(150deg,#f0c19a 0%,#d97b52 55%,#9c3a2f 100%)}
+.ph-river{background:linear-gradient(155deg,#16241e 0%,#84b39c 55%,#3f7d78 100%)}
+.ph-flower{background:linear-gradient(150deg,#f0c6d2 0%,#d98aa0 52%,#9c5a86 100%)}
+.ph-street{background:linear-gradient(150deg,#272219 0%,#b39a7c 55%,#6e5a44 100%)}
+
+/* ═══════════ 빈검색 상태: 인기 · 근처 ═══════════ */
+.state{display:none}
+.state.show{display:block}
+
+.sec-head{
+  padding:20px var(--space-3) 10px;display:flex;align-items:baseline;justify-content:space-between;
+}
+.sec-head h2{font-size:var(--fs-h2);font-weight:var(--fw-h2);letter-spacing:-.02em;color:var(--color-text)}
+.sec-head .meta{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+
+.pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:0 var(--space-3)}
+.pop-card{
+  position:relative;display:block;text-decoration:none;color:var(--color-on-dark);
+  border-radius:var(--radius-sm);overflow:hidden;aspect-ratio:16/11;
+  transition:transform .14s ease;
+}
+.pop-card:active{transform:scale(.985)}
+.pop-card .photo{position:absolute;inset:0}
+.pop-card .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:10px 12px}
+.pop-card .name{display:block;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+  text-shadow:0 1px 3px rgba(0,0,0,.5);line-height:1.2}
+.pop-card .sub{display:block;margin-top:2px;font-size:var(--fs-xs);font-weight:var(--fw-medium);
+  color:rgba(16,16,18,.86);text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.pop-card .rank{
+  position:absolute;top:8px;left:8px;z-index:2;width:20px;height:20px;border-radius:6px;
+  background:rgba(0,0,0,.55);color:#fff;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+  display:flex;align-items:center;justify-content:center;
+}
+
+.tagchips{display:flex;flex-wrap:wrap;gap:8px;padding:4px var(--space-3) 8px}
+.chip{
+  border:0;background:var(--color-surface-sunken);cursor:pointer;font-family:inherit;
+  font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--color-text-secondary);
+  padding:8px 13px;border-radius:var(--radius-full);letter-spacing:-.01em;
+  transition:background .12s ease, color .12s ease, transform .1s ease;
+}
+.chip:hover{background:var(--color-border)}
+.chip:active{transform:scale(.95);background:var(--color-text);color:var(--color-on-dark)}
+
+/* ═══════════ 결과 상태: 3 패널 ═══════════ */
+.panel{display:none}
+.panel.show{display:block}
+
+/* ── 장소 = 카카오맵 검색 결과 ── */
+.place-hint{
+  display:flex;align-items:center;gap:6px;padding:11px var(--space-3);
+  font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium);
+  box-shadow:inset 0 -1px 0 var(--color-divider);
+}
+.place-hint svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.place-list{display:flex;flex-direction:column}
+.place-row{
+  display:flex;align-items:flex-start;gap:12px;padding:13px var(--space-3);
+  text-decoration:none;color:inherit;position:relative;transition:background .12s ease;
+}
+.place-row + .place-row{box-shadow:inset 0 1px 0 var(--color-divider)}
+.place-row:hover{background:var(--color-surface-alt)}
+.place-row:active{background:var(--color-surface-sunken)}
+.place-ico{
+  width:42px;height:42px;flex:none;border-radius:var(--radius-sm);
+  background:var(--color-surface-sunken);color:var(--color-text);
+  display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px var(--color-border);
+}
+.place-ico svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.place-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding-top:1px}
+.place-nameline{display:flex;align-items:baseline;gap:7px;min-width:0}
+.place-name{font-size:var(--fs-body);font-weight:var(--fw-semibold);color:var(--color-text);
+  letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-cat{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium);flex:none}
+.place-addr{font-size:var(--fs-sm);color:var(--color-text-secondary);line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-src{display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:var(--fs-xs);color:var(--color-text-muted)}
+.place-src .kk{display:inline-flex;align-items:center;justify-content:center;
+  width:14px;height:14px;border-radius:3px;background:var(--color-text);color:var(--color-on-dark);
+  font-size:9px;font-weight:700;line-height:1}
+.place-dist{flex:none;text-align:right;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+  color:var(--color-text);padding-top:2px}
+.place-dist small{display:block;margin-top:3px;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--color-text-muted)}
+
+/* ── 사람 = 계정 + 팔로우 ── */
+.people-list{display:flex;flex-direction:column;padding-top:4px}
+.person-row{display:flex;align-items:center;gap:12px;padding:9px var(--space-3)}
+.p-ava{
+  width:46px;height:46px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:var(--fs-body);font-weight:var(--fw-semibold);color:var(--color-on-dark);text-decoration:none;
+  box-shadow:inset 0 0 0 2px var(--color-surface),0 0 0 1px var(--color-border);
+}
+.av-a{background:linear-gradient(145deg,#e8c9a0,#a8672f)}
+.av-b{background:linear-gradient(145deg,#8fb96e,#3f7a34)}
+.av-c{background:linear-gradient(145deg,#6b5a86,#c98a5a)}
+.p-name{flex:1;min-width:0;display:flex;flex-direction:column;text-decoration:none;color:inherit;line-height:1.3}
+.p-name .h{font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text)}
+.p-name .s{font-size:var(--fs-sm);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-name .s b{font-weight:var(--fw-medium);color:var(--color-text-secondary)}
+.p-name:active .h{opacity:.6}
+.follow{
+  flex:none;min-width:84px;height:33px;border:0;cursor:pointer;font-family:inherit;
+  font-size:var(--fs-sm);font-weight:var(--fw-semibold);border-radius:var(--radius-sm);
+  background:var(--color-primary);color:var(--color-on-primary);
+  transition:transform .1s ease, background .12s ease;
+}
+.follow:hover{background:var(--color-primary-hover)}
+.follow:active{transform:scale(.96)}
+.follow[aria-pressed="true"]{
+  background:var(--color-surface);color:var(--color-text);
+  box-shadow:inset 0 0 0 1px var(--color-border-strong);
+}
+
+/* ── 태그 = 컬러 사진 그리드 ── */
+.tag-head{padding:14px var(--space-3) 12px;display:flex;align-items:center;gap:12px}
+.tag-hash{
+  width:52px;height:52px;flex:none;border-radius:50%;background:var(--color-text);color:var(--color-on-dark);
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:var(--fw-h1)
+}
+.tag-info .t{font-size:var(--fs-h2);font-weight:var(--fw-h2);color:var(--color-text);letter-spacing:-.02em}
+.tag-info .c{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium);margin-top:1px}
+.tag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.tag-cell{position:relative;display:block;aspect-ratio:1/1;text-decoration:none;transition:opacity .12s ease}
+.tag-cell .photo{position:absolute;inset:0}
+.tag-cell:active{opacity:.85}
+.tag-cell.multi::before{
+  content:"";position:absolute;top:8px;right:8px;z-index:3;width:15px;height:15px;
+  background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8' y='3' width='13' height='13' rx='2'/%3E%3Cpath d='M3 8v11a2 2 0 0 0 2 2h11'/%3E%3C/svg%3E");
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));
+}
+
+/* ─────────── 하단 탭바 + FAB ─────────── */
+.tabbar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:var(--app-width);
+  height:var(--tabbar-h);display:flex;align-items:stretch;z-index:var(--z-tabbar);
+  background:var(--color-surface);box-shadow:0 -1px 0 var(--color-border);
+}
+.tabbar .tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  text-decoration:none;color:var(--color-text-muted);font-size:var(--fs-xs);font-weight:var(--fw-medium);
+  transition:color .12s ease;
+}
+.tabbar .tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tabbar .tab[aria-current="page"]{color:var(--color-text);font-weight:var(--fw-semibold)}
+.tabbar .tab[aria-current="page"] svg{stroke-width:2.3}
+.tabbar .tab:active{color:var(--color-text)}
+.tabbar .fab{position:relative;flex:0 0 84px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.tabbar .fab .knob{
+  width:52px;height:52px;border-radius:18px;background:var(--color-primary);color:var(--color-on-primary);
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-2);
+  transition:transform .14s cubic-bezier(.2,.8,.3,1), background .12s ease;
+}
+.tabbar .fab .knob svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round}
+.tabbar .fab:hover .knob{background:var(--color-primary-hover)}
+.tabbar .fab:active .knob{transform:scale(.92)}
+
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabbar-h) + 18px);
+  background:var(--color-text);color:var(--color-on-dark);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+  padding:9px 16px;border-radius:var(--radius-full);box-shadow:var(--shadow-3);z-index:var(--z-toast);
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ─────────── 검색 헤더 (sticky) ─────────── -->
+<header class="searchhead">
+  <div class="searchbar">
+    <a class="back" href="feed.html" aria-label="뒤로">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </a>
+    <div class="field">
+      <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" value="성수" placeholder="장소·사람·태그 검색"
+             aria-label="검색어 입력" autocomplete="off" oninput="onInput(this.value)">
+      <button class="clear" id="clearBtn" type="button" aria-label="검색어 지우기" onclick="clearQ()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 세그먼트: 장소 | 사람 | 태그 (기본 장소) -->
+  <div class="tabs" role="tablist" aria-label="검색 범주">
+    <button role="tab" id="tab-place"  aria-controls="panel-place"  aria-selected="true"  tabindex="0"  data-panel="place"  onclick="selectSeg('place')">장소</button>
+    <button role="tab" id="tab-people" aria-controls="panel-people" aria-selected="false" tabindex="-1" data-panel="people" onclick="selectSeg('people')">사람</button>
+    <button role="tab" id="tab-tag"    aria-controls="panel-tag"    aria-selected="false" tabindex="-1" data-panel="tag"    onclick="selectSeg('tag')">태그</button>
+  </div>
+</header>
+
+<!-- ═══════════ 빈검색: 인기 · 근처 ═══════════ -->
+<div class="state" id="emptyState">
+  <div class="sec-head">
+    <h2>인기 · 근처 장소</h2>
+    <span class="meta">성수동 기준</span>
+  </div>
+  <div class="pop-grid">
+    <a class="pop-card" href="map-home.html">
+      <span class="photo ph-cafe"></span><span class="rank">1</span>
+      <span class="cap"><span class="name">블루보틀 성수</span><span class="sub">카페 · 방문 128</span></span>
+    </a>
+    <a class="pop-card" href="map-home.html">
+      <span class="photo ph-river"></span><span class="rank">2</span>
+      <span class="cap"><span class="name">서울숲</span><span class="sub">공원 · 방문 92</span></span>
+    </a>
+    <a class="pop-card" href="map-home.html">
+      <span class="photo ph-gallery"></span><span class="rank">3</span>
+      <span class="cap"><span class="name">대림창고 갤러리</span><span class="sub">전시 · 방문 77</span></span>
+    </a>
+    <a class="pop-card" href="map-home.html">
+      <span class="photo ph-alley"></span><span class="rank">4</span>
+      <span class="cap"><span class="name">연남동 골목</span><span class="sub">근처 · 방문 64</span></span>
+    </a>
+  </div>
+
+  <div class="sec-head"><h2>인기 태그</h2></div>
+  <div class="tagchips">
+    <button class="chip" type="button" onclick="applyTag('성수카페')">#성수카페</button>
+    <button class="chip" type="button" onclick="applyTag('한강뷰')">#한강뷰</button>
+    <button class="chip" type="button" onclick="applyTag('전시')">#전시</button>
+    <button class="chip" type="button" onclick="applyTag('노포')">#노포</button>
+    <button class="chip" type="button" onclick="applyTag('야경')">#야경</button>
+    <button class="chip" type="button" onclick="applyTag('브런치')">#브런치</button>
+  </div>
+</div>
+
+<!-- ═══════════ 결과: 3 패널 ═══════════ -->
+<div class="state show" id="resultState">
+
+  <!-- ── 장소 = 카카오맵 검색 결과 ── -->
+  <section class="panel show" id="panel-place" role="tabpanel" aria-labelledby="tab-place" tabindex="0">
+    <div class="place-hint">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/></svg>
+      가까운 순 · 장소 정보 제공 카카오맵
+    </div>
+    <div class="place-list">
+      <a class="place-row" href="map-home.html">
+        <span class="place-ico"><svg viewBox="0 0 24 24"><path d="M5 8h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 9h2.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v2M11 3v2"/></svg></span>
+        <span class="place-body">
+          <span class="place-nameline"><span class="place-name">블루보틀커피 성수</span><span class="place-cat">카페·디저트</span></span>
+          <span class="place-addr">서울 성동구 아차산로 7</span>
+          <span class="place-src"><span class="kk">k</span>카카오맵</span>
+        </span>
+        <span class="place-dist">240m<small>도보 4분</small></span>
+      </a>
+      <a class="place-row" href="map-home.html">
+        <span class="place-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 15l4-4 3 3 4-5 5 6"/><circle cx="9" cy="9" r="1.3"/></svg></span>
+        <span class="place-body">
+          <span class="place-nameline"><span class="place-name">대림창고 갤러리 성수</span><span class="place-cat">전시·카페</span></span>
+          <span class="place-addr">서울 성동구 성수이로 78</span>
+          <span class="place-src"><span class="kk">k</span>카카오맵</span>
+        </span>
+        <span class="place-dist">410m<small>도보 6분</small></span>
+      </a>
+      <a class="place-row" href="map-home.html">
+        <span class="place-ico"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/><path d="M9 11h.01M15 11h.01"/></svg></span>
+        <span class="place-body">
+          <span class="place-nameline"><span class="place-name">성수연방</span><span class="place-cat">복합문화공간</span></span>
+          <span class="place-addr">서울 성동구 성수이로14길 14</span>
+          <span class="place-src"><span class="kk">k</span>카카오맵</span>
+        </span>
+        <span class="place-dist">520m<small>도보 8분</small></span>
+      </a>
+      <a class="place-row" href="map-home.html">
+        <span class="place-ico"><svg viewBox="0 0 24 24"><path d="M4 20V9l4-3 4 3v11"/><path d="M12 20V6l4-2.5L20 6v14"/><path d="M8 12h.01M16 12h.01"/></svg></span>
+        <span class="place-body">
+          <span class="place-nameline"><span class="place-name">어니언 성수</span><span class="place-cat">카페·베이커리</span></span>
+          <span class="place-addr">서울 성동구 아차산로9길 8</span>
+          <span class="place-src"><span class="kk">k</span>카카오맵</span>
+        </span>
+        <span class="place-dist">680m<small>도보 10분</small></span>
+      </a>
+      <a class="place-row" href="map-home.html">
+        <span class="place-ico"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M12 8.5c0-2.5 2-4 4.5-4 0 2.6-1.8 4.7-4.5 4.7"/><path d="M12 12c0-2.5-2-4-4.5-4 0 2.6 1.8 4.7 4.5 4.7"/></svg></span>
+        <span class="place-body">
+          <span class="place-nameline"><span class="place-name">서울숲공원</span><span class="place-cat">공원</span></span>
+          <span class="place-addr">서울 성동구 뚝섬로 273</span>
+          <span class="place-src"><span class="kk">k</span>카카오맵</span>
+        </span>
+        <span class="place-dist">1.1km<small>도보 15분</small></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── 사람 = 계정 + 팔로우 토글 ── -->
+  <section class="panel" id="panel-people" role="tabpanel" aria-labelledby="tab-people" tabindex="0">
+    <div class="people-list">
+      <div class="person-row">
+        <a class="p-ava av-a" href="profile-friend.html" aria-hidden="true" tabindex="-1">도</a>
+        <a class="p-name" href="profile-friend.html">
+          <span class="h">여행하는도윤</span><span class="s">@doyoon · <b>게시물 42</b></span>
+        </a>
+        <button class="follow" type="button" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+      </div>
+      <div class="person-row">
+        <a class="p-ava av-b" href="profile-friend.html" aria-hidden="true" tabindex="-1">성</a>
+        <a class="p-name" href="profile-friend.html">
+          <span class="h">성수러버</span><span class="s">@seongsu_lover · <b>게시물 31</b></span>
+        </a>
+        <button class="follow" type="button" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+      </div>
+      <div class="person-row">
+        <a class="p-ava av-c" href="profile-friend.html" aria-hidden="true" tabindex="-1">지</a>
+        <a class="p-name" href="profile-friend.html">
+          <span class="h">카페투어지나</span><span class="s">@jina_cafe · <b>게시물 67</b></span>
+        </a>
+        <button class="follow" type="button" aria-pressed="true" onclick="toggleFollow(this)">팔로잉</button>
+      </div>
+      <div class="person-row">
+        <a class="p-ava av-a" href="profile-friend.html" aria-hidden="true" tabindex="-1">민</a>
+        <a class="p-name" href="profile-friend.html">
+          <span class="h">성수동사는민지</span><span class="s">@minji_ss · <b>게시물 118</b></span>
+        </a>
+        <button class="follow" type="button" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 태그 = 컬러 사진 그리드 ── -->
+  <section class="panel" id="panel-tag" role="tabpanel" aria-labelledby="tab-tag" tabindex="0">
+    <div class="tag-head">
+      <span class="tag-hash" aria-hidden="true">#</span>
+      <span class="tag-info"><span class="t" id="tagTitle">#성수카페</span><span class="c" id="tagCount">게시물 1.2천 개</span></span>
+    </div>
+    <div class="tag-grid">
+      <a class="tag-cell multi" href="post-detail.html" aria-label="#성수카페 게시물 1"><span class="photo ph-cafe"></span></a>
+      <a class="tag-cell" href="post-detail.html" aria-label="#성수카페 게시물 2"><span class="photo ph-gallery"></span></a>
+      <a class="tag-cell" href="post-detail.html" aria-label="#성수카페 게시물 3"><span class="photo ph-food"></span></a>
+      <a class="tag-cell" href="post-detail.html" aria-label="#성수카페 게시물 4"><span class="photo ph-street"></span></a>
+      <a class="tag-cell multi" href="post-detail.html" aria-label="#성수카페 게시물 5"><span class="photo ph-flower"></span></a>
+      <a class="tag-cell" href="post-detail.html" aria-label="#성수카페 게시물 6"><span class="photo ph-alley"></span></a>
+      <a class="tag-cell" href="post-detail.html" aria-label="#성수카페 게시물 7"><span class="photo ph-cafe"></span></a>
+      <a class="tag-cell" href="post-detail.html" aria-label="#성수카페 게시물 8"><span class="photo ph-park"></span></a>
+      <a class="tag-cell multi" href="post-detail.html" aria-label="#성수카페 게시물 9"><span class="photo ph-night"></span></a>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ─────────── 하단 탭바 + FAB ─────────── -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a class="tab" href="feed.html">
+    <svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>홈
+  </a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">
+    <span class="knob"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+  </a>
+  <a class="tab" href="profile-me.html">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>프로필
+  </a>
+</nav>
+
+<script>
+(function(){
+  var currentPanel = 'place';
+
+  /* 세그먼트 선택 — name 문자열로 패널 전환. 활성 옵션도 정상 동작 */
+  window.selectSeg = function(name){
+    currentPanel = name;
+    document.querySelectorAll('.tabs [role="tab"]').forEach(function(t){
+      var on = t.getAttribute('data-panel') === name;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+    });
+    showPanel(name);
+  };
+
+  function showPanel(name){
+    /* 결과 상태에서만 패널 토글 — 리스트가 실제로 바뀜 */
+    document.querySelectorAll('#resultState .panel').forEach(function(p){ p.classList.remove('show'); });
+    var el = document.getElementById('panel-' + name);
+    if(el){ el.classList.add('show'); }
+  }
+
+  /* 팔로우 토글 — aria-pressed + 라벨 */
+  window.toggleFollow = function(btn){
+    var on = btn.getAttribute('aria-pressed') === 'true';
+    btn.setAttribute('aria-pressed', on ? 'false' : 'true');
+    btn.textContent = on ? '팔로우' : '팔로잉';
+  };
+
+  /* 빈검색 ↔ 결과 전환 */
+  function setEmpty(isEmpty){
+    document.getElementById('emptyState').classList.toggle('show', isEmpty);
+    document.getElementById('resultState').classList.toggle('show', !isEmpty);
+    document.getElementById('clearBtn').classList.toggle('show', !isEmpty);
+    if(!isEmpty){ showPanel(currentPanel); }
+  }
+  window.onInput = function(v){
+    setEmpty(v.trim().length === 0);
+  };
+  window.clearQ = function(){
+    var q = document.getElementById('q');
+    q.value = '';
+    setEmpty(true);
+    q.focus();
+  };
+
+  /* 인기 태그 칩 → 검색어 채우고 태그 패널 결과로 */
+  window.applyTag = function(tag){
+    var q = document.getElementById('q');
+    q.value = '#' + tag;
+    document.getElementById('tagTitle').textContent = '#' + tag;
+    var counts = {성수카페:'1.2천', 한강뷰:'8,942', 전시:'3.4만', 노포:'6,120', 야경:'2.1만', 브런치:'1.5만'};
+    document.getElementById('tagCount').textContent = '게시물 ' + (counts[tag] || '1,024') + ' 개';
+    setEmpty(false);
+    selectSeg('tag');
+  };
+
+  /* 키보드: 세그먼트 좌우 이동 */
+  var tablist = document.querySelector('.tabs');
+  tablist.addEventListener('keydown', function(e){
+    if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var tabs = Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]'));
+    var i = tabs.indexOf(document.activeElement);
+    if(i < 0) return;
+    var n = e.key === 'ArrowRight' ? (i+1) % tabs.length : (i-1+tabs.length) % tabs.length;
+    selectSeg(tabs[n].getAttribute('data-panel'));
+    tabs[n].focus();
+    e.preventDefault();
+  });
+
+  /* 토스트 */
+  window.toast = function(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(window._tt); window._tt = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  };
+
+  /* 초기: value="성수" → 결과(장소) 노출 + 지우기 버튼 표시 */
+  onInput(document.getElementById('q').value);
+})();
+</script>
+</body>
+</html>

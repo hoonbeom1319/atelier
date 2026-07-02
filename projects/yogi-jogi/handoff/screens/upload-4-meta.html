@@ -1,0 +1,511 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>업로드 4 · 태그·메모·공개범위 (SC-14)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--color-bg)}
+body{
+  width:var(--app-width);min-height:844px;margin:0 auto;position:relative;
+  font-family:var(--font-sans);color:var(--color-text);
+  background:var(--color-bg);padding-bottom:24px;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+
+/* ───── 업로드 헤더 (풀스크린 — 탭바 없음) ───── */
+.uphead{
+  height:var(--appbar-h);display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--space-2);position:sticky;top:0;z-index:var(--z-appbar);
+  background:rgba(16,16,18,.86);backdrop-filter:saturate(1.4) blur(12px);
+  -webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--color-border);
+}
+.htitlewrap{text-align:center;line-height:1.15}
+.htitle{font-size:var(--fs-h2);font-weight:var(--fw-h2);letter-spacing:-.3px}
+.hstep{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium);margin-top:1px}
+.hbtn{
+  font:inherit;font-size:var(--fs-sm);font-weight:var(--fw-medium);
+  text-decoration:none;color:var(--color-text-secondary);
+  border:0;background:transparent;border-radius:var(--radius-sm);
+  padding:8px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;
+  transition:background .15s,transform .08s;-webkit-tap-highlight-color:transparent;
+}
+.hbtn:hover{background:var(--color-surface-alt)}
+.hbtn:active{transform:scale(.95)}
+.hbtn:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:2px}
+.hpublish{
+  font:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+  color:var(--color-on-primary);background:var(--color-primary);
+  border:0;border-radius:var(--radius-full);padding:9px 16px;cursor:pointer;
+  box-shadow:var(--shadow-1);transition:background .15s,transform .08s;
+  -webkit-tap-highlight-color:transparent;
+}
+.hpublish:hover{background:var(--color-primary-hover)}
+.hpublish:active{transform:scale(.96)}
+.hpublish:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:2px}
+
+/* 진행 트랙 */
+.steps{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4) var(--space-1)}
+.ptrack{flex:1;height:6px;border-radius:var(--radius-full);background:var(--color-surface-alt);display:flex;gap:3px;overflow:hidden}
+.pseg{flex:1;border-radius:var(--radius-full);background:var(--color-border-strong)}
+.pseg.done{background:var(--color-primary)}
+.pseg.cur{background:var(--color-primary);box-shadow:0 0 0 2px var(--color-primary-tint)}
+.plabel{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-semibold);white-space:nowrap}
+.plabel b{color:var(--color-text)}
+
+/* 인트로 */
+.intro{padding:var(--space-3) var(--space-4) var(--space-1)}
+.intro h1{font-size:var(--fs-h1);font-weight:var(--fw-h1);letter-spacing:-.5px;line-height:var(--lh-h1)}
+.intro p{font-size:var(--fs-sm);color:var(--color-text-secondary);margin-top:var(--space-1);line-height:1.45}
+
+/* 섹션 타이틀 */
+.sectit{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-5) var(--space-4) var(--space-2);
+}
+.sectit .lbl{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.7px}
+.sectit .sub{font-size:var(--fs-xs);color:var(--color-text-muted)}
+
+/* ───── 메모 모드 토글 행 ───── */
+.memorow{
+  margin:0 var(--space-4);padding:var(--space-3) var(--space-4);
+  background:var(--color-surface);border:1px solid var(--color-border);
+  border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
+}
+.memorow .mtext{min-width:0}
+.memorow .mtext b{font-size:var(--fs-body);font-weight:var(--fw-semibold);display:block;letter-spacing:-.2px}
+.memorow .mtext small{font-size:var(--fs-xs);color:var(--color-text-muted)}
+/* 세그 토글: 공통 | 그룹별 — 검정 알약 위계 */
+.segtoggle{display:flex;background:var(--color-surface-alt);border-radius:var(--radius-full);padding:3px;flex:0 0 auto}
+.segtoggle button{
+  font:inherit;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+  border:0;background:transparent;color:var(--color-text-muted);
+  border-radius:var(--radius-full);padding:7px 12px;cursor:pointer;white-space:nowrap;
+  transition:color .15s;-webkit-tap-highlight-color:transparent;
+}
+.segtoggle button[aria-pressed="true"]{background:var(--color-primary);color:var(--color-on-primary);box-shadow:var(--shadow-1)}
+/* 활성 옵션은 disabled(비인터랙티브) — 보기엔 그대로, 죽은 컨트롤 면제 */
+.segtoggle button:disabled{opacity:1;cursor:default}
+.segtoggle button:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:2px}
+
+/* 공통 메모 카드 */
+.commoncard{
+  margin:var(--space-3) var(--space-4) 0;padding:var(--space-4);
+  background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);
+  animation:fadeslide .24s ease;
+}
+@keyframes fadeslide{from{transform:translateY(-4px)}to{transform:translateY(0)}}
+.fieldlab{display:flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text-secondary);margin-bottom:var(--space-2)}
+.fieldlab .ic{font-size:14px}
+textarea,input[type=text]{
+  width:100%;font:inherit;font-size:var(--fs-body);color:var(--color-text);
+  border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);
+  padding:11px 12px;background:var(--color-surface-alt);resize:none;line-height:1.45;
+  transition:border-color .15s,background .15s,box-shadow .15s;
+}
+textarea::placeholder,input::placeholder{color:var(--color-text-muted)}
+textarea:focus,input:focus{outline:0;border-color:var(--color-primary);background:var(--color-surface);box-shadow:0 0 0 3px var(--color-primary-tint)}
+.charcount{font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:6px;text-align:right}
+.charcount b{color:var(--color-text-secondary);font-weight:var(--fw-semibold)}
+
+/* ───── POI 그룹 카드 ───── */
+.poicard{
+  margin:var(--space-3) var(--space-4) 0;
+  background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);
+  overflow:hidden;
+}
+.poirow{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3)}
+/* 컬러 대표 사진 — 다중 스톱 그라데 실사 장면 + 사진 깊이 오버레이(모노 UI 속 유일한 컬러) */
+.poithumb{
+  position:relative;flex:0 0 auto;width:58px;height:58px;border-radius:var(--radius-sm);overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.10);
+}
+/* 상단 하이라이트 → 하단 그림자: 평면 그라데를 '사진'으로 */
+.poithumb::before{content:"";position:absolute;inset:0;z-index:1;
+  background:radial-gradient(120% 80% at 26% 18%,rgba(255,255,255,.42),transparent 52%),
+             linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.30) 92%)}
+.poithumb .cnt{
+  position:absolute;right:4px;bottom:4px;z-index:2;
+  font-size:9px;font-weight:var(--fw-semibold);color:#fff;
+  background:rgba(18,18,18,.58);border-radius:var(--radius-full);padding:1px 7px;backdrop-filter:blur(3px);
+}
+.poimeta{flex:1;min-width:0}
+.poiname{font-size:var(--fs-h2);font-weight:var(--fw-h2);letter-spacing:-.3px;line-height:1.2}
+.poisub{display:flex;align-items:center;gap:7px;margin-top:4px;font-size:var(--fs-xs);color:var(--color-text-muted)}
+.catchip{font-weight:var(--fw-semibold);color:var(--color-text-secondary);background:var(--color-surface-alt);padding:2px 8px;border-radius:var(--radius-full);border:1px solid var(--color-border)}
+/* 그룹 메모 입력(그룹별 모드에서 표시) */
+.groupmemo{padding:0 var(--space-3) var(--space-3);animation:fadeslide .22s ease}
+.groupmemo textarea{font-size:var(--fs-sm);padding:9px 11px}
+
+/* ───── 태그 ───── */
+.tagcard{margin:var(--space-3) var(--space-4) 0;padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md)}
+.tagrow{display:flex;gap:var(--space-2);margin-top:var(--space-1)}
+.tagrow input{flex:1}
+.addbtn{
+  font:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+  border:1px solid var(--color-border-strong);background:var(--color-surface);color:var(--color-text);
+  border-radius:var(--radius-sm);padding:0 16px;cursor:pointer;white-space:nowrap;
+  transition:background .15s,transform .08s;-webkit-tap-highlight-color:transparent;
+}
+.addbtn:hover{background:var(--color-surface-alt)}
+.addbtn:active{transform:scale(.96)}
+.addbtn:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:2px}
+.taghint{display:block;font-size:var(--fs-xs);color:var(--color-danger);font-weight:var(--fw-medium);margin-top:7px}
+.taglist{display:flex;flex-wrap:wrap;gap:7px;margin-top:var(--space-3)}
+.taglist:empty{margin-top:0}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--color-text);
+  background:var(--color-primary-tint);border:1px solid var(--color-border);
+  border-radius:var(--radius-full);padding:6px 6px 6px 12px;
+  animation:chippop .22s cubic-bezier(.2,.9,.25,1);
+}
+@keyframes chippop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+.chip::before{content:"#";color:var(--color-text-muted);font-weight:var(--fw-semibold)}
+.chip .x{
+  width:18px;height:18px;border:0;border-radius:50%;background:rgba(0,0,0,.06);
+  color:var(--color-text-secondary);font-size:11px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .14s,transform .08s;
+}
+.chip .x:hover{background:rgba(0,0,0,.14)}
+.chip .x:active{transform:scale(.85)}
+.chip .x:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:1px}
+.tagempty{font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:var(--space-3)}
+
+/* ───── 공개범위 세그먼트 ───── */
+.scopecard{margin:var(--space-3) var(--space-4) 0}
+.scope{
+  display:flex;background:var(--color-surface-alt);border-radius:var(--radius-md);padding:4px;
+  border:1px solid var(--color-border);
+}
+.scope button{
+  flex:1;font:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+  border:0;background:transparent;color:var(--color-text-muted);
+  border-radius:var(--radius-sm);padding:11px 4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:color .15s,background .18s,box-shadow .18s;-webkit-tap-highlight-color:transparent;
+}
+.scope button .si{display:inline-flex;align-items:center;line-height:1}
+.scope button .si svg{width:16px;height:16px}
+.scope button[aria-selected="true"]{background:var(--color-surface);box-shadow:var(--shadow-1)}
+/* 모노 의미차: 공개=900 / 팔로워=600 / 비공개=400 */
+.scope button[data-scope="public"][aria-selected="true"]{color:var(--color-scope-public)}
+.scope button[data-scope="followers"][aria-selected="true"]{color:var(--color-scope-followers)}
+.scope button[data-scope="private"][aria-selected="true"]{color:var(--color-scope-private)}
+.scope button:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:2px}
+.scopedesc{
+  display:flex;align-items:flex-start;gap:8px;
+  margin-top:var(--space-3);padding:var(--space-3);
+  background:var(--color-surface-alt);border-radius:var(--radius-sm);
+  font-size:var(--fs-sm);color:var(--color-text-secondary);line-height:1.45;
+}
+.scopedesc .di{display:inline-flex;flex:0 0 auto;margin-top:1px}
+.scopedesc .di svg{width:15px;height:15px}
+.scopedesc b{color:var(--color-text);font-weight:var(--fw-semibold)}
+
+/* ───── 하단 게시 바 (position static — 폼 최하단) ───── */
+.foot{
+  position:static;width:var(--app-width);margin:var(--space-4) auto 0;
+  padding:var(--space-4) var(--space-4) calc(var(--space-6));
+  background:var(--color-surface);border-top:1px solid var(--color-border);
+}
+.btn-publish{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  font:inherit;font-size:var(--fs-body);font-weight:var(--fw-semibold);
+  color:var(--color-on-primary);background:var(--color-primary);
+  border:0;border-radius:var(--radius-md);padding:15px;cursor:pointer;
+  box-shadow:var(--shadow-2);transition:background .15s,transform .08s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-publish:hover{background:var(--color-primary-hover)}
+.btn-publish:active{transform:scale(.985)}
+.btn-publish:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:2px}
+.btn-publish .scopetag{font-size:var(--fs-xs);font-weight:var(--fw-semibold);opacity:.72}
+
+/* ───── 완료 시트 + scrim ───── */
+.hidden{display:none !important}
+.scrim{
+  position:fixed;inset:0;width:var(--app-width);left:50%;transform:translateX(-50%);
+  background:var(--color-overlay);z-index:var(--z-scrim);
+  opacity:0;animation:fade .22s forwards;
+}
+@keyframes fade{to{opacity:1}}
+.sheet{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:var(--app-width);
+  background:var(--color-surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  padding:var(--space-2) var(--space-4) calc(var(--space-6) + 4px);
+  box-shadow:var(--shadow-3);z-index:var(--z-sheet);
+  animation:slideup .3s cubic-bezier(.2,.9,.25,1);text-align:center;
+}
+@keyframes slideup{from{transform:translate(-50%,100%)}to{transform:translate(-50%,0)}}
+.handle{width:36px;height:4px;border-radius:var(--radius-full);background:var(--color-border-strong);margin:6px auto var(--space-5)}
+.donecheck{
+  width:64px;height:64px;margin:0 auto var(--space-4);border-radius:50%;
+  background:var(--color-primary);color:var(--color-on-primary);
+  display:flex;align-items:center;justify-content:center;font-size:30px;
+  box-shadow:var(--shadow-2);animation:checkpop .4s cubic-bezier(.2,.9,.25,1);
+}
+@keyframes checkpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.sheet h2{font-size:var(--fs-h1);font-weight:var(--fw-h1);letter-spacing:-.4px}
+.sheet p{font-size:var(--fs-sm);color:var(--color-text-secondary);line-height:1.5;margin:var(--space-2) auto var(--space-5);max-width:280px}
+.donesummary{
+  display:flex;justify-content:center;gap:var(--space-5);margin-bottom:var(--space-5);
+  padding:var(--space-3) 0;border-top:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider);
+}
+.donesummary .ds{display:flex;flex-direction:column;align-items:center;gap:2px}
+.donesummary .dsn{font-size:var(--fs-h2);font-weight:var(--fw-h1);letter-spacing:-.3px}
+.donesummary .dsl{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+.sheet-go{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  font:inherit;font-size:var(--fs-body);font-weight:var(--fw-semibold);text-decoration:none;
+  color:var(--color-on-primary);background:var(--color-primary);
+  border-radius:var(--radius-md);padding:15px;box-shadow:var(--shadow-2);
+  transition:background .15s,transform .08s;
+}
+.sheet-go:hover{background:var(--color-primary-hover)}
+.sheet-go:active{transform:scale(.985)}
+.sheet-go:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<!-- 풀스크린 업로드 헤더 (탭바 없음) -->
+<div class="uphead">
+  <a class="hbtn" href="upload-2-classify.html" aria-label="뒤로 장소별 분류로">← 뒤로</a>
+  <div class="htitlewrap">
+    <div class="htitle">마무리</div>
+    <div class="hstep">4 / 4 · 태그·메모·공개범위</div>
+  </div>
+  <button class="hpublish" id="headPublish" type="button" onclick="doPublish()">게시</button>
+</div>
+
+<div class="steps">
+  <div class="ptrack">
+    <span class="pseg done"></span><span class="pseg done"></span><span class="pseg done"></span><span class="pseg cur"></span>
+  </div>
+  <span class="plabel">업로드 <b>4</b> / 4</span>
+</div>
+
+<div class="intro">
+  <h1>거의 다 왔어요</h1>
+  <p>메모와 태그를 더하고 공개 범위를 정하면 지도에 올라가요.</p>
+</div>
+
+<!-- ───── 메모 ───── -->
+<div class="sectit">
+  <span class="lbl">메모</span>
+  <span class="sub">장소마다 또는 한 번에</span>
+</div>
+
+<div class="memorow">
+  <div class="mtext">
+    <b>메모 적용 범위</b>
+    <small id="memoModeHint">모든 장소에 같은 메모를 달아요</small>
+  </div>
+  <div class="segtoggle" role="group" aria-label="메모 적용 범위">
+    <button type="button" id="memoCommon" aria-pressed="true" disabled onclick="setMemoMode('common')">공통</button>
+    <button type="button" id="memoGroup" aria-pressed="false" onclick="setMemoMode('group')">그룹별</button>
+  </div>
+</div>
+
+<!-- 공통 메모 (기본 표시) -->
+<div class="commoncard" id="commonMemo">
+  <label class="fieldlab" for="commonMemoInput"><span class="ic">✎</span> 공통 메모 · 모든 장소에 적용</label>
+  <textarea id="commonMemoInput" rows="3" placeholder="이번 성수동 나들이는 어땠나요? 한 줄로 남겨보세요." oninput="markCount(this)">친구들이랑 성수 카페투어 한 바퀴. 날씨 좋아서 서울숲까지 걸었다</textarea>
+  <div class="charcount"><b id="commonMemoCount">38</b>자 · 500자까지</div>
+</div>
+
+<!-- ───── POI 그룹 카드 ───── -->
+<div class="sectit">
+  <span class="lbl">장소 그룹</span>
+  <span class="sub">3곳 · 사진 8장</span>
+</div>
+
+<!-- 그룹 1 · 카페(따뜻한 우드톤) -->
+<div class="poicard">
+  <div class="poirow">
+    <div class="poithumb" style="background:linear-gradient(155deg,#f2d5a6 0%,#dd9c5f 46%,#a15c2c 100%)">
+      <span class="cnt">4</span>
+    </div>
+    <div class="poimeta">
+      <div class="poiname">블루보틀 성수</div>
+      <div class="poisub"><span class="catchip">카페</span><span>사진 4장</span></div>
+    </div>
+  </div>
+  <div class="groupmemo hidden">
+    <label class="fieldlab" for="memo1"><span class="ic">✎</span> 이 장소 메모</label>
+    <textarea id="memo1" rows="2" placeholder="블루보틀 성수에서 있었던 일" oninput="markCount(this)"></textarea>
+  </div>
+</div>
+
+<!-- 그룹 2 · 자연/공원(초록) -->
+<div class="poicard">
+  <div class="poirow">
+    <div class="poithumb" style="background:linear-gradient(155deg,#bfd99a 0%,#7cb156 46%,#3d7a37 100%)">
+      <span class="cnt">3</span>
+    </div>
+    <div class="poimeta">
+      <div class="poiname">서울숲</div>
+      <div class="poisub"><span class="catchip">자연 · 공원</span><span>사진 3장</span></div>
+    </div>
+  </div>
+  <div class="groupmemo hidden">
+    <label class="fieldlab" for="memo2"><span class="ic">✎</span> 이 장소 메모</label>
+    <textarea id="memo2" rows="2" placeholder="서울숲에서 있었던 일" oninput="markCount(this)"></textarea>
+  </div>
+</div>
+
+<!-- 그룹 3 · 문화/갤러리(벽돌·앰버톤) -->
+<div class="poicard">
+  <div class="poirow">
+    <div class="poithumb" style="background:linear-gradient(155deg,#e6c49a 0%,#b3794c 48%,#6d452c 100%)">
+      <span class="cnt">1</span>
+    </div>
+    <div class="poimeta">
+      <div class="poiname">대림창고</div>
+      <div class="poisub"><span class="catchip">문화 · 갤러리</span><span>사진 1장</span></div>
+    </div>
+  </div>
+  <div class="groupmemo hidden">
+    <label class="fieldlab" for="memo3"><span class="ic">✎</span> 이 장소 메모</label>
+    <textarea id="memo3" rows="2" placeholder="대림창고에서 있었던 일" oninput="markCount(this)"></textarea>
+  </div>
+</div>
+
+<!-- ───── 태그 ───── -->
+<div class="sectit">
+  <span class="lbl">태그</span>
+  <span class="sub" id="tagCounter">2개</span>
+</div>
+<div class="tagcard">
+  <label class="fieldlab" for="tagInput"><span class="ic">#</span> 태그 추가 · 엔터로 입력</label>
+  <div class="tagrow">
+    <input type="text" id="tagInput" placeholder="예: 성수동, 주말, 카페투어"
+           onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}" oninput="clearHint()">
+    <button class="addbtn" id="addTagBtn" type="button" onclick="addTag()">추가</button>
+  </div>
+  <small id="tagHint" class="taghint hidden">태그를 입력하세요</small>
+  <div id="tagList" class="taglist">
+    <span class="chip">성수동<button class="x" type="button" aria-label="태그 성수동 삭제" onclick="removeTag(this)">✕</button></span>
+    <span class="chip">주말나들이<button class="x" type="button" aria-label="태그 주말나들이 삭제" onclick="removeTag(this)">✕</button></span>
+  </div>
+  <div id="tagEmpty" class="tagempty hidden">아직 태그가 없어요. 첫 태그를 달아보세요.</div>
+</div>
+
+<!-- ───── 공개 범위 ───── -->
+<div class="sectit">
+  <span class="lbl">공개 범위</span>
+  <span class="sub">누가 볼 수 있나요</span>
+</div>
+<div class="scopecard">
+  <div class="scope" role="tablist" aria-label="공개 범위 선택">
+    <button role="tab" data-scope="public" aria-selected="false" type="button"
+      onclick="selectScope(this,'<b>공개</b> — 누구나 이 게시물을 볼 수 있어요. 검색·지도에 노출됩니다.','게시 · 공개')">
+      <span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg></span>공개
+    </button>
+    <button role="tab" data-scope="followers" aria-selected="true" type="button"
+      onclick="selectScope(this,'<b>팔로워에게만</b> 공개됩니다. 나를 팔로우한 친구만 볼 수 있어요.','게시 · 팔로워')">
+      <span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.1"/><path d="M3.6 19a5.4 5.4 0 0 1 10.8 0"/><path d="M16.5 6.3a3 3 0 0 1 0 5.4M16 13.4a5.4 5.4 0 0 1 4.4 5.6"/></svg></span>팔로워
+    </button>
+    <button role="tab" data-scope="private" aria-selected="false" type="button"
+      onclick="selectScope(this,'<b>비공개</b> — 나만 볼 수 있어요. 지도에는 표시되지만 피드엔 안 나가요.','게시 · 비공개')">
+      <span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>비공개
+    </button>
+  </div>
+  <p class="scopedesc" id="scopeDesc"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.1"/><path d="M3.6 19a5.4 5.4 0 0 1 10.8 0"/><path d="M16.5 6.3a3 3 0 0 1 0 5.4M16 13.4a5.4 5.4 0 0 1 4.4 5.6"/></svg></span><span id="scopeDescText"><b>팔로워에게만</b> 공개됩니다. 나를 팔로우한 친구만 볼 수 있어요.</span></p>
+</div>
+
+<!-- 하단 게시 (position static — 폼 최하단) -->
+<div class="foot">
+  <button class="btn-publish" type="button" onclick="doPublish()">
+    지도에 게시하기 <span class="scopetag" id="footScope">· 팔로워</span>
+  </button>
+</div>
+
+<!-- 게시 완료 시트 -->
+<div id="doneScrim" class="scrim hidden" aria-hidden="true"></div>
+<div id="doneSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+  <div class="handle"></div>
+  <div class="donecheck">✓</div>
+  <h2 id="doneTitle">게시 완료</h2>
+  <p>지도에 핀과 동선이 갱신되었어요.<br>친구들 피드에도 올라갑니다.</p>
+  <div class="donesummary">
+    <div class="ds"><span class="dsn">3</span><span class="dsl">장소</span></div>
+    <div class="ds"><span class="dsn">8</span><span class="dsl">사진</span></div>
+    <div class="ds"><span class="dsn" id="doneScope">팔로워</span><span class="dsl">공개</span></div>
+  </div>
+  <a class="sheet-go" href="feed.html">피드로 가기 →</a>
+</div>
+
+<script>
+/* ── 메모 모드: 공통 ↔ 그룹별 ── */
+function setMemoMode(mode){
+  var common=mode==='common';
+  var cBtn=document.getElementById('memoCommon'), gBtn=document.getElementById('memoGroup');
+  cBtn.setAttribute('aria-pressed',String(common));
+  gBtn.setAttribute('aria-pressed',String(!common));
+  // 활성 옵션은 비인터랙티브(disabled) — 클릭 가능한 건 항상 비활성 옵션뿐(죽은 컨트롤 0)
+  cBtn.disabled=common; gBtn.disabled=!common;
+  document.getElementById('memoModeHint').textContent=
+    common?'모든 장소에 같은 메모를 달아요':'장소마다 다른 메모를 써요';
+  document.getElementById('commonMemo').classList.toggle('hidden',!common);
+  document.querySelectorAll('.groupmemo').forEach(function(el){el.classList.toggle('hidden',common);});
+}
+
+/* ── 글자수 카운트 ── */
+function markCount(t){
+  if(t.id==='commonMemoInput'){
+    document.getElementById('commonMemoCount').textContent=t.value.length;
+  }
+}
+
+/* ── 태그 칩 추가/삭제 ── */
+function refreshTagMeta(){
+  var n=document.querySelectorAll('#tagList .chip').length;
+  document.getElementById('tagCounter').textContent=n+'개';
+  document.getElementById('tagEmpty').classList.toggle('hidden',n>0);
+}
+function clearHint(){document.getElementById('tagHint').classList.add('hidden');}
+function addTag(){
+  var inp=document.getElementById('tagInput');
+  var v=inp.value.trim().replace(/^#+/,'').trim();
+  var hint=document.getElementById('tagHint');
+  if(!v){hint.classList.remove('hidden');inp.focus();return;}
+  hint.classList.add('hidden');
+  var chip=document.createElement('span');
+  chip.className='chip';
+  chip.appendChild(document.createTextNode(v));
+  var x=document.createElement('button');
+  x.type='button';x.className='x';x.setAttribute('aria-label','태그 '+v+' 삭제');x.textContent='✕';
+  x.onclick=function(){removeTag(x);};
+  chip.appendChild(x);
+  document.getElementById('tagList').appendChild(chip);
+  inp.value='';inp.focus();
+  refreshTagMeta();
+}
+function removeTag(btn){btn.parentNode.remove();refreshTagMeta();}
+
+/* ── 공개 범위 세그먼트 (this, descHtml, footLabel 3인자 정합) ── */
+function selectScope(btn,descHtml,footLabel){
+  document.querySelectorAll('.scope [role=tab]').forEach(function(t){t.setAttribute('aria-selected','false');});
+  btn.setAttribute('aria-selected','true');
+  document.querySelector('#scopeDesc .di').innerHTML=btn.querySelector('.si').innerHTML; // 선택된 옵션의 모노 SVG 아이콘을 .di에 복사
+  document.getElementById('scopeDescText').innerHTML=descHtml;
+  var name=btn.getAttribute('data-scope');
+  var ko={public:'공개',followers:'팔로워',private:'비공개'}[name];
+  document.getElementById('footScope').textContent='· '+ko;
+  document.getElementById('doneScope').textContent=ko;
+}
+
+/* ── 게시 → 완료 시트 ── */
+function doPublish(){
+  document.getElementById('doneScrim').classList.remove('hidden');
+  document.getElementById('doneSheet').classList.remove('hidden');
+}
+</script>
+</body>
+</html>

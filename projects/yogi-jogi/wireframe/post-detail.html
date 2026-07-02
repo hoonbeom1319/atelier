@@ -1,0 +1,127 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>게시물 상세 — 요기조기 와이어</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* 화면 전용 (lo-fi 회색만) */
+.carousel{position:relative;margin:0 14px}
+.carousel .ph{min-height:300px;font-size:15px}
+.car-btn{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:1px solid #888;background:#fff;color:#222;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.car-btn.prev{left:8px}
+.car-btn.next{right:8px}
+.dots{display:flex;justify-content:center;gap:6px;margin:8px 0}
+.dot{width:8px;height:8px;border-radius:50%;border:1px solid #888;background:#fff}
+.dot[aria-current="true"]{background:#333}
+.author{display:flex;align-items:center;gap:10px;margin:12px 14px;text-decoration:none;color:#222}
+.avatar{width:40px;height:40px;border-radius:50%;background:#e8e8e8;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px}
+.poi-row{display:flex;gap:10px;margin:10px 14px}
+.poi-row .ph{flex:1;min-height:90px}
+.disabled{opacity:.5}
+.actions{display:flex;gap:14px;align-items:center;margin:14px 14px 4px}
+.actbtn{border:1px solid #ccc;background:#f7f7f7;border-radius:8px;padding:8px 12px;color:#999;cursor:not-allowed}
+</style>
+</head>
+<body>
+
+<!-- 앱바: ← 뒤로 + 제목 + 우측 아이콘 (셸 화면) -->
+<div class="appbar">
+  <a class="title" href="feed.html" aria-label="뒤로" style="text-decoration:none;color:inherit">← <span>게시물</span></a>
+  <div class="icons"><a href="notifications.html">🔔</a><a href="profile-me.html">👤</a></div>
+</div>
+
+<!-- ① 사진 캐러셀 -->
+<div class="carousel">
+  <div class="ph" id="photo" aria-live="polite">사진 1 / 4</div>
+  <button class="car-btn prev" id="prev" aria-label="이전 사진">‹</button>
+  <button class="car-btn next" id="next" aria-label="다음 사진">›</button>
+</div>
+<div class="dots" id="dots" role="tablist" aria-label="사진 인덱스">
+  <span class="dot" aria-current="true"></span>
+  <span class="dot"></span>
+  <span class="dot"></span>
+  <span class="dot"></span>
+</div>
+
+<!-- 작성자 → profile-friend -->
+<a class="author" href="profile-friend.html">
+  <span class="avatar">사진</span>
+  <span><strong>김여행</strong><br><span style="color:#888;font-size:13px">@kim_travel · 3시간 전</span></span>
+</a>
+
+<!-- POI 칩 + 미니맵 -->
+<div class="poi-row">
+  <a class="chip" href="map-home.html" style="text-decoration:none;color:#222;align-self:flex-start">📍 블루보틀 성수 · Cafe</a>
+  <div class="ph">미니맵</div>
+</div>
+
+<!-- 메모 -->
+<div class="box">
+  주말 오후 햇살 좋은 창가 자리. 라떼가 부드러웠다. 다음엔 디저트도 먹어봐야지.
+</div>
+
+<!-- 태그 칩 -->
+<div style="margin:6px 14px">
+  <span class="chip">#성수카페</span>
+  <span class="chip">#창가자리</span>
+  <span class="chip">#라떼맛집</span>
+</div>
+
+<!-- (P1 자리표시) 좋아요·댓글 — 비활성 + [다음 단계] 라벨 -->
+<div class="actions">
+  <span class="actbtn" aria-disabled="true">♡ 좋아요</span>
+  <span class="actbtn" aria-disabled="true">💬 댓글</span>
+  <span class="oos">[다음 단계]</span>
+</div>
+<div style="margin:0 14px 14px;color:#999;font-size:12px">좋아요·댓글은 다음 단계에서 제공됩니다.</div>
+
+<!-- 하단 탭바 -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a href="map-home.html">🗺 지도</a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+  <a href="feed.html">📋 피드</a>
+</nav>
+
+<script>
+(function(){
+  var total = 4, idx = 0;
+  var photo = document.getElementById('photo');
+  var dots = document.getElementById('dots').querySelectorAll('.dot');
+  function render(){
+    photo.textContent = '사진 ' + (idx+1) + ' / ' + total;
+    dots.forEach(function(d,i){ d.setAttribute('aria-current', i===idx ? 'true':'false'); });
+  }
+  document.getElementById('prev').addEventListener('click', function(){
+    idx = (idx - 1 + total) % total; render();
+  });
+  document.getElementById('next').addEventListener('click', function(){
+    idx = (idx + 1) % total; render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

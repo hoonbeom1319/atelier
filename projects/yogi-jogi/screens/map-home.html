@@ -1,0 +1,415 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>블루보틀 성수 — 장소 상세 · 요기조기</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--gray-100)}
+body{
+  width:var(--app-width);min-height:844px;margin:0 auto;
+  background:var(--color-bg);color:var(--color-text);
+  font-family:var(--font-sans);position:relative;
+  padding-bottom:calc(var(--tabbar-h) + 12px);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ───────── 앱바 ───────── */
+.appbar{
+  height:var(--appbar-h);display:flex;align-items:center;gap:4px;
+  padding:0 6px 0 4px;position:sticky;top:0;z-index:var(--z-appbar);
+  background:var(--color-surface);border-bottom:1px solid var(--color-border);
+}
+.iconbtn{
+  width:40px;height:40px;border:0;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;border-radius:var(--radius-full);
+  color:var(--color-text);text-decoration:none;
+}
+.iconbtn:active{background:var(--color-surface-sunken)}
+.iconbtn svg{width:22px;height:22px;display:block}
+.appbar-title{
+  flex:1;font-size:var(--fs-h2);font-weight:var(--fw-h2);line-height:var(--lh-h2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.appbar-title small{display:block;font-size:var(--fs-xs);font-weight:400;color:var(--color-text-muted);letter-spacing:.02em}
+
+/* ───────── 지도 히어로 ───────── */
+.map-hero{
+  position:relative;width:100%;height:236px;overflow:hidden;
+  background:var(--color-map-canvas);
+}
+.map-hero svg.mapcanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* 플로팅 컨트롤 */
+.map-fab{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px}
+.map-fab button{
+  width:40px;height:40px;border-radius:var(--radius-full);border:1px solid var(--color-border);
+  background:var(--color-surface);cursor:pointer;box-shadow:var(--shadow-2);
+  display:flex;align-items:center;justify-content:center;color:var(--color-text);
+}
+.map-fab button:active{transform:scale(.94)}
+.map-fab button[aria-pressed="true"]{background:var(--color-primary);color:var(--color-on-primary);border-color:var(--color-primary)}
+.map-fab svg{width:20px;height:20px}
+.map-toast{
+  position:absolute;left:50%;bottom:12px;transform:translateX(-50%) translateY(6px);
+  background:rgba(0,0,0,.82);color:#fff;font-size:var(--fs-sm);padding:7px 14px;
+  border-radius:var(--radius-full);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  white-space:nowrap;
+}
+.map-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ───────── 장소 헤더 ───────── */
+.place-head{padding:16px 16px 14px}
+.place-cat{
+  display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-xs);
+  font-weight:var(--fw-semibold);letter-spacing:.04em;color:var(--color-text-secondary);
+  border:1px solid var(--color-border);border-radius:var(--radius-full);
+  padding:4px 10px;margin-bottom:10px;
+}
+.place-name{font-size:var(--fs-h1);font-weight:var(--fw-h1);line-height:var(--lh-h1);margin-bottom:6px}
+.place-addr{
+  display:flex;align-items:flex-start;gap:6px;font-size:var(--fs-sm);
+  color:var(--color-text-muted);line-height:var(--lh-sm);
+}
+.place-addr svg{width:15px;height:15px;flex:none;margin-top:1px;color:var(--color-text-muted)}
+.place-stats{display:flex;gap:18px;margin-top:12px}
+.place-stats b{font-size:var(--fs-body);font-weight:var(--fw-semibold);color:var(--color-text)}
+.place-stats span{font-size:var(--fs-xs);color:var(--color-text-muted);display:block;margin-top:1px}
+
+/* ───────── 액션 행 (좋아요 / 저장) ───────── */
+.actions{
+  display:flex;align-items:center;gap:8px;padding:0 16px 16px;
+  border-bottom:1px solid var(--color-divider);
+}
+.act{
+  flex:1;height:44px;border:1px solid var(--color-border-strong);background:var(--color-surface);
+  border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text);
+  transition:background .15s,border-color .15s,transform .08s;
+}
+.act:active{transform:scale(.98)}
+.act svg{width:19px;height:19px;transition:transform .18s}
+.act .heart-fill{fill:none;stroke:currentColor;stroke-width:2}
+.act[aria-pressed="true"].like{color:var(--color-like);border-color:var(--color-like)}
+.act[aria-pressed="true"].like .heart-fill{fill:var(--color-like);stroke:var(--color-like)}
+.act[aria-pressed="true"].like svg{animation:pop .3s ease}
+.act[aria-pressed="true"].save{background:var(--color-primary);color:var(--color-on-primary);border-color:var(--color-primary)}
+.act[aria-pressed="true"].save .bk{fill:var(--color-on-primary)}
+.act .bk{fill:none;stroke:currentColor;stroke-width:1.8}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+/* ───────── 섹션 ───────── */
+.section{padding:22px 16px 6px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.section-head h2{font-size:var(--fs-h2);font-weight:var(--fw-h2);line-height:var(--lh-h2)}
+.section-head .count{font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:400}
+
+/* 사진 그리드 3열 */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 2px}
+.cell{position:relative;aspect-ratio:1/1;display:block;overflow:hidden;text-decoration:none}
+.cell .img{position:absolute;inset:0}
+.cell .img::after{content:"";position:absolute;inset:0;background:
+  radial-gradient(120% 90% at 25% 15%,rgba(255,255,255,.28),transparent 45%),
+  linear-gradient(180deg,transparent 55%,rgba(0,0,0,.18));mix-blend-mode:soft-light}
+.cell .meta{
+  position:absolute;left:0;bottom:0;right:0;padding:6px 8px;
+  display:flex;align-items:center;gap:4px;color:#fff;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+  background:linear-gradient(0deg,rgba(0,0,0,.5),transparent);opacity:0;transition:opacity .18s;
+}
+.cell .meta svg{width:13px;height:13px}
+.cell:hover .meta,.cell:focus-visible .meta{opacity:1}
+.cell:focus-visible{outline:2px solid var(--color-focus-ring);outline-offset:-2px}
+.cell .multi{position:absolute;top:6px;right:6px;color:#fff;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.cell .multi svg{width:16px;height:16px;display:block}
+
+/* 사진 장면 그라데이션(컬러 실사 뉘앙스) */
+.sc-latte{background:radial-gradient(80% 70% at 60% 35%,#f0dcc0,#d9a86e 55%,#8f5a30)}
+.sc-wood{background:linear-gradient(150deg,#e8c9a0,#c98a5a 60%,#93602f)}
+.sc-window{background:linear-gradient(160deg,#cfe0b4,#9ec478 45%,#5f8f4a)}
+.sc-cup{background:radial-gradient(70% 70% at 45% 40%,#6a4a2e,#3a2317 80%)}
+.sc-pastry{background:linear-gradient(150deg,#f2d9a8,#e0a95f 55%,#b97a34)}
+.sc-night{background:linear-gradient(160deg,#3a4a6a,#7a5a7a 45%,#d0895a)}
+.sc-plant{background:linear-gradient(150deg,#bcd7a0,#7aa85e 50%,#3f6d38)}
+.sc-brick{background:linear-gradient(160deg,#d9a878,#b46a44 55%,#7d4326)}
+.sc-croi{background:radial-gradient(75% 70% at 50% 45%,#f4d79e,#d59a4c 65%,#9c6420)}
+
+/* ───────── 방문한 친구 ───────── */
+.friends{padding:20px 16px 8px}
+.friend-row{display:flex;gap:16px;overflow-x:auto;padding-bottom:4px;-ms-overflow-style:none;scrollbar-width:none}
+.friend-row::-webkit-scrollbar{display:none}
+.friend{flex:none;width:60px;text-decoration:none;color:var(--color-text);text-align:center}
+.friend .ava{
+  width:56px;height:56px;border-radius:var(--radius-full);margin:0 auto 6px;position:relative;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:var(--fw-semibold);
+  font-size:var(--fs-body);box-shadow:var(--shadow-1);
+}
+.friend .ava::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+.friend .nm{font-size:var(--fs-xs);color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.friend:active .ava{transform:scale(.95)}
+.a1{background:linear-gradient(135deg,#e88a5a,#b04a6a)}
+.a2{background:linear-gradient(135deg,#5a8ac9,#3a4a8a)}
+.a3{background:linear-gradient(135deg,#5aa87a,#2f6d58)}
+.a4{background:linear-gradient(135deg,#c98a5a,#8a5a3a)}
+.a5{background:linear-gradient(135deg,#8a6ac9,#5a3a8a)}
+
+/* ───────── 하단 탭바 ───────── */
+.tabbar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:var(--app-width);
+  height:var(--tabbar-h);display:flex;align-items:center;justify-content:space-around;
+  background:var(--color-surface);border-top:1px solid var(--color-border);z-index:var(--z-tabbar);
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  text-decoration:none;color:var(--color-text-muted);font-size:var(--fs-xs);padding:6px 0;
+}
+.tab svg{width:25px;height:25px}
+.tab[aria-current="page"]{color:var(--color-text)}
+.tab-fab{
+  width:46px;height:46px;border-radius:14px;background:var(--color-primary);color:var(--color-on-primary);
+  display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:var(--shadow-2);
+}
+.tab-fab svg{width:26px;height:26px}
+.tab-fab:active{transform:scale(.94)}
+</style>
+</head>
+<body>
+
+<!-- ───────── 앱바 ───────── -->
+<header class="appbar">
+  <a class="iconbtn" href="feed.html" aria-label="뒤로">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+  <div class="appbar-title">블루보틀 성수<small>서울 성동구 · 카페</small></div>
+  <a class="iconbtn" href="search.html" aria-label="검색">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </a>
+</header>
+
+<!-- ───────── 지도 히어로 (그 장소 중심) ───────── -->
+<div class="map-hero" role="group" aria-label="블루보틀 성수 중심 지도 — 강조된 검정 핀과 근처 방문 동선, 주변 도로망과 서울숲 공원">
+  <svg class="mapcanvas" viewBox="0 0 390 236" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <filter id="pinsh" x="-40%" y="-20%" width="180%" height="160%">
+        <feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000" flood-opacity="0.35"/>
+      </filter>
+    </defs>
+    <rect width="390" height="236" fill="#2a2a30"/>
+    <!-- 공원(서울숲) 톤 -->
+    <path d="M242 -10 L400 30 L400 130 L300 150 L250 80 Z" fill="#18241a"/>
+    <!-- 수역(중랑천) 톤 -->
+    <path d="M-10 176 L120 150 L200 190 L180 250 L-10 250 Z" fill="#131e2c"/>
+    <!-- 건물 블록 -->
+    <g fill="#34343c">
+      <rect x="20" y="24" width="52" height="34" rx="2"/><rect x="82" y="20" width="40" height="30" rx="2"/>
+      <rect x="20" y="70" width="46" height="40" rx="2"/><rect x="78" y="64" width="44" height="46" rx="2"/>
+      <rect x="150" y="30" width="50" height="30" rx="2"/><rect x="150" y="72" width="46" height="38" rx="2"/>
+      <rect x="26" y="132" width="40" height="30" rx="2"/><rect x="80" y="128" width="34" height="28" rx="2"/>
+      <rect x="212" y="120" width="46" height="34" rx="2"/><rect x="270" y="150" width="44" height="40" rx="2"/>
+      <rect x="150" y="150" width="40" height="34" rx="2"/><rect x="326" y="120" width="40" height="34" rx="2"/>
+    </g>
+    <!-- 도로망: 간선(굵은 흰선) -->
+    <g stroke="#3e3e44" stroke-linecap="round">
+      <path d="M-10 118 L410 100" stroke-width="9"/>
+      <path d="M132 -10 L142 246" stroke-width="9"/>
+      <path d="M-10 62 L410 44" stroke-width="6"/>
+      <path d="M205 -10 L215 246" stroke-width="6"/>
+    </g>
+    <!-- 도로망: 이면도로(가는 연회색선) -->
+    <g stroke="#34343c" stroke-width="3" stroke-linecap="round">
+      <path d="M70 -10 L74 246"/><path d="M-10 168 L410 152"/>
+      <path d="M300 -10 L312 246"/><path d="M-10 200 L410 188"/>
+    </g>
+    <!-- 근처 방문 동선(검정 폴리라인) -->
+    <polyline points="96,150 138,112 176,120 214,86 250,104"
+      fill="none" stroke="#f0f0f0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <g fill="#f0f0f0"><circle cx="96" cy="150" r="3.5"/><circle cx="176" cy="120" r="3.5"/><circle cx="250" cy="104" r="3.5"/></g>
+    <!-- 근처 보조 핀(작은 티어드롭) -->
+    <g filter="url(#pinsh)">
+      <path d="M96 144 c-6 -8 -6 -14 0 -20 c6 6 6 12 0 20 Z" fill="#3a3a3a"/>
+      <path d="M250 98 c-6 -8 -6 -14 0 -20 c6 6 6 12 0 20 Z" fill="#3a3a3a"/>
+    </g>
+    <!-- ★ 강조된 메인 핀(이 장소) -->
+    <g transform="translate(142,112)" filter="url(#pinsh)">
+      <path d="M0 6 C-13 -12 -13 -26 0 -34 C13 -26 13 -12 0 6 Z" fill="#ffffff"/>
+      <circle cx="0" cy="-22" r="7" fill="#fff"/>
+      <circle cx="0" cy="-22" r="3.4" fill="#000"/>
+    </g>
+  </svg>
+
+  <div class="map-fab">
+    <button id="locBtn" type="button" aria-pressed="false" aria-label="이 장소로 지도 이동">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="map-toast" id="mapToast" role="status" aria-live="polite"></div>
+</div>
+
+<!-- ───────── 장소 헤더 ───────── -->
+<div class="place-head">
+  <span class="place-cat">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h11v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z" stroke="currentColor" stroke-width="1.8"/><path d="M15 9h3a2 2 0 0 1 0 4h-3" stroke="currentColor" stroke-width="1.8"/></svg>
+    카페 · 로스터리
+  </span>
+  <h1 class="place-name">블루보틀 성수</h1>
+  <p class="place-addr">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
+    서울 성동구 아차산로 7길 24 · 지하 1층
+  </p>
+  <div class="place-stats">
+    <div><b>128</b><span>게시물</span></div>
+    <div><b>34</b><span>저장</span></div>
+    <div><b>친구 5명</b><span>방문함</span></div>
+  </div>
+</div>
+
+<!-- ───────── 액션 ───────── -->
+<div class="actions">
+  <button class="act like" id="likeBtn" type="button" aria-pressed="false" aria-label="이 장소 좋아요">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart-fill" d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>
+    <span id="likeLabel">좋아요 </span><b id="likeCount">241</b>
+  </button>
+  <button class="act save" id="saveBtn" type="button" aria-pressed="false" aria-label="이 장소 저장">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path class="bk" d="M6 4h12v16l-6-4-6 4V4Z"/></svg>
+    <span id="saveLabel">저장</span>
+  </button>
+</div>
+
+<!-- ───────── 이곳의 기록 (사진 그리드 3열) ───────── -->
+<section class="section" aria-labelledby="postsHead">
+  <div class="section-head">
+    <h2 id="postsHead">이곳의 기록</h2>
+    <span class="count">128개 · 친구 우선</span>
+  </div>
+</section>
+<div class="photo-grid">
+  <a class="cell" href="post-detail.html" aria-label="지민의 게시물 — 통창 자리 라떼">
+    <span class="img sc-latte"></span>
+    <span class="multi"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="8" y="4" width="12" height="12" rx="2"/><rect x="4" y="8" width="12" height="12" rx="2" fill="#fff"/><rect x="4" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>18</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="현우의 게시물 — 우드톤 인테리어">
+    <span class="img sc-wood"></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>9</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="수아의 게시물 — 창밖 초록">
+    <span class="img sc-window"></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>27</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="게시물 — 드립 커피 클로즈업">
+    <span class="img sc-cup"></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>12</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="게시물 — 페이스트리 플레이팅">
+    <span class="img sc-pastry"></span>
+    <span class="multi"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="8" y="4" width="12" height="12" rx="2"/><rect x="4" y="8" width="12" height="12" rx="2" fill="#fff"/><rect x="4" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>44</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="게시물 — 성수 야경">
+    <span class="img sc-night"></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>31</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="게시물 — 창가 화분">
+    <span class="img sc-plant"></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>7</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="게시물 — 벽돌 외관">
+    <span class="img sc-brick"></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>15</span>
+  </a>
+  <a class="cell" href="post-detail.html" aria-label="게시물 — 크루아상">
+    <span class="img sc-croi"></span>
+    <span class="meta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20s-7-4.35-9.5-8.5C.9 8.8 2.3 5.5 5.5 5.5c1.9 0 3.2 1.1 4.5 2.8 1.3-1.7 2.6-2.8 4.5-2.8 3.2 0 4.6 3.3 3 6-2.5 4.15-9.5 8.5-9.5 8.5Z"/></svg>22</span>
+  </a>
+</div>
+
+<!-- ───────── 방문한 친구 ───────── -->
+<section class="friends" aria-labelledby="frHead">
+  <div class="section-head" style="margin-bottom:14px">
+    <h2 id="frHead">방문한 친구</h2>
+    <span class="count">5명</span>
+  </div>
+  <div class="friend-row">
+    <a class="friend" href="profile-friend.html" aria-label="지민 프로필">
+      <span class="ava a1">지민</span><span class="nm">지민</span>
+    </a>
+    <a class="friend" href="profile-friend.html" aria-label="현우 프로필">
+      <span class="ava a2">현우</span><span class="nm">현우</span>
+    </a>
+    <a class="friend" href="profile-friend.html" aria-label="수아 프로필">
+      <span class="ava a3">수아</span><span class="nm">수아</span>
+    </a>
+    <a class="friend" href="profile-friend.html" aria-label="도윤 프로필">
+      <span class="ava a4">도윤</span><span class="nm">도윤</span>
+    </a>
+    <a class="friend" href="profile-friend.html" aria-label="하린 프로필">
+      <span class="ava a5">하린</span><span class="nm">하린</span>
+    </a>
+  </div>
+</section>
+
+<!-- ───────── 하단 탭바 ───────── -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a class="tab" href="feed.html" aria-label="홈">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+    홈
+  </a>
+  <a class="tab-fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+  </a>
+  <a class="tab" href="profile-me.html" aria-label="프로필">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="3.6" stroke="currentColor" stroke-width="1.9"/><path d="M5 20c1.2-3.6 4-5 7-5s5.8 1.4 7 5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+    프로필
+  </a>
+</nav>
+
+<script>
+(function(){
+  var toast = document.getElementById('mapToast');
+  var toastTimer;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 1500);
+  }
+
+  // 좋아요 토글 (레드 하트 + 개수)
+  var likeBtn = document.getElementById('likeBtn');
+  var likeCount = document.getElementById('likeCount');
+  var likeLabel = document.getElementById('likeLabel');
+  likeBtn.addEventListener('click', function(){
+    var on = this.getAttribute('aria-pressed') === 'true';
+    on = !on;
+    this.setAttribute('aria-pressed', String(on));
+    var n = parseInt(likeCount.textContent, 10);
+    likeCount.textContent = on ? (n + 1) : (n - 1);
+    likeLabel.textContent = on ? '좋아함 ' : '좋아요 ';
+  });
+
+  // 저장 토글 (검정 채움 + 라벨)
+  var saveBtn = document.getElementById('saveBtn');
+  var saveLabel = document.getElementById('saveLabel');
+  saveBtn.addEventListener('click', function(){
+    var on = this.getAttribute('aria-pressed') === 'true';
+    on = !on;
+    this.setAttribute('aria-pressed', String(on));
+    saveLabel.textContent = on ? '저장됨' : '저장';
+    showToast(on ? '내 저장에 추가했어요' : '저장을 취소했어요');
+  });
+
+  // 지도 이 장소로 이동
+  var locBtn = document.getElementById('locBtn');
+  locBtn.addEventListener('click', function(){
+    var on = this.getAttribute('aria-pressed') === 'true';
+    on = !on;
+    this.setAttribute('aria-pressed', String(on));
+    showToast(on ? '블루보틀 성수로 이동' : '주변 보기');
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,737 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>피드 — 요기조기</title>
+<style>
+  @import url("../foundation/tokens.css");
+
+  *{ box-sizing:border-box; margin:0; padding:0 }
+  :root{ -webkit-tap-highlight-color:transparent }
+
+  body{
+    width:var(--app-width); margin:0 auto; min-height:844px;
+    background:var(--color-bg); color:var(--color-text);
+    font-family:var(--font-sans); position:relative;
+    padding-bottom:calc(var(--tabbar-h) + 8px);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  a{ color:inherit; text-decoration:none }
+  button{ font-family:inherit; cursor:pointer; border:0; background:none; color:inherit }
+  :focus-visible{ outline:2px solid var(--color-focus-ring); outline-offset:2px; border-radius:var(--radius-xs) }
+
+  /* ───────────────── 앱바 (슬림 · 스티키 · 헤어라인) ───────────────── */
+  .appbar{
+    position:sticky; top:0; z-index:var(--z-appbar);
+    height:var(--appbar-h); display:flex; align-items:center; gap:var(--space-3);
+    padding:0 var(--space-4);
+    background:rgba(16,16,18,.86); backdrop-filter:saturate(1.3) blur(10px);
+    border-bottom:1px solid var(--color-border);
+  }
+  .wordmark{ font-size:var(--fs-h2); font-weight:700; letter-spacing:-.5px; color:var(--color-text); flex:none }
+  .search-go{
+    flex:1; min-width:0; display:flex; align-items:center; gap:var(--space-2);
+    height:34px; padding:0 var(--space-3); border-radius:var(--radius-full);
+    background:var(--color-surface-alt); border:1px solid var(--color-border);
+    color:var(--color-text-muted); font-size:var(--fs-sm); transition:transform .12s, background .15s;
+  }
+  .search-go:active{ transform:scale(.98); background:var(--color-surface-sunken) }
+  .search-go svg{ width:16px; height:16px; flex:none }
+  .iconbtn{
+    position:relative; width:40px; height:40px; flex:none; border-radius:var(--radius-full);
+    display:flex; align-items:center; justify-content:center; color:var(--color-text-secondary);
+    transition:transform .12s, background .15s;
+  }
+  .iconbtn:active{ transform:scale(.92); background:var(--color-surface-alt) }
+  .iconbtn svg{ width:24px; height:24px }
+  .reddot{
+    position:absolute; top:8px; right:9px; width:9px; height:9px; border-radius:50%;
+    background:var(--color-unread); border:2px solid var(--color-surface);
+  }
+
+  /* ───────────────── 데모 토글 (빈 피드 ↔ 카드) ───────────────── */
+  .demobar{
+    display:flex; align-items:center; justify-content:flex-end; gap:var(--space-2);
+    padding:8px var(--space-4) 0; font-size:var(--fs-xs); color:var(--color-text-muted);
+  }
+  .demobtn{
+    display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 11px;
+    border-radius:var(--radius-full); background:var(--color-surface-alt);
+    border:1px solid var(--color-border); color:var(--color-text-secondary);
+    font-size:var(--fs-xs); font-weight:var(--fw-medium); transition:transform .12s, background .15s;
+  }
+  .demobtn:active{ transform:scale(.95); background:var(--color-surface-sunken) }
+  .demobtn svg{ width:13px; height:13px }
+
+  /* ───────────────── 피드 카드 ───────────────── */
+  .feed{ padding-top:var(--space-1) }
+  .card{ background:var(--color-surface); border-bottom:1px solid var(--color-border) }
+  .card:last-child{ border-bottom:0 }
+
+  /* 헤더 */
+  .card-head{ display:flex; align-items:center; gap:var(--space-3); padding:12px var(--space-4) 10px }
+  .author-link{ display:flex; align-items:center; gap:var(--space-3); flex:1; min-width:0 }
+  .avatar{
+    width:38px; height:38px; flex:none; border-radius:50%; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:var(--fs-sm); font-weight:var(--fw-semibold);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+  }
+  .avatar.a-cafe{ background:linear-gradient(140deg,#e8b980,#b56b34) }
+  .avatar.a-night{ background:linear-gradient(140deg,#5a6ea6,#2b3a63) }
+  .avatar.a-park{ background:linear-gradient(140deg,#8fbf6a,#3f7a38) }
+  .who{ min-width:0; flex:1; line-height:1.25 }
+  .who .nm{ font-size:var(--fs-sm); font-weight:var(--fw-semibold); color:var(--color-text) }
+  .who .meta{ display:block; font-size:var(--fs-xs); color:var(--color-text-muted); margin-top:1px }
+  .who .meta .dot{ margin:0 5px; opacity:.6 }
+  .head-poi{
+    flex:none; display:inline-flex; align-items:center; gap:5px; max-width:132px;
+    height:30px; padding:0 11px; border-radius:var(--radius-full);
+    border:1px solid var(--color-border-strong); color:var(--color-text);
+    font-size:var(--fs-xs); font-weight:var(--fw-semibold);
+    transition:transform .12s, background .15s;
+  }
+  .head-poi:active{ transform:scale(.96); background:var(--color-surface-alt) }
+  .head-poi svg{ width:13px; height:13px; flex:none }
+  .head-poi span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+
+  /* ── 지도 히어로 (카드의 주인공) ── */
+  .hero{ position:relative; width:100%; height:210px; background:var(--color-map-canvas); overflow:hidden }
+  .mapbase{ position:absolute; inset:0; width:100%; height:100%; display:block }
+  .hero-vignette{
+    position:absolute; inset:0; pointer-events:none; z-index:2;
+    background:radial-gradient(120% 90% at 50% 34%, transparent 58%, rgba(18,18,18,.07) 100%);
+  }
+  .route{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:3 }
+  .route-cap{ stroke:var(--color-surface) }
+  .route-ink{ stroke:var(--color-primary) }
+  /* 히어로 전체 = 게시물로 이동 (핀 아래 레이어) */
+  .hero-link{ position:absolute; inset:0; z-index:1 }
+
+  /* POI 핀 (검정 티어드롭 + 번호) — z 위 */
+  .pin{
+    position:absolute; width:30px; height:30px; z-index:5;
+    transform:translate(-50%,-100%); transform-origin:center bottom;
+    background:none; padding:0; transition:transform .14s;
+  }
+  .pin:active{ transform:translate(-50%,-100%) translateY(1px) }
+  .pin .mark{
+    position:absolute; inset:0; transform:rotate(45deg); border-radius:50% 50% 50% 0;
+    background:var(--color-primary); border:2px solid var(--color-surface); box-shadow:var(--shadow-2);
+    display:flex; align-items:center; justify-content:center; transition:transform .16s, box-shadow .16s;
+  }
+  .pin:hover .mark{ transform:rotate(45deg) scale(1.06); box-shadow:var(--shadow-3) }
+  .pin .mark b{ transform:rotate(-45deg); color:var(--color-on-primary); font-size:12px; font-weight:700; line-height:1 }
+  .hero-badge{
+    position:absolute; left:10px; bottom:10px; z-index:6;
+    display:inline-flex; align-items:center; gap:7px; height:28px; padding:0 11px;
+    border-radius:var(--radius-full); background:rgba(16,16,18,.86); backdrop-filter:blur(6px);
+    border:1px solid var(--color-border); box-shadow:var(--shadow-1);
+    font-size:var(--fs-xs); color:var(--color-text-secondary);
+  }
+  .hero-badge b{ color:var(--color-text); font-weight:var(--fw-semibold) }
+  .hero-badge .ln{ width:16px; height:0; border-top:3px solid var(--color-primary); border-radius:2px; position:relative }
+  .hero-badge .ln::before,.hero-badge .ln::after{
+    content:""; position:absolute; top:50%; transform:translateY(-50%);
+    width:6px; height:6px; border-radius:50%; background:var(--color-primary);
+  }
+  .hero-badge .ln::before{ left:-1px } .hero-badge .ln::after{ right:-1px }
+
+  /* ── 컬러 사진 썸네일 행 (가로 스크롤) ── */
+  .thumbs{
+    display:flex; gap:6px; padding:10px var(--space-4) 4px;
+    overflow-x:auto; scroll-snap-type:x mandatory; -ms-overflow-style:none; scrollbar-width:none;
+  }
+  .thumbs::-webkit-scrollbar{ display:none }
+  .thumb{
+    position:relative; flex:none; width:74px; height:74px; border-radius:var(--radius-sm);
+    overflow:hidden; scroll-snap-align:start; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+    transition:transform .12s;
+  }
+  .thumb:active{ transform:scale(.96) }
+  .thumb::after{ /* 사진 같은 깊이: 상단 하이라이트 + 하단 음영 */
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg,rgba(255,255,255,.22),transparent 42%,rgba(0,0,0,.16));
+  }
+  .thumb .more{
+    position:absolute; inset:0; z-index:1; display:flex; align-items:center; justify-content:center;
+    background:rgba(18,18,18,.5); color:#fff; font-size:var(--fs-sm); font-weight:var(--fw-semibold);
+  }
+  /* 카페 톤 */
+  .p-c1{ background:linear-gradient(150deg,#f0dcc0,#c98a5a 70%,#9c5f2e) }
+  .p-c2{ background:linear-gradient(150deg,#e8c9a0,#b5763c) }
+  .p-c3{ background:linear-gradient(160deg,#2a2218,#cf9a63) }
+  .p-c4{ background:linear-gradient(150deg,#d9b38a,#8c5a2c) }
+  /* 야경 톤 */
+  .p-n1{ background:linear-gradient(160deg,#4a5a8a,#2a3358 55%,#c9743a) }
+  .p-n2{ background:linear-gradient(150deg,#2a3a5a,#111a34) }
+  .p-n3{ background:linear-gradient(160deg,#3a4a6a,#d97a4a) }
+  /* 공원 톤 */
+  .p-g1{ background:linear-gradient(150deg,#c8e0b0,#7aaa5a 65%,#3f7a38) }
+  .p-g2{ background:linear-gradient(150deg,#a8c98a,#5a8a4a) }
+  .p-g3{ background:linear-gradient(160deg,#d2e6bc,#88b566) }
+  .p-g4{ background:linear-gradient(150deg,#b8d89a,#6a9a4a) }
+  .p-g5{ background:linear-gradient(150deg,#e6d6a0,#b89a4a) }
+
+  /* ── 액션 행 ── */
+  .actions{ display:flex; align-items:center; gap:var(--space-4); padding:8px var(--space-4) 2px }
+  .act{ display:inline-flex; align-items:center; gap:6px; color:var(--color-text); transition:transform .12s }
+  .act:active{ transform:scale(.9) }
+  .act svg{ width:24px; height:24px }
+  .likebtn .heart{ transition:transform .18s cubic-bezier(.2,1.4,.5,1) }
+  .likebtn[aria-pressed="true"] .heart{ fill:var(--color-like); stroke:var(--color-like); transform:scale(1.08) }
+  .like-count{ font-size:var(--fs-sm); font-weight:var(--fw-semibold); color:var(--color-text) }
+  .savebtn{ margin-left:auto }
+  .savebtn[aria-pressed="true"] svg{ fill:var(--color-primary); stroke:var(--color-primary) }
+
+  /* ── 메모 · 태그 ── */
+  .memo{ padding:2px var(--space-4) 0; font-size:var(--fs-body); line-height:1.5; color:var(--color-text-secondary) }
+  .memo .u{ font-weight:var(--fw-semibold); color:var(--color-text); margin-right:5px }
+  .tags{ display:flex; flex-wrap:wrap; gap:6px; padding:8px var(--space-4) 4px }
+  .tag{ font-size:var(--fs-sm); color:var(--color-text-secondary); font-weight:var(--fw-medium) }
+  .tag:active{ opacity:.6 }
+  .card-foot{ padding:6px var(--space-4) 14px }
+  .ago{ font-size:var(--fs-xs); color:var(--color-text-muted); letter-spacing:.02em }
+
+  /* ───────────────── 빈 상태 ───────────────── */
+  #emptyState{ padding:0 var(--space-6); }
+  .empty{ text-align:center; margin:72px auto 0; max-width:280px }
+  .empty .illo{
+    width:88px; height:88px; margin:0 auto var(--space-4); border-radius:50%; position:relative;
+    background:radial-gradient(circle at 50% 42%, var(--color-surface), var(--color-surface-sunken));
+    border:1px solid var(--color-border); box-shadow:var(--shadow-2);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .empty .illo .pin2{
+    width:38px; height:38px; border-radius:50% 50% 50% 0; rotate:45deg; position:relative;
+    background:var(--color-primary); border:3px solid var(--color-surface); box-shadow:var(--shadow-2);
+  }
+  .empty .illo .pin2::after{ content:""; position:absolute; inset:0; margin:auto; width:12px; height:12px; border-radius:50%; background:var(--color-surface) }
+  .empty h2{ font-size:var(--fs-h1); font-weight:var(--fw-h1); letter-spacing:-.3px; color:var(--color-text); margin-bottom:8px }
+  .empty p{ font-size:var(--fs-body); line-height:1.55; color:var(--color-text-muted); margin-bottom:var(--space-5) }
+  .empty .cta{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    height:48px; padding:0 24px; border-radius:var(--radius-full);
+    background:var(--color-primary); color:var(--color-on-primary);
+    font-size:var(--fs-body); font-weight:var(--fw-semibold); box-shadow:var(--shadow-2);
+    transition:transform .12s, background .15s;
+  }
+  .empty .cta:active{ transform:scale(.97); background:var(--color-primary-hover) }
+  .empty .cta svg{ width:20px; height:20px }
+
+  /* ───────────────── 탭바 + FAB ───────────────── */
+  .tabbar{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:var(--app-width);
+    height:var(--tabbar-h); display:flex; align-items:stretch; z-index:var(--z-tabbar);
+    background:var(--color-surface); border-top:1px solid var(--color-border);
+    box-shadow:0 -2px 10px rgba(18,18,18,.05);
+  }
+  .tab{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    color:var(--color-text-muted); font-size:var(--fs-xs); font-weight:var(--fw-medium); transition:transform .12s;
+  }
+  .tab:active{ transform:scale(.94) }
+  .tab svg{ width:25px; height:25px }
+  .tab[aria-current="page"]{ color:var(--color-primary); font-weight:var(--fw-semibold) }
+  .tab[aria-current="page"] svg{ fill:var(--color-primary); stroke:var(--color-primary) }
+  .fab-slot{ flex:0 0 84px; position:relative }
+  .fab{
+    position:absolute; left:50%; top:-20px; transform:translateX(-50%);
+    width:54px; height:54px; border-radius:18px;
+    background:var(--color-primary); color:var(--color-on-primary);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow-3); border:3px solid var(--color-surface);
+    transition:transform .12s, background .15s;
+  }
+  .fab:active{ transform:translateX(-50%) scale(.93); background:var(--color-primary-hover) }
+  .fab svg{ width:28px; height:28px }
+
+  /* ───────────────── 핀 프리뷰 바텀시트 ───────────────── */
+  .scrim{
+    position:fixed; inset:0; z-index:var(--z-scrim); background:var(--color-overlay);
+    opacity:0; pointer-events:none; visibility:hidden; transition:opacity .25s;
+  }
+  .scrim.show{ opacity:1; pointer-events:auto; visibility:visible }
+  .sheet{
+    position:fixed; left:50%; transform:translateX(-50%) translateY(100%); bottom:0; visibility:hidden; width:var(--app-width);
+    z-index:var(--z-sheet); background:var(--color-surface);
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0; box-shadow:var(--shadow-3);
+    padding:0 var(--space-4) var(--space-5); transition:transform .28s cubic-bezier(.22,.61,.36,1);
+  }
+  .sheet.show{ transform:translateX(-50%) translateY(0); visibility:visible }
+  .sheet .grab{ display:flex; justify-content:center; padding:10px 0 6px }
+  .sheet .grab span{ width:36px; height:4px; border-radius:var(--radius-full); background:var(--color-border-strong) }
+  .sheet-head{ display:flex; align-items:flex-start; gap:var(--space-3); padding:2px 0 var(--space-3) }
+  .sheet-thumb{ width:56px; height:56px; flex:none; border-radius:var(--radius-md); box-shadow:inset 0 0 0 1px rgba(0,0,0,.06) }
+  .sheet-head .ttl{ min-width:0; flex:1 }
+  .sheet-head h2{ font-size:var(--fs-h1); font-weight:var(--fw-h1); letter-spacing:-.3px; color:var(--color-text) }
+  .sheet-head .m{ display:flex; align-items:center; gap:7px; margin-top:6px; font-size:var(--fs-sm); color:var(--color-text-muted) }
+  .catchip{
+    display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 10px;
+    border-radius:var(--radius-full); background:var(--color-primary-tint);
+    color:var(--color-text-secondary); font-size:var(--fs-xs); font-weight:var(--fw-semibold);
+  }
+  .catchip svg{ width:13px; height:13px }
+  .closebtn{ flex:none; width:34px; height:34px; border-radius:var(--radius-full); background:var(--color-surface-alt);
+    color:var(--color-text-secondary); display:flex; align-items:center; justify-content:center; transition:transform .12s, background .15s }
+  .closebtn:active{ transform:scale(.9); background:var(--color-surface-sunken) }
+  .closebtn svg{ width:18px; height:18px }
+  .sheet-memo{
+    padding:var(--space-3) var(--space-4); background:var(--color-surface-alt);
+    border-radius:var(--radius-md); border-left:3px solid var(--color-primary);
+    font-size:var(--fs-body); line-height:1.5; color:var(--color-text-secondary);
+  }
+  .sheet-memo .who2{ font-weight:var(--fw-semibold); color:var(--color-text) }
+  .sheet-cta{ display:flex; gap:var(--space-2); margin-top:var(--space-4) }
+  .btn-primary{
+    flex:1; display:inline-flex; align-items:center; justify-content:center; gap:7px; height:48px;
+    border-radius:var(--radius-md); background:var(--color-primary); color:var(--color-on-primary);
+    font-size:var(--fs-body); font-weight:var(--fw-semibold); transition:transform .12s, background .15s;
+  }
+  .btn-primary:active{ transform:scale(.98); background:var(--color-primary-hover) }
+  .btn-primary svg{ width:18px; height:18px }
+  .btn-ghost{
+    flex:none; display:inline-flex; align-items:center; justify-content:center; height:48px; padding:0 18px;
+    border-radius:var(--radius-md); border:1px solid var(--color-border); color:var(--color-text-secondary);
+    font-size:var(--fs-body); font-weight:var(--fw-medium); transition:transform .12s, background .15s;
+  }
+  .btn-ghost:active{ transform:scale(.97); background:var(--color-surface-alt) }
+
+  /* 토스트 */
+  .toast{
+    position:fixed; left:50%; bottom:calc(var(--tabbar-h) + 12px); transform:translateX(-50%) translateY(8px);
+    z-index:var(--z-toast); padding:9px 16px; border-radius:var(--radius-full);
+    background:var(--color-primary); color:var(--color-on-primary);
+    font-size:var(--fs-sm); font-weight:var(--fw-medium); box-shadow:var(--shadow-3);
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0) }
+
+  .hidden{ display:none !important }
+</style>
+</head>
+<body>
+
+<!-- ───────── 앱바 ───────── -->
+<header class="appbar">
+  <span class="wordmark">요기조기</span>
+  <a class="search-go" href="search.html" aria-label="장소·친구·태그 검색">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg>
+    장소·친구 검색
+  </a>
+  <a class="iconbtn" href="notifications.html" aria-label="알림 (새 알림 있음)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    <span class="reddot" aria-hidden="true"></span>
+  </a>
+</header>
+
+<!-- 데모: 빈 피드 ↔ 카드 토글 -->
+<div class="demobar">
+  <button class="demobtn" id="demoToggle" type="button" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12h6"/></svg>
+    <span id="demoLabel">빈 피드 보기</span>
+  </button>
+</div>
+
+<!-- ───────── 빈 상태 (팔로잉 0) ───────── -->
+<section id="emptyState" class="hidden" aria-live="polite">
+  <div class="empty">
+    <div class="illo" aria-hidden="true"><span class="pin2"></span></div>
+    <h2>팔로우하고 피드를 채워보세요</h2>
+    <p>아직 팔로우한 사람이 없어요. 관심 있는 사람·장소를 찾아 팔로우하면 그 사람의 동선과 사진이 여기에 쌓여요.</p>
+    <a class="cta" href="search.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg>
+      추천 친구 찾기
+    </a>
+  </div>
+</section>
+
+<!-- ───────── 채워진 피드 ───────── -->
+<main id="feedList" class="feed" aria-live="polite">
+
+  <!-- 카드 1 : 성수 카페 투어 (사진 4장) -->
+  <article class="card">
+    <div class="card-head">
+      <a class="author-link" href="profile-friend.html">
+        <span class="avatar a-cafe" aria-hidden="true">김</span>
+        <span class="who">
+          <span class="nm">김여기</span>
+          <span class="meta">성수동<span class="dot">·</span>2시간 전</span>
+        </span>
+      </a>
+      <a class="head-poi" href="map-home.html" aria-label="블루보틀 성수 장소 상세">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span>블루보틀 성수</span>
+      </a>
+    </div>
+
+    <div class="hero">
+      <svg class="mapbase" viewBox="0 0 390 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M296,-12 Q362,8 356,72 Q350,124 298,118 Q256,112 262,58 Q268,4 296,-12Z" fill="#182418"/>
+        <g fill="#26342c"><circle cx="308" cy="42" r="5"/><circle cx="330" cy="68" r="6"/><circle cx="288" cy="80" r="4"/><circle cx="322" cy="96" r="4"/></g>
+        <path d="M-12,182 C42,168 92,198 152,184 C208,172 236,196 300,186 L300,222 L-12,222Z" fill="#14202e"/>
+        <g fill="#202024">
+          <rect x="16" y="22" width="42" height="30" rx="3"/><rect x="70" y="26" width="30" height="26" rx="3"/>
+          <rect x="18" y="70" width="34" height="42" rx="3"/><rect x="64" y="76" width="44" height="30" rx="3"/>
+          <rect x="150" y="28" width="34" height="42" rx="3"/><rect x="196" y="40" width="40" height="30" rx="3"/>
+          <rect x="150" y="118" width="42" height="32" rx="3"/><rect x="58" y="138" width="36" height="34" rx="3"/>
+          <rect x="248" y="140" width="44" height="34" rx="3"/>
+        </g>
+        <g stroke="#2e2e34" fill="none" stroke-linecap="round">
+          <path d="M-12,120 H402" stroke-width="15"/><path d="M120,-12 V222" stroke-width="14"/>
+          <path d="M240,-12 V222" stroke-width="12"/><path d="M-14,8 L404,150" stroke-width="11"/>
+        </g>
+        <g stroke="#3a3a42" fill="none" stroke-linecap="round">
+          <path d="M-12,120 H402" stroke-width="9"/><path d="M120,-12 V222" stroke-width="8.5"/>
+          <path d="M240,-12 V222" stroke-width="7"/><path d="M-14,8 L404,150" stroke-width="6.5"/>
+        </g>
+        <g stroke="#33333a" fill="none" stroke-width="3.5" stroke-linecap="round">
+          <path d="M60,-12 V222"/><path d="M300,-12 V222"/><path d="M-12,60 H402"/><path d="M-12,172 H402"/>
+        </g>
+      </svg>
+      <div class="hero-vignette"></div>
+      <svg class="route" viewBox="0 0 390 210" preserveAspectRatio="none" aria-hidden="true">
+        <polyline class="route-cap" points="56,150 150,96 264,140" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+        <polyline class="route-ink" points="56,150 150,96 264,140" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <a class="hero-link" href="post-detail.html" aria-label="김여기의 성수 카페 투어 게시물 보기"></a>
+      <button class="pin" style="left:56px;top:150px" type="button" aria-haspopup="dialog"
+        data-name="블루보틀 성수" data-cat="카페" data-addr="성동구 아차산로 · 320m" data-thumb="p-c1"
+        data-memo="오픈런 성공. 통창 자리 추천. 라떼 진하고 좋았어요." data-who="김여기"
+        onclick="openPin(this)" aria-label="블루보틀 성수, 카페, 동선 1번">
+        <span class="mark"><b>1</b></span>
+      </button>
+      <button class="pin" style="left:150px;top:96px" type="button" aria-haspopup="dialog"
+        data-name="대림창고 갤러리" data-cat="문화·예술" data-addr="성동구 성수이로 · 540m" data-thumb="p-c3"
+        data-memo="전시 + 브런치 한 번에. 천장 높고 사진 잘 나와요." data-who="김여기"
+        onclick="openPin(this)" aria-label="대림창고 갤러리, 문화·예술, 동선 2번">
+        <span class="mark"><b>2</b></span>
+      </button>
+      <button class="pin" style="left:264px;top:140px" type="button" aria-haspopup="dialog"
+        data-name="어니언 성수" data-cat="베이커리" data-addr="성동구 아차산로 · 260m" data-thumb="p-c2"
+        data-memo="팡도르 필수. 평일 오전이 그나마 여유 있어요." data-who="김여기"
+        onclick="openPin(this)" aria-label="어니언 성수, 베이커리, 동선 3번">
+        <span class="mark"><b>3</b></span>
+      </button>
+      <span class="hero-badge"><span class="ln" aria-hidden="true"></span>동선 <b>3곳</b> · 1.4km</span>
+    </div>
+
+    <div class="thumbs" role="list" aria-label="김여기의 사진 4장">
+      <a class="thumb p-c1" role="listitem" href="post-detail.html" aria-label="사진 1"></a>
+      <a class="thumb p-c2" role="listitem" href="post-detail.html" aria-label="사진 2"></a>
+      <a class="thumb p-c3" role="listitem" href="post-detail.html" aria-label="사진 3"></a>
+      <a class="thumb p-c4" role="listitem" href="post-detail.html" aria-label="사진 4"></a>
+    </div>
+
+    <div class="actions">
+      <button class="act likebtn" type="button" aria-pressed="false" aria-label="좋아요" data-count="42" onclick="toggleLike(this)">
+        <svg class="heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-9.5-9A5 5 0 0 1 12 5a5 5 0 0 1 9.5 6C19 15.5 12 20 12 20z"/></svg>
+        <span class="like-count">42</span>
+      </button>
+      <button class="act savebtn" type="button" aria-pressed="false" aria-label="저장" onclick="toggleSave(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
+      </button>
+    </div>
+
+    <p class="memo"><span class="u">김여기</span>성수 골목 카페 세 곳 도장깨기 ☕ 대림창고 전시 보고 어니언에서 마무리. 오후 햇살 창가 자리 강추.</p>
+    <div class="tags">
+      <a class="tag" href="post-detail.html">#성수카페</a>
+      <a class="tag" href="post-detail.html">#카페투어</a>
+      <a class="tag" href="post-detail.html">#창가자리</a>
+    </div>
+    <div class="card-foot"><span class="ago">2시간 전</span></div>
+  </article>
+
+  <!-- 카드 2 : 남산 야경 (사진 3장) -->
+  <article class="card">
+    <div class="card-head">
+      <a class="author-link" href="profile-friend.html">
+        <span class="avatar a-night" aria-hidden="true">박</span>
+        <span class="who">
+          <span class="nm">박조기</span>
+          <span class="meta">용산·남산<span class="dot">·</span>어제</span>
+        </span>
+      </a>
+      <a class="head-poi" href="map-home.html" aria-label="남산서울타워 장소 상세">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span>남산서울타워</span>
+      </a>
+    </div>
+
+    <div class="hero">
+      <svg class="mapbase" viewBox="0 0 390 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M120,-14 Q220,-6 244,64 Q262,132 190,158 Q108,178 74,110 Q52,52 90,16 Q104,0 120,-14Z" fill="#182418"/>
+        <g fill="#1a231a"><circle cx="150" cy="46" r="7"/><circle cx="188" cy="78" r="8"/><circle cx="130" cy="96" r="6"/><circle cx="170" cy="120" r="6"/><circle cx="206" cy="56" r="5"/><circle cx="110" cy="70" r="5"/></g>
+        <g fill="#202024">
+          <rect x="18" y="20" width="34" height="30" rx="3"/><rect x="18" y="130" width="38" height="34" rx="3"/>
+          <rect x="20" y="176" width="44" height="30" rx="3"/><rect x="286" y="30" width="40" height="34" rx="3"/>
+          <rect x="300" y="86" width="34" height="40" rx="3"/><rect x="284" y="150" width="46" height="34" rx="3"/>
+          <rect x="230" y="176" width="40" height="30" rx="3"/>
+        </g>
+        <g stroke="#2e2e34" fill="none" stroke-linecap="round">
+          <path d="M-12,168 H402" stroke-width="15"/><path d="M-14,40 Q120,120 404,66" stroke-width="12"/>
+          <path d="M62,-12 V222" stroke-width="12"/><path d="M328,-12 V222" stroke-width="11"/>
+        </g>
+        <g stroke="#3a3a42" fill="none" stroke-linecap="round">
+          <path d="M-12,168 H402" stroke-width="9"/><path d="M-14,40 Q120,120 404,66" stroke-width="7"/>
+          <path d="M62,-12 V222" stroke-width="7"/><path d="M328,-12 V222" stroke-width="6.5"/>
+        </g>
+        <g stroke="#33333a" fill="none" stroke-width="3.2" stroke-linecap="round">
+          <path d="M-12,110 H402"/><path d="M150,-12 V222"/><path d="M-12,200 H402"/>
+        </g>
+      </svg>
+      <div class="hero-vignette"></div>
+      <svg class="route" viewBox="0 0 390 210" preserveAspectRatio="none" aria-hidden="true">
+        <polyline class="route-cap" points="66,164 150,120 292,64" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+        <polyline class="route-ink" points="66,164 150,120 292,64" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <a class="hero-link" href="post-detail.html" aria-label="박조기의 남산 야경 게시물 보기"></a>
+      <button class="pin" style="left:66px;top:164px" type="button" aria-haspopup="dialog"
+        data-name="남산공원 산책로" data-cat="자연" data-addr="용산구 남산공원길 · 1.1km" data-thumb="p-n2"
+        data-memo="케이블카 대신 걸어 올라감. 노을 지기 30분 전이 딱 좋아요." data-who="박조기"
+        onclick="openPin(this)" aria-label="남산공원 산책로, 자연, 동선 1번">
+        <span class="mark"><b>1</b></span>
+      </button>
+      <button class="pin" style="left:150px;top:120px" type="button" aria-haspopup="dialog"
+        data-name="N서울타워 전망대" data-cat="관광" data-addr="용산구 남산공원길 105 · 1.4km" data-thumb="p-n3"
+        data-memo="전망대 유리창 자리 선점. 해질녘 도시 불빛 켜지는 순간 최고." data-who="박조기"
+        onclick="openPin(this)" aria-label="N서울타워 전망대, 관광, 동선 2번">
+        <span class="mark"><b>2</b></span>
+      </button>
+      <button class="pin" style="left:292px;top:64px" type="button" aria-haspopup="dialog"
+        data-name="남산서울타워 루프" data-cat="야경" data-addr="용산구 남산공원길 105 · 1.4km" data-thumb="p-n1"
+        data-memo="야경 다 보고 마지막에 커피 한 잔. 바람 세니 겉옷 필수." data-who="박조기"
+        onclick="openPin(this)" aria-label="남산서울타워 루프, 야경, 동선 3번">
+        <span class="mark"><b>3</b></span>
+      </button>
+      <span class="hero-badge"><span class="ln" aria-hidden="true"></span>동선 <b>3곳</b> · 야간</span>
+    </div>
+
+    <div class="thumbs" role="list" aria-label="박조기의 사진 3장">
+      <a class="thumb p-n1" role="listitem" href="post-detail.html" aria-label="사진 1"></a>
+      <a class="thumb p-n2" role="listitem" href="post-detail.html" aria-label="사진 2"></a>
+      <a class="thumb p-n3" role="listitem" href="post-detail.html" aria-label="사진 3"></a>
+    </div>
+
+    <div class="actions">
+      <button class="act likebtn" type="button" aria-pressed="true" aria-label="좋아요 취소" data-count="88" onclick="toggleLike(this)">
+        <svg class="heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-9.5-9A5 5 0 0 1 12 5a5 5 0 0 1 9.5 6C19 15.5 12 20 12 20z"/></svg>
+        <span class="like-count">88</span>
+      </button>
+      <button class="act savebtn" type="button" aria-pressed="false" aria-label="저장" onclick="toggleSave(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
+      </button>
+    </div>
+
+    <p class="memo"><span class="u">박조기</span>해질녘 남산. 걸어 올라가서 전망대에서 야경까지 기다렸다 🌆 도시 불빛 켜지는 그 3분이 진짜.</p>
+    <div class="tags">
+      <a class="tag" href="post-detail.html">#남산</a>
+      <a class="tag" href="post-detail.html">#야경</a>
+      <a class="tag" href="post-detail.html">#서울뷰</a>
+    </div>
+    <div class="card-foot"><span class="ago">어제 20:14</span></div>
+  </article>
+
+  <!-- 카드 3 : 연남동 산책 (사진 5장) -->
+  <article class="card">
+    <div class="card-head">
+      <a class="author-link" href="profile-friend.html">
+        <span class="avatar a-park" aria-hidden="true">이</span>
+        <span class="who">
+          <span class="nm">이여행</span>
+          <span class="meta">연남동<span class="dot">·</span>2일 전</span>
+        </span>
+      </a>
+      <a class="head-poi" href="map-home.html" aria-label="경의선숲길 장소 상세">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span>경의선숲길</span>
+      </a>
+    </div>
+
+    <div class="hero">
+      <svg class="mapbase" viewBox="0 0 390 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M-14,60 L60,20 L360,168 L330,210 L-14,110Z" fill="#182418"/>
+        <g fill="#1a231a"><circle cx="70" cy="46" r="5"/><circle cx="150" cy="82" r="6"/><circle cx="230" cy="118" r="6"/><circle cx="300" cy="150" r="5"/><circle cx="110" cy="64" r="4"/></g>
+        <g fill="#202024">
+          <rect x="20" y="128" width="40" height="34" rx="3"/><rect x="66" y="134" width="32" height="30" rx="3"/>
+          <rect x="24" y="172" width="46" height="30" rx="3"/><rect x="150" y="20" width="36" height="30" rx="3"/>
+          <rect x="196" y="18" width="40" height="30" rx="3"/><rect x="300" y="30" width="40" height="34" rx="3"/>
+          <rect x="292" y="80" width="34" height="40" rx="3"/><rect x="150" y="172" width="42" height="30" rx="3"/>
+          <rect x="228" y="176" width="40" height="28" rx="3"/>
+        </g>
+        <g stroke="#2e2e34" fill="none" stroke-linecap="round">
+          <path d="M-12,150 H402" stroke-width="14"/><path d="M110,-12 V222" stroke-width="13"/>
+          <path d="M270,-12 V222" stroke-width="12"/><path d="M-12,84 H402" stroke-width="11"/>
+        </g>
+        <g stroke="#3a3a42" fill="none" stroke-linecap="round">
+          <path d="M-12,150 H402" stroke-width="8.5"/><path d="M110,-12 V222" stroke-width="8"/>
+          <path d="M270,-12 V222" stroke-width="7"/><path d="M-12,84 H402" stroke-width="6.5"/>
+        </g>
+        <g stroke="#33333a" fill="none" stroke-width="3.2" stroke-linecap="round">
+          <path d="M50,-12 V222"/><path d="M190,-12 V222"/><path d="M340,-12 V222"/><path d="M-12,190 H402"/>
+        </g>
+      </svg>
+      <div class="hero-vignette"></div>
+      <svg class="route" viewBox="0 0 390 210" preserveAspectRatio="none" aria-hidden="true">
+        <polyline class="route-cap" points="52,88 168,150 300,84" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+        <polyline class="route-ink" points="52,88 168,150 300,84" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <a class="hero-link" href="post-detail.html" aria-label="이여행의 연남동 산책 게시물 보기"></a>
+      <button class="pin" style="left:52px;top:88px" type="button" aria-haspopup="dialog"
+        data-name="경의선숲길 연남" data-cat="자연" data-addr="마포구 연남동 · 400m" data-thumb="p-g1"
+        data-memo="잔디밭 피크닉 명당. 오전 11시쯤 그늘 자리 잡기 좋아요." data-who="이여행"
+        onclick="openPin(this)" aria-label="경의선숲길 연남, 자연, 동선 1번">
+        <span class="mark"><b>1</b></span>
+      </button>
+      <button class="pin" style="left:168px;top:150px" type="button" aria-haspopup="dialog"
+        data-name="연남동 소금집" data-cat="식당" data-addr="마포구 성미산로 · 260m" data-thumb="p-g5"
+        data-memo="델리 샌드위치 포장해서 숲길에서 먹었어요. 웨이팅 15분." data-who="이여행"
+        onclick="openPin(this)" aria-label="연남동 소금집, 식당, 동선 2번">
+        <span class="mark"><b>2</b></span>
+      </button>
+      <button class="pin" style="left:300px;top:84px" type="button" aria-haspopup="dialog"
+        data-name="테일러커피 연남" data-cat="카페" data-addr="마포구 동교로 · 520m" data-thumb="p-g3"
+        data-memo="산책 마무리 아이스 라떼. 2층 창가에서 숲길 내려다보여요." data-who="이여행"
+        onclick="openPin(this)" aria-label="테일러커피 연남, 카페, 동선 3번">
+        <span class="mark"><b>3</b></span>
+      </button>
+      <span class="hero-badge"><span class="ln" aria-hidden="true"></span>동선 <b>3곳</b> · 2.2km</span>
+    </div>
+
+    <div class="thumbs" role="list" aria-label="이여행의 사진 5장">
+      <a class="thumb p-g1" role="listitem" href="post-detail.html" aria-label="사진 1"></a>
+      <a class="thumb p-g2" role="listitem" href="post-detail.html" aria-label="사진 2"></a>
+      <a class="thumb p-g3" role="listitem" href="post-detail.html" aria-label="사진 3"></a>
+      <a class="thumb p-g4" role="listitem" href="post-detail.html" aria-label="사진 4"></a>
+      <a class="thumb p-g5" role="listitem" href="post-detail.html" aria-label="사진 5, 외 2장 더">
+        <span class="more">+2</span>
+      </a>
+    </div>
+
+    <div class="actions">
+      <button class="act likebtn" type="button" aria-pressed="false" aria-label="좋아요" data-count="27" onclick="toggleLike(this)">
+        <svg class="heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-9.5-9A5 5 0 0 1 12 5a5 5 0 0 1 9.5 6C19 15.5 12 20 12 20z"/></svg>
+        <span class="like-count">27</span>
+      </button>
+      <button class="act savebtn" type="button" aria-pressed="true" aria-label="저장 취소" onclick="toggleSave(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
+      </button>
+    </div>
+
+    <p class="memo"><span class="u">이여행</span>연트럴파크 산책. 소금집에서 샌드위치 포장해 잔디밭 피크닉, 테일러커피로 마무리 🌳 날씨 완벽했다.</p>
+    <div class="tags">
+      <a class="tag" href="post-detail.html">#연남동</a>
+      <a class="tag" href="post-detail.html">#경의선숲길</a>
+      <a class="tag" href="post-detail.html">#피크닉</a>
+      <a class="tag" href="post-detail.html">#주말나들이</a>
+    </div>
+    <div class="card-foot"><span class="ago">2일 전</span></div>
+  </article>
+
+</main>
+
+<!-- ───────── 핀 프리뷰 바텀시트 ───────── -->
+<div class="scrim" id="scrim" onclick="closePin()"></div>
+<section class="sheet" id="pinSheet" role="dialog" aria-modal="true" aria-labelledby="pinName">
+  <div class="grab" aria-hidden="true"><span></span></div>
+  <div class="sheet-head">
+    <span class="sheet-thumb p-c1" id="pinThumb" aria-hidden="true"></span>
+    <div class="ttl">
+      <h2 id="pinName">블루보틀 성수</h2>
+      <div class="m">
+        <span class="catchip" id="pinCat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <span id="pinCatLabel">카페</span>
+        </span>
+        <span id="pinAddr">성동구 아차산로 · 320m</span>
+      </div>
+    </div>
+    <button class="closebtn" type="button" aria-label="닫기" onclick="closePin()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="sheet-memo"><span class="who2" id="pinWho">김여기</span> <span id="pinMemo">오픈런 성공. 통창 자리 추천.</span></div>
+  <div class="sheet-cta">
+    <a class="btn-primary" id="pinGo" href="map-home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 4 5v16l5-2 6 2 5-2V3l-5 2-6-2z"/><path d="M9 3v16M15 5v16"/></svg>
+      장소 상세 보기
+    </a>
+    <button class="btn-ghost" type="button" onclick="closePin()">닫기</button>
+  </div>
+</section>
+
+<!-- 토스트 -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ───────── 탭바 + FAB (홈=피드 활성) ───────── -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a class="tab" href="feed.html" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><rect x="9" y="13" width="6" height="7"/></svg>
+    홈
+  </a>
+  <div class="fab-slot">
+    <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </a>
+  </div>
+  <a class="tab" href="profile-me.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+    프로필
+  </a>
+</nav>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ① 빈 피드 ↔ 카드 토글 */
+  var demo = $('demoToggle'), empty = $('emptyState'), list = $('feedList'), label = $('demoLabel');
+  demo.addEventListener('click', function(){
+    var goEmpty = empty.classList.contains('hidden');
+    if(goEmpty){
+      empty.classList.remove('hidden'); list.classList.add('hidden');
+      label.textContent = '카드 피드 보기'; demo.setAttribute('aria-pressed','true');
+      closePin();
+    } else {
+      empty.classList.add('hidden'); list.classList.remove('hidden');
+      label.textContent = '빈 피드 보기'; demo.setAttribute('aria-pressed','false');
+    }
+  });
+
+  /* ② 좋아요 토글 (하트 채움 + 개수) */
+  window.toggleLike = function(btn){
+    var on = btn.getAttribute('aria-pressed') === 'true';
+    var base = parseInt(btn.getAttribute('data-count'), 10) || 0;
+    btn.setAttribute('aria-pressed', on ? 'false' : 'true');
+    btn.setAttribute('aria-label', on ? '좋아요' : '좋아요 취소');
+    btn.querySelector('.like-count').textContent = on ? base : base + 1;
+  };
+
+  /* ③ 저장 토글 */
+  window.toggleSave = function(btn){
+    var on = btn.getAttribute('aria-pressed') === 'true';
+    btn.setAttribute('aria-pressed', on ? 'false' : 'true');
+    btn.setAttribute('aria-label', on ? '저장' : '저장 취소');
+  };
+
+  /* ④ 핀 → 프리뷰 바텀시트 */
+  var sheet = $('pinSheet'), scrim = $('scrim');
+  window.openPin = function(btn){
+    $('pinName').textContent = btn.dataset.name;
+    $('pinCatLabel').textContent = btn.dataset.cat;
+    $('pinAddr').textContent = btn.dataset.addr;
+    $('pinWho').textContent = btn.dataset.who;
+    $('pinMemo').textContent = btn.dataset.memo;
+    var th = $('pinThumb'); th.className = 'sheet-thumb ' + btn.dataset.thumb;
+    scrim.classList.add('show');
+    requestAnimationFrame(function(){ sheet.classList.add('show'); });
+  };
+  window.closePin = function(){
+    sheet.classList.remove('show'); scrim.classList.remove('show');
+  };
+})();
+</script>
+</body>
+</html>

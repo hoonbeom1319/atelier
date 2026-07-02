@@ -1,0 +1,259 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>업로드2 · 자동분류 결과 (SC-11)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* 화면 전용 (lo-fi: 회색/점선만) */
+.uphead{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 6px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.uphead .htitle{font-weight:700;font-size:16px}
+.uphead a,.uphead button{font:inherit;text-decoration:none;color:#222;border:1px solid #bbb;background:#f3f3f3;border-radius:6px;padding:7px 10px;cursor:pointer}
+.steps{font-size:12px;color:#888;text-align:center;padding:6px 0;border-bottom:1px solid #eee}
+.poicard{border:1px dashed #999;border-radius:8px;margin:10px 14px;padding:10px}
+.poicard .row1{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.poiname{font-weight:700;font-size:15px}
+.bdg-est,.bdg-fix{font:inherit;font-size:12px;border-radius:10px;padding:2px 9px;cursor:pointer}
+.bdg-est{background:#fff;color:#444;border:1px dashed #888}
+.bdg-fix{background:#333;color:#fff;border:1px solid #333;cursor:default}
+.thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.thumb{position:relative;width:72px}
+.thumb .ph{min-height:62px;font-size:11px}
+.dots{position:absolute;top:2px;right:2px;border:1px solid #999;background:#fff;border-radius:5px;font-size:13px;line-height:1;padding:1px 5px;cursor:pointer;color:#333}
+.count{font-size:12px;color:#777;margin-top:8px}
+.menu{margin-top:8px;border:1px solid #888;border-radius:8px;overflow:hidden}
+.menu button{display:block;width:100%;text-align:left;border:0;border-top:1px solid #ddd;background:#fafafa;padding:10px 12px;font:inherit;cursor:pointer}
+.menu button:first-child{border-top:0}
+.note{font-size:12px;color:#888;margin:4px 14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#222;color:#fff;font-size:13px;padding:8px 14px;border-radius:8px;z-index:9}
+.demobar{display:flex;align-items:center;gap:8px;margin:10px 14px}
+.demobar button{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:8px 12px;cursor:pointer}
+.demobar button[aria-pressed="true"]{background:#333;color:#fff;border-color:#333}
+.foot{display:flex;justify-content:flex-end;padding:12px 14px}
+</style>
+</head>
+<body>
+
+<!-- 풀스크린 업로드 헤더 (탭바 없음 — 업로드는 풀스크린) -->
+<div class="uphead">
+  <a href="upload-1-gallery.html" aria-label="뒤로 갤러리로">← 뒤로</a>
+  <span class="htitle">장소별 분류</span>
+  <a class="next" href="upload-3-manual.html">다음</a>
+</div>
+<div class="steps">업로드 2 / 4 · 자동 분류 결과 (추정은 확인해 주세요)</div>
+
+<!-- 데모 토글: 전량 위치없음(빈 분류) ↔ 정상 분류 -->
+<div class="demobar">
+  <span style="font-size:12px;color:#888">데모:</span>
+  <button id="demoEmpty" type="button" aria-pressed="false" onclick="toggleEmpty()">분류된 장소 없음</button>
+</div>
+
+<!-- ===== 정상 분류 뷰 ===== -->
+<div id="classView">
+
+  <!-- POI 그룹 카드 1: 추정 -->
+  <div class="poicard" data-poi="블루보틀 성수">
+    <div class="row1">
+      <span class="poiname">📍 블루보틀 성수</span>
+      <button class="bdg-est" type="button" onclick="confirmPoi(this)" aria-label="추정 장소 확인">추정 ⟳</button>
+    </div>
+    <div class="thumbs">
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+    </div>
+    <div class="count">사진 <span class="cnum">3</span>장</div>
+  </div>
+
+  <!-- POI 그룹 카드 2: 확정 -->
+  <div class="poicard" data-poi="서울숲">
+    <div class="row1">
+      <span class="poiname">📍 서울숲</span>
+      <button class="bdg-fix" type="button" disabled>확정 ✓</button>
+    </div>
+    <div class="thumbs">
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+    </div>
+    <div class="count">사진 <span class="cnum">2</span>장</div>
+  </div>
+
+  <!-- POI 그룹 카드 3: 추정 -->
+  <div class="poicard" data-poi="대림창고">
+    <div class="row1">
+      <span class="poiname">📍 대림창고</span>
+      <button class="bdg-est" type="button" onclick="confirmPoi(this)" aria-label="추정 장소 확인">추정 ⟳</button>
+    </div>
+    <div class="thumbs">
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+    </div>
+    <div class="count">사진 <span class="cnum">1</span>장</div>
+  </div>
+
+  <!-- 위치 없음 묶음 카드 -->
+  <div class="poicard" data-poi="위치 없음" id="noLocCard">
+    <div class="row1">
+      <span class="poiname">❓ 위치 없음</span>
+      <span class="badge"><span class="cnum">5</span>장</span>
+    </div>
+    <div class="thumbs">
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+      <div class="thumb"><div class="ph">사진</div><button class="dots" type="button" onclick="openMenu(this)" aria-label="사진 메뉴">⋯</button></div>
+    </div>
+    <div class="count">사진 <span class="cnum">5</span>장 · 다음 단계에서 직접 지정</div>
+  </div>
+
+</div>
+
+<!-- ===== 빈 분류 뷰 (데모 토글) ===== -->
+<div id="emptyView" class="hidden">
+  <div class="box" style="text-align:center;padding:28px 16px">
+    <div style="font-size:30px;margin-bottom:8px">❓</div>
+    <div style="font-weight:700;margin-bottom:6px">분류된 장소가 없어요</div>
+    <div style="font-size:13px;color:#888">사진에 위치 정보가 없어 자동 분류하지 못했어요.<br>전부 <b>위치 없음</b>으로 묶었어요 — 다음 단계에서 직접 지정해요.</div>
+    <div class="poicard" style="margin:16px 0 0;text-align:left">
+      <div class="row1"><span class="poiname">❓ 위치 없음</span><span class="badge">11장</span></div>
+      <div class="thumbs">
+        <div class="thumb"><div class="ph">사진</div></div>
+        <div class="thumb"><div class="ph">사진</div></div>
+        <div class="thumb"><div class="ph">사진</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <a class="btn primary" href="upload-3-manual.html">다음 →</a>
+</div>
+
+<!-- ⋯ 사진 메뉴 시트 -->
+<div id="photoMenu" class="sheet hidden" role="dialog" aria-label="사진 메뉴">
+  <div style="font-weight:700;margin-bottom:4px">사진 정리</div>
+  <div class="note" style="margin:0 0 6px">이 사진을 어떻게 할까요?</div>
+  <div class="menu">
+    <button type="button" onclick="act('move')">다른 POI로 이동</button>
+    <button type="button" onclick="act('merge')">옆 사진과 병합</button>
+    <button type="button" onclick="act('split')">묶음에서 분리</button>
+  </div>
+  <div style="margin-top:10px;text-align:right"><button class="btn" type="button" onclick="closeMenu()">닫기</button></div>
+</div>
+
+<!-- 추정 확인 시트 -->
+<div id="confirmSheet" class="sheet hidden" role="dialog" aria-label="장소 확인">
+  <div style="font-weight:700;margin-bottom:6px">여기 맞나요?</div>
+  <div class="ph" style="min-height:90px;margin-bottom:10px">지도 영역 (추정 핀)</div>
+  <div id="confirmName" style="font-size:14px;margin-bottom:12px">📍 블루보틀 성수</div>
+  <div style="display:flex;gap:8px">
+    <button class="btn" type="button" style="flex:1" onclick="closeConfirm()">아니요, 직접</button>
+    <button class="btn primary" type="button" style="flex:1" onclick="doConfirm()">네, 확정</button>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+var curThumb=null, curBadge=null;
+
+function showToast(t){
+  var el=document.getElementById('toast');
+  el.textContent=t; el.classList.remove('hidden');
+  clearTimeout(window._tt); window._tt=setTimeout(function(){el.classList.add('hidden');},1600);
+}
+
+/* 카드 사진 수 표시 갱신 (실제 .thumb 개수 반영) */
+function refreshCount(card){
+  var n=card.querySelectorAll('.thumb').length;
+  card.querySelectorAll('.cnum').forEach(function(s){s.textContent=n;});
+  if(n===0){
+    var c=card.querySelector('.count'); if(c) c.textContent='사진 0장 — 빈 묶음';
+  }
+}
+
+/* ① ⋯ 메뉴 열기 */
+function openMenu(btn){
+  curThumb=btn.closest('.thumb');
+  document.getElementById('photoMenu').classList.remove('hidden');
+}
+function closeMenu(){
+  document.getElementById('photoMenu').classList.add('hidden'); curThumb=null;
+}
+/* 이동/병합/분리 — 실제로 사진 수가 바뀜 */
+function act(kind){
+  if(!curThumb){closeMenu();return;}
+  var card=curThumb.closest('.poicard');
+  if(kind==='move'){
+    // "위치 없음" 묶음으로 이동 (없으면 첫 다른 카드로)
+    var dest=document.getElementById('noLocCard');
+    if(dest===card){ dest=document.querySelector('#classView .poicard:not(#noLocCard)'); }
+    dest.querySelector('.thumbs').appendChild(curThumb);
+    refreshCount(card); refreshCount(dest);
+    showToast('사진을 "'+dest.dataset.poi+'"(으)로 이동했어요');
+  } else if(kind==='merge'){
+    var sib=curThumb.previousElementSibling||curThumb.nextElementSibling;
+    if(sib){ sib.remove(); refreshCount(card); showToast('인접 사진과 병합했어요 (−1장)'); }
+    else { showToast('병합할 인접 사진이 없어요'); }
+  } else if(kind==='split'){
+    var dest2=document.getElementById('noLocCard');
+    if(dest2===card){ showToast('이미 위치 없음 묶음이에요'); }
+    else { dest2.querySelector('.thumbs').appendChild(curThumb); refreshCount(card); refreshCount(dest2); showToast('묶음에서 분리해 "위치 없음"으로 보냈어요'); }
+  }
+  closeMenu();
+}
+
+/* ② 추정 배지 → 확인 → 확정 */
+function confirmPoi(btn){
+  curBadge=btn;
+  var card=btn.closest('.poicard');
+  document.getElementById('confirmName').textContent='📍 '+card.dataset.poi;
+  document.getElementById('confirmSheet').classList.remove('hidden');
+}
+function closeConfirm(){
+  document.getElementById('confirmSheet').classList.add('hidden');
+  showToast('직접 지정은 다음 단계에서 할 수 있어요');
+  curBadge=null;
+}
+function doConfirm(){
+  if(curBadge){
+    curBadge.outerHTML='<button class="bdg-fix" type="button" disabled>확정 ✓</button>';
+  }
+  document.getElementById('confirmSheet').classList.add('hidden');
+  showToast('장소를 확정했어요');
+  curBadge=null;
+}
+
+/* ③ 데모: 분류된 장소 없음 토글 */
+function toggleEmpty(){
+  var b=document.getElementById('demoEmpty');
+  var on=b.getAttribute('aria-pressed')==='true';
+  b.setAttribute('aria-pressed', String(!on));
+  document.getElementById('classView').classList.toggle('hidden', !on?true:false);
+  document.getElementById('emptyView').classList.toggle('hidden', !on?false:true);
+}
+</script>
+</body>
+</html>

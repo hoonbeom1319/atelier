@@ -1,0 +1,498 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>요기조기 — 친구 프로필 (SC-17)</title>
+<style>
+  @import url("../foundation/tokens.css");
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--color-bg)}
+  body{
+    width:var(--app-width);min-height:844px;margin:0 auto;position:relative;
+    font-family:var(--font-sans);color:var(--color-text);
+    -webkit-font-smoothing:antialiased;background:var(--color-bg);
+    padding-bottom:calc(var(--tabbar-h) + 30px);
+  }
+  a{color:inherit}
+  svg{display:block;flex:none}
+
+  /* ── 앱바 (인스타식 슬림 48px + 헤어라인, 뒤로 · 이름 · 더보기) ── */
+  .appbar{
+    height:var(--appbar-h);display:flex;align-items:center;gap:var(--space-1);
+    padding:0 var(--space-1);position:sticky;top:0;z-index:var(--z-appbar);
+    background:rgba(16,16,18,.86);backdrop-filter:saturate(180%) blur(12px);
+    -webkit-backdrop-filter:saturate(180%) blur(12px);
+    border-bottom:1px solid var(--color-border);
+  }
+  .ab-btn{width:44px;height:44px;display:grid;place-items:center;text-decoration:none;
+    color:var(--color-text);border-radius:var(--radius-full);transition:background .15s;
+    background:transparent;border:0;cursor:pointer}
+  .ab-btn:active{background:var(--color-surface-alt)}
+  .ab-title{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:var(--fs-h2);
+    font-weight:var(--fw-h2);letter-spacing:-.02em}
+  .ab-title .lock{display:none;color:var(--color-text-muted);line-height:1}
+  body.is-private .ab-title .lock{display:block}
+
+  /* ── 프로필 헤더 ──────────────────────────────────── */
+  .phead{display:flex;align-items:center;gap:var(--space-5);padding:var(--space-5) var(--space-4) var(--space-3)}
+  .avatar{position:relative;width:84px;height:84px;flex:0 0 84px;border-radius:var(--radius-full);
+    display:grid;place-items:center;font-size:30px;font-weight:var(--fw-display);letter-spacing:-.02em;
+    color:var(--color-on-primary);overflow:hidden;
+    background:radial-gradient(120% 120% at 30% 22%, #6b6b6b, #1a1a1a 78%);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+  .avatar::after{content:"";position:absolute;inset:0;border-radius:var(--radius-full);
+    border:3px solid var(--color-surface);box-shadow:0 0 0 1px var(--color-border)}
+  .pinfo{flex:1;min-width:0}
+  .pname{display:flex;align-items:center;gap:8px;font-size:var(--fs-h1);line-height:var(--lh-h1);
+    font-weight:var(--fw-h1);letter-spacing:-.02em}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+    padding:2px 9px;border-radius:var(--radius-full);line-height:1.4;white-space:nowrap;
+    background:var(--color-primary-tint);color:var(--color-scope-public)}
+  .phandle{margin-top:3px;font-size:var(--fs-sm);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .pbio{margin-top:6px;font-size:var(--fs-sm);line-height:1.45;color:var(--color-text-secondary)}
+  .pmeta{margin-top:5px;font-size:var(--fs-xs);color:var(--color-text-muted);display:flex;align-items:center;gap:5px}
+  .pmeta b{color:var(--color-text-secondary);font-weight:var(--fw-semibold)}
+
+  /* ── 카운트 3종 (비인터랙티브 텍스트) ─────────────────── */
+  .counts{display:flex;margin:var(--space-2) var(--space-4) 0;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;
+    background:var(--color-surface)}
+  .counts > div{flex:1;text-align:center;padding:var(--space-3) var(--space-1);position:relative}
+  .counts > div + div::before{content:"";position:absolute;left:0;top:24%;height:52%;width:1px;background:var(--color-divider)}
+  .counts b{display:block;font-size:var(--fs-h2);line-height:1.1;font-weight:var(--fw-semibold);
+    letter-spacing:-.02em;color:var(--color-text)}
+  .counts span{display:block;margin-top:3px;font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+
+  /* ── 액션 행 (팔로우 순환 / 메시지) ───────────────────── */
+  .actions{display:flex;gap:var(--space-2);margin:var(--space-4) var(--space-4) 0}
+  .follow-btn{flex:1;height:40px;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+    letter-spacing:-.01em;border-radius:var(--radius-sm);cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--color-primary);border:1px solid var(--color-primary);color:var(--color-on-primary);
+    transition:transform .1s ease,background .15s ease,color .15s ease,border-color .15s ease}
+  .follow-btn:active{transform:scale(.98)}
+  /* 팔로잉 / 요청됨 = 아웃라인 */
+  .follow-btn[data-state="following"],
+  .follow-btn[data-state="requested"]{
+    background:var(--color-surface);color:var(--color-text);border-color:var(--color-border-strong)}
+  .follow-btn .chk{display:none}
+  .follow-btn[data-state="following"] .chk{display:block}
+  .msg-btn{flex:1;height:40px;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+    border-radius:var(--radius-sm);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--color-surface-alt);border:1px solid var(--color-border);color:var(--color-text);
+    transition:transform .1s ease,background .15s ease}
+  .msg-btn:active{transform:scale(.98);background:var(--color-surface-sunken)}
+  .msg-btn .oos{font-size:10px;font-weight:var(--fw-medium);color:var(--color-text-muted)}
+  .msg-note{margin:var(--space-2) var(--space-4) 0;font-size:var(--fs-xs);color:var(--color-text-muted);
+    background:var(--color-surface-alt);border:1px solid var(--color-border);border-radius:var(--radius-sm);
+    padding:8px 12px;display:flex;align-items:center;gap:6px}
+
+  /* ── 세그먼트 [그리드 | 지도] (인스타식 검정 언더라인 탭) ── */
+  .seg{display:flex;margin:var(--space-5) 0 0;border-bottom:1px solid var(--color-border);position:relative}
+  .seg button{flex:1;border:0;background:transparent;cursor:pointer;font-family:inherit;
+    padding:11px 6px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text-muted);
+    position:relative;transition:color .18s ease}
+  .seg button .ic{font-size:17px;line-height:1;transition:transform .18s ease}
+  .seg button[aria-selected="true"]{color:var(--color-text)}
+  .seg button[aria-selected="true"]::after{content:"";position:absolute;left:14%;right:14%;bottom:-1px;
+    height:2px;border-radius:2px;background:var(--color-primary)}
+  .seg button:active .ic{transform:scale(.9)}
+
+  /* ── 컬러 사진 그리드 (3열·2px gap·3:4) ───────────────── */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--color-surface);padding:2px 0 0}
+  .cell{position:relative;aspect-ratio:3/4;display:block;overflow:hidden;cursor:pointer;
+    background:var(--color-surface-sunken)}
+  /* 사진 같은 깊이: 미세 노이즈 오버레이 + 상하단 명암 */
+  .cell::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;mix-blend-mode:overlay;opacity:.35;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .cell::after{content:"";position:absolute;inset:0;z-index:2;
+    background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(0,0,0,0) 26%,rgba(0,0,0,0) 46%,rgba(0,0,0,.5));
+    transition:background .16s}
+  .cell:hover::after,.cell:active::after{
+    background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(0,0,0,.05) 30%,rgba(0,0,0,.62))}
+  .cell .multi{position:absolute;top:7px;right:8px;z-index:3;color:#fff;
+    filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
+  .cell .poi{position:absolute;left:7px;bottom:7px;right:7px;z-index:3;display:flex;align-items:center;gap:3px;
+    color:#fff;font-size:10px;font-weight:var(--fw-semibold);
+    text-shadow:0 1px 3px rgba(0,0,0,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    transform:translateY(3px);opacity:0;transition:opacity .16s,transform .16s}
+  .cell:hover .poi,.cell:active .poi{opacity:1;transform:translateY(0)}
+
+  /* 컬러 실사 장면 그라데(따뜻한 카페·초록 공원·도시 야경·디저트) */
+  .c1{background:
+    radial-gradient(75% 55% at 32% 20%,rgba(255,244,214,.55),transparent 60%),
+    linear-gradient(155deg,#f0d9b4 0%,#d19a63 55%,#9c5f30 100%)}          /* 블루보틀 라떼·우드 */
+  .c2{background:
+    radial-gradient(70% 45% at 70% 18%,rgba(255,206,150,.5),transparent 55%),
+    linear-gradient(165deg,#38466e 0%,#7a5170 52%,#d1885a 100%)}         /* 성수 골목 야경 */
+  .c3{background:
+    radial-gradient(80% 55% at 30% 22%,rgba(226,244,196,.6),transparent 62%),
+    linear-gradient(160deg,#a7c882 0%,#6ba04d 50%,#3f7233 100%)}         /* 서울숲 산책 */
+  .c4{background:
+    radial-gradient(75% 50% at 34% 20%,rgba(255,238,206,.55),transparent 60%),
+    linear-gradient(155deg,#ecd4a6 0%,#c69256 58%,#8f5f2c 100%)}         /* 어니언 베이커리 */
+  .c5{background:
+    radial-gradient(85% 55% at 62% 24%,rgba(255,214,170,.55),transparent 58%),
+    linear-gradient(160deg,#f2a874 0%,#c47a8e 55%,#6b5a97 100%)}         /* 한강 노을 */
+  .c6{background:
+    radial-gradient(70% 50% at 68% 22%,rgba(214,200,238,.5),transparent 58%),
+    linear-gradient(160deg,#c2b6d6 0%,#8a76a6 52%,#4f4470 100%)}         /* 디뮤지엄 보라 조명 */
+  .c7{background:
+    radial-gradient(78% 50% at 60% 20%,rgba(255,200,150,.5),transparent 56%),
+    linear-gradient(165deg,#2b3a5c 0%,#7a5568 50%,#d78a52 100%)}         /* 루프탑 도시야경 */
+  .c8{background:
+    radial-gradient(78% 55% at 34% 22%,rgba(255,246,246,.6),transparent 62%),
+    linear-gradient(155deg,#2a1a1e 0%,#eca6b6 55%,#c9738e 100%)}         /* 노티드 디저트 */
+  .c9{background:
+    radial-gradient(75% 52% at 32% 20%,rgba(255,240,212,.55),transparent 60%),
+    linear-gradient(158deg,#e7cb9e 0%,#b98a52 56%,#835a34 100%)}         /* 대림창고 카페 */
+
+  /* ── 지도 뷰 (모노 텍스처 캔버스 + 부상 레이어) ─────────── */
+  .mapwrap{padding:0}
+  .mapview{position:relative;height:392px;overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 72% 12%, #2e2e34 0%, transparent 55%),
+      radial-gradient(100% 70% at 12% 88%, #202024 0%, transparent 52%),
+      var(--color-map-canvas)}
+  .mapview::before{content:"";position:absolute;inset:-12%;
+    background-image:
+      linear-gradient(90deg,transparent 0 48.5%,rgba(16,16,18,.86) 48.5% 51.5%,transparent 51.5%),
+      linear-gradient(0deg,transparent 0 48.5%,rgba(16,16,18,.86) 48.5% 51.5%,transparent 51.5%);
+    background-size:74px 74px;opacity:.6;transform:rotate(-7deg)}
+  .road{position:absolute;background:#f5f5f5;border-radius:var(--radius-full);
+    box-shadow:0 0 0 1px rgba(120,120,120,.14)}
+  .rA{top:96px;left:-30px;width:470px;height:22px;transform:rotate(12deg)}
+  .rB{top:248px;left:-40px;width:480px;height:18px;transform:rotate(-8deg)}
+  .rC{top:-20px;left:118px;width:20px;height:440px;transform:rotate(6deg)}
+  .park{position:absolute;left:236px;top:36px;width:150px;height:130px;background:rgba(90,110,90,.16);
+    border-radius:46% 54% 60% 40%/52% 42% 58% 48%}
+  .water{position:absolute;left:-44px;top:300px;width:230px;height:96px;background:rgba(70,90,110,.13);
+    border-radius:50% 50% 30% 40%/60% 50% 50% 40%;transform:rotate(-4deg)}
+
+  .route{position:absolute;inset:0;pointer-events:none}
+  .route path{fill:none;stroke:var(--color-primary);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .route path.jump{stroke-dasharray:2 8;opacity:.55}
+  .step{position:absolute;width:20px;height:20px;border-radius:var(--radius-full);background:var(--color-primary);
+    color:var(--color-on-primary);font-size:10px;font-weight:var(--fw-semibold);
+    display:grid;place-items:center;border:2px solid var(--color-surface);box-shadow:var(--shadow-1);
+    transform:translate(-50%,-50%);z-index:2}
+  .pin{position:absolute;transform:translate(-50%,-100%);z-index:3;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3))}
+  .pin .bub{position:relative;width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+    background:var(--color-primary);border:2px solid var(--color-surface);display:grid;place-items:center}
+  .pin .bub .em{transform:rotate(45deg);line-height:1;color:var(--color-on-primary);display:grid;place-items:center}
+  .pin .cnt{position:absolute;top:-7px;right:-8px;min-width:18px;height:18px;padding:0 4px;border-radius:var(--radius-full);
+    background:var(--color-surface);color:var(--color-text);font-size:10px;font-weight:var(--fw-semibold);
+    display:grid;place-items:center;border:1.5px solid var(--color-border-strong);box-shadow:var(--shadow-1)}
+  .cluster{position:absolute;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:var(--radius-full);
+    background:var(--color-primary);color:var(--color-on-primary);display:grid;place-items:center;
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);border:3px solid var(--color-surface);
+    box-shadow:var(--shadow-2);z-index:3}
+  .cluster::after{content:"";position:absolute;inset:-5px;border-radius:var(--radius-full);
+    border:2px solid var(--color-primary);opacity:.18}
+  .map-card{position:absolute;left:var(--space-3);top:var(--space-3);z-index:4;
+    display:flex;align-items:center;gap:9px;background:rgba(16,16,18,.86);backdrop-filter:blur(6px);
+    padding:8px 13px 8px 9px;border-radius:var(--radius-full);box-shadow:var(--shadow-2)}
+  .map-card .rt{width:28px;height:28px;border-radius:var(--radius-full);background:var(--color-primary);
+    color:var(--color-on-primary);display:grid;place-items:center;font-size:13px}
+  .map-card b{font-size:var(--fs-sm);font-weight:var(--fw-semibold);display:block;line-height:1.2}
+  .map-card small{display:block;font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+  .map-fab{position:absolute;right:var(--space-3);bottom:var(--space-3);display:flex;flex-direction:column;gap:var(--space-2);z-index:4}
+  .map-fab button{width:42px;height:42px;border-radius:var(--radius-md);background:var(--color-surface);
+    border:1px solid var(--color-border);box-shadow:var(--shadow-2);font-size:17px;cursor:pointer;
+    display:grid;place-items:center;color:var(--color-text-secondary);transition:transform .1s}
+  .map-fab button:active{transform:scale(.92)}
+  .map-fab button[aria-pressed="true"]{color:var(--color-primary);background:var(--color-primary-tint)}
+  .map-caption{padding:var(--space-3) var(--space-4) var(--space-4);font-size:var(--fs-sm);
+    line-height:1.45;color:var(--color-text-muted)}
+  .map-caption b{color:var(--color-text-secondary);font-weight:var(--fw-semibold)}
+  .toast{position:absolute;left:50%;bottom:74px;transform:translateX(-50%);z-index:6;
+    background:var(--color-text);color:var(--color-on-dark);font-size:var(--fs-xs);font-weight:var(--fw-medium);
+    padding:7px 14px;border-radius:var(--radius-full);box-shadow:var(--shadow-3);white-space:nowrap}
+
+  /* ── 비공개 잠금 상태 ────────────────────────────────── */
+  .locked{margin:var(--space-6) var(--space-4) var(--space-4);text-align:center;
+    padding:var(--space-8) var(--space-5);border-top:1px solid var(--color-border)}
+  .locked .ill{width:76px;height:76px;margin:0 auto var(--space-4);border-radius:var(--radius-full);
+    display:grid;place-items:center;color:var(--color-text);position:relative;
+    background:radial-gradient(circle at 50% 38%,var(--color-surface-alt),var(--gray-200))}
+  .locked .ill::after{content:"";position:absolute;inset:-8px;border-radius:var(--radius-full);
+    border:2px dashed var(--color-border-strong);opacity:.5}
+  .locked h2{font-size:var(--fs-h2);font-weight:var(--fw-h2);letter-spacing:-.02em}
+  .locked p{margin:var(--space-2) auto 0;max-width:250px;font-size:var(--fs-sm);
+    line-height:1.5;color:var(--color-text-muted)}
+  .locked .hint{margin-top:var(--space-5);display:inline-flex;align-items:center;gap:6px;
+    font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--color-text-secondary);
+    background:var(--color-surface-alt);border:1px solid var(--color-border);
+    border-radius:var(--radius-full);padding:7px 14px}
+
+  /* ── 데모 토글 ───────────────────────────────────────── */
+  .demo{margin:var(--space-6) var(--space-4) 0;padding-top:var(--space-4);border-top:1px dashed var(--color-border)}
+  .demo-btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-size:var(--fs-sm);
+    font-weight:var(--fw-semibold);color:var(--color-text-secondary);background:var(--color-surface);
+    border:1px solid var(--color-border-strong);border-radius:var(--radius-full);padding:9px 16px;
+    cursor:pointer;box-shadow:var(--shadow-1);transition:transform .1s}
+  .demo-btn:active{transform:scale(.97)}
+  .demo .state{margin-top:var(--space-2);font-size:var(--fs-xs);color:var(--color-text-muted)}
+  .demo .state b{color:var(--color-text-secondary);font-weight:var(--fw-semibold)}
+
+  .hidden{display:none !important}
+
+  /* ── 더보기 바텀시트 + scrim ─────────────────────────── */
+  .scrim{position:fixed;inset:0;background:var(--color-overlay);z-index:var(--z-scrim);
+    opacity:0;pointer-events:none;visibility:hidden;transition:opacity .2s ease}
+  .scrim.show{opacity:1;pointer-events:auto;visibility:visible}
+  .sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);visibility:hidden;width:var(--app-width);
+    background:var(--color-surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+    z-index:var(--z-sheet);box-shadow:var(--shadow-3);padding:var(--space-2) 0 calc(var(--space-4) + 6px);
+    transition:transform .26s cubic-bezier(.22,1,.36,1)}
+  .sheet.show{transform:translate(-50%,0);visibility:visible}
+  .sheet .grip{width:38px;height:4px;border-radius:var(--radius-full);background:var(--color-border-strong);
+    margin:6px auto var(--space-1)}
+  .sheet h3{font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text-muted);
+    padding:var(--space-2) var(--space-5) var(--space-1)}
+  .sheet .row{width:100%;display:flex;align-items:center;gap:12px;background:transparent;border:0;
+    font-family:inherit;font-size:var(--fs-body);color:var(--color-text);text-align:left;
+    padding:14px var(--space-5);cursor:pointer;transition:background .12s}
+  .sheet .row:active{background:var(--color-surface-alt)}
+  .sheet .row .oos{margin-left:auto;font-size:10px;font-weight:var(--fw-medium);color:var(--color-text-muted);
+    border:1px solid var(--color-border);border-radius:var(--radius-full);padding:1px 8px}
+  .sheet .row.danger{color:var(--color-danger);font-weight:var(--fw-semibold)}
+  .sheet .divider{height:1px;background:var(--color-divider);margin:var(--space-1) 0}
+
+  /* ── 하단 탭바 + 부상 FAB ────────────────────────────── */
+  .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:var(--app-width);
+    height:var(--tabbar-h);display:flex;align-items:stretch;z-index:var(--z-tabbar);
+    background:var(--color-surface);border-top:1px solid var(--color-border);
+    box-shadow:0 -2px 10px rgba(0,0,0,.05)}
+  .tabbar a.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    text-decoration:none;color:var(--color-text-muted);font-size:var(--fs-xs);font-weight:var(--fw-medium)}
+  .tabbar a.tab .ic{font-size:21px;line-height:1;filter:grayscale(1) opacity(.8)}
+  .tabbar a.tab:active{background:var(--color-surface-alt)}
+  .fab-slot{flex:0 0 84px;position:relative}
+  .fab{position:absolute;left:50%;top:-22px;transform:translateX(-50%);width:56px;height:56px;
+    border-radius:18px;background:var(--color-primary);color:var(--color-on-primary);font-size:28px;font-weight:300;
+    display:grid;place-items:center;text-decoration:none;box-shadow:var(--shadow-3);
+    border:3px solid var(--color-surface);transition:transform .12s}
+  .fab:active{transform:translateX(-50%) scale(.93)}
+</style>
+</head>
+<body>
+
+  <!-- 상단 앱바 (뒤로 · 이름(비공개 자물쇠) · 더보기) -->
+  <header class="appbar">
+    <a class="ab-btn" href="feed.html" aria-label="뒤로"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></a>
+    <div class="ab-title">미라
+      <span class="lock" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></span>
+    </div>
+    <button class="ab-btn" id="moreBtn" aria-label="더보기" aria-haspopup="dialog" aria-expanded="false" onclick="openSheet()"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></button>
+  </header>
+
+  <!-- 프로필 헤더 -->
+  <section class="phead">
+    <div class="avatar">미</div>
+    <div class="pinfo">
+      <h1 class="pname">미라 <span class="badge" id="acctBadge">공개</span></h1>
+      <div class="phandle">@mira_seongsu</div>
+      <p class="pbio">성수동 카페 탐험가 · 주말마다 새 골목 한 곳씩</p>
+      <div class="pmeta"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg> 서울 성동구 · 함께 아는 친구 <b>3명</b></div>
+    </div>
+  </section>
+
+  <!-- 카운트 3종 (비인터랙티브 텍스트) -->
+  <div class="counts" aria-label="활동 요약">
+    <div><b>48</b><span>게시물</span></div>
+    <div><b>1,204</b><span>팔로워</span></div>
+    <div><b>312</b><span>팔로잉</span></div>
+  </div>
+
+  <!-- 액션 행: 팔로우 순환 / 메시지 -->
+  <div class="actions">
+    <button class="follow-btn" id="followBtn" data-state="none" aria-pressed="false" onclick="cycleFollow()">
+      <span class="chk" aria-hidden="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></span>
+      <span id="followLabel">팔로우</span>
+    </button>
+    <button class="msg-btn" id="msgBtn" onclick="showMsgNote()">메시지 <span class="oos">[범위 밖]</span></button>
+  </div>
+  <p class="msg-note hidden" id="msgNote"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z"/></svg> 다이렉트 메시지는 다음 버전(P1)이에요 — 지금은 범위 밖이에요.</p>
+
+  <!-- 공개 콘텐츠 (그리드 / 지도) -->
+  <div id="openContent">
+    <div class="seg" id="viewSeg" role="tablist" aria-label="보기 전환">
+      <button id="tabGrid" role="tab" aria-selected="true" onclick="setView('grid')">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span> 그리드</button>
+      <button id="tabMap" role="tab" aria-selected="false" onclick="setView('map')">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 4 6 2 5-2v15l-5 2-6-2-5 2V5z"/><path d="M9 4v15M15 6v15"/></svg></span> 지도</button>
+    </div>
+
+    <!-- 컬러 사진 그리드 -->
+    <div class="grid" id="gridView">
+      <a class="cell c1" href="post-detail.html" aria-label="블루보틀 성수 게시물"><span class="multi" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="13" height="13" rx="2"/><path d="M16 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h3"/></svg></span><span class="poi">블루보틀 성수</span></a>
+      <a class="cell c2" href="post-detail.html" aria-label="성수 골목 야경 게시물"><span class="poi">성수 골목</span></a>
+      <a class="cell c3" href="post-detail.html" aria-label="서울숲 산책 게시물"><span class="poi">서울숲</span></a>
+      <a class="cell c4" href="post-detail.html" aria-label="어니언 성수 게시물"><span class="multi" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="13" height="13" rx="2"/><path d="M16 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h3"/></svg></span><span class="poi">어니언 성수</span></a>
+      <a class="cell c5" href="post-detail.html" aria-label="한강 노을 게시물"><span class="poi">한강 노을</span></a>
+      <a class="cell c6" href="post-detail.html" aria-label="디뮤지엄 게시물"><span class="poi">디뮤지엄</span></a>
+      <a class="cell c7" href="post-detail.html" aria-label="성수 루프탑 게시물"><span class="poi">성수 루프탑</span></a>
+      <a class="cell c8" href="post-detail.html" aria-label="노티드 성수 게시물"><span class="multi" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="13" height="13" rx="2"/><path d="M16 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h3"/></svg></span><span class="poi">노티드 성수</span></a>
+      <a class="cell c9" href="post-detail.html" aria-label="대림창고 게시물"><span class="poi">대림창고</span></a>
+    </div>
+
+    <!-- 지도 뷰 (미라의 방문 핀 · 동선) -->
+    <div class="mapwrap hidden" id="mapView">
+      <div class="mapview">
+        <span class="road rA" aria-hidden="true"></span>
+        <span class="road rB" aria-hidden="true"></span>
+        <span class="road rC" aria-hidden="true"></span>
+        <span class="park" aria-hidden="true"></span>
+        <span class="water" aria-hidden="true"></span>
+
+        <svg class="route" viewBox="0 0 390 392" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M62,128 L152,102 L212,186 L166,278" />
+          <path class="jump" d="M166,278 L298,236" />
+        </svg>
+
+        <div class="map-card">
+          <span class="rt" aria-hidden="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 21l7-3.4L19 21z"/></svg></span>
+          <span><b>미라님의 방문 동선</b><small>장소 48곳 · 동선 6개</small></span>
+        </div>
+
+        <span class="step" style="left:62px;top:128px">1</span>
+        <span class="step" style="left:152px;top:102px">2</span>
+        <span class="step" style="left:212px;top:186px">3</span>
+        <span class="step" style="left:166px;top:278px">4</span>
+
+        <span class="pin" style="left:62px;top:128px"><span class="bub"><span class="em"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span></span><span class="cnt">9</span></span>
+        <span class="pin" style="left:152px;top:102px"><span class="bub"><span class="em"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span></span></span>
+        <span class="pin" style="left:212px;top:186px"><span class="bub"><span class="em"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span></span><span class="cnt">4</span></span>
+        <span class="pin" style="left:166px;top:278px"><span class="bub"><span class="em"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span></span></span>
+
+        <span class="cluster" style="left:298px;top:236px" aria-label="18개 장소 묶음">+18</span>
+
+        <div class="map-fab">
+          <button id="zoomIn" aria-label="확대" onclick="zoom('확대')">＋</button>
+          <button id="zoomOut" aria-label="축소" onclick="zoom('축소')">－</button>
+          <button id="fitBtn" aria-pressed="false" aria-label="동선 전체 보기" onclick="fit()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></button>
+        </div>
+
+        <div class="toast hidden" id="mapToast"></div>
+      </div>
+      <p class="map-caption">미라님이 기록한 장소 <b>48곳</b>이 방문 순서대로 핀과 동선으로 이어져요. 핀 숫자는 그곳에서 올린 게시물 수예요.</p>
+    </div>
+  </div>
+
+  <!-- 비공개 잠금 콘텐츠 -->
+  <section class="locked hidden" id="lockedContent">
+    <div class="ill" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5"/></svg></div>
+    <h2>비공개 계정입니다</h2>
+    <p>미라님이 올린 사진과 방문 동선은 팔로우가 수락되면 볼 수 있어요.</p>
+    <div class="hint"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg> 게시물 48 · 팔로워 1,204</div>
+  </section>
+
+  <!-- 데모 토글: 공개 ↔ 비공개 계정 -->
+  <div class="demo">
+    <button class="demo-btn" id="acctDemo" aria-pressed="false" onclick="toggleAccount()">
+      <span aria-hidden="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a8 8 0 0 1 13.5-5.5L20 9"/><path d="M20 4v5h-5"/><path d="M21 13a8 8 0 0 1-13.5 5.5L4 15"/><path d="M4 20v-5h5"/></svg></span> 데모: 공개 ↔ 비공개 계정</button>
+    <div class="state">현재: <b id="acctState">공개 계정 — 콘텐츠 노출</b></div>
+  </div>
+
+  <!-- 더보기 바텀시트 + scrim -->
+  <div class="scrim" id="scrim" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="미라님 옵션">
+    <div class="grip" aria-hidden="true"></div>
+    <h3>@mira_seongsu</h3>
+    <button class="row" onclick="showMsgNote();closeSheet()">공유하기 <span class="oos">[범위 밖]</span></button>
+    <button class="row" onclick="showMsgNote();closeSheet()">알림 설정 <span class="oos">[범위 밖]</span></button>
+    <div class="divider" aria-hidden="true"></div>
+    <button class="row danger" onclick="showMsgNote();closeSheet()">차단 · 신고 <span class="oos" style="color:inherit;border-color:currentColor">[범위 밖]</span></button>
+    <button class="row" onclick="closeSheet()" style="justify-content:center;color:var(--color-text-secondary)">닫기</button>
+  </div>
+
+  <!-- 하단 탭바 + 부상 FAB (홈 · ＋ · 프로필) -->
+  <nav class="tabbar" aria-label="주요 내비게이션">
+    <a class="tab" href="feed.html"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"/></svg></span>홈</a>
+    <div class="fab-slot">
+      <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+    </div>
+    <a class="tab" href="profile-me.html"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c0-3.6 3.4-5.5 7.5-5.5s7.5 1.9 7.5 5.5"/></svg></span>프로필</a>
+  </nav>
+
+<script>
+  var isPrivate = false;       // 계정 공개/비공개
+  var followState = 'none';    // none → following(공개) | requested(비공개) → none
+
+  // ① 팔로우 순환: 공개=팔로우→팔로잉 / 비공개=팔로우→요청됨, 다시 누르면 해제
+  function renderFollow(){
+    var b = document.getElementById('followBtn');
+    var l = document.getElementById('followLabel');
+    b.setAttribute('data-state', followState);
+    if(followState === 'none'){ l.textContent='팔로우'; b.setAttribute('aria-pressed','false'); }
+    else if(followState === 'following'){ l.textContent='팔로잉'; b.setAttribute('aria-pressed','true'); }
+    else { l.textContent='요청됨'; b.setAttribute('aria-pressed','true'); }
+  }
+  function cycleFollow(){
+    followState = (followState === 'none') ? (isPrivate ? 'requested' : 'following') : 'none';
+    renderFollow();
+  }
+
+  // 메시지/옵션 [범위 밖] 안내
+  function showMsgNote(){ document.getElementById('msgNote').classList.remove('hidden'); }
+
+  // [그리드 | 지도] 세그먼트 전환 (잠금 상태에선 콘텐츠 자체가 숨겨짐)
+  function setView(v){
+    document.getElementById('tabGrid').setAttribute('aria-selected', v==='grid');
+    document.getElementById('tabMap').setAttribute('aria-selected', v==='map');
+    document.getElementById('gridView').classList.toggle('hidden', v!=='grid');
+    document.getElementById('mapView').classList.toggle('hidden', v!=='map');
+  }
+
+  // ② 데모: 공개 ↔ 비공개 계정 → 잠금 ↔ 콘텐츠 전환
+  function toggleAccount(){
+    isPrivate = !isPrivate;
+    document.body.classList.toggle('is-private', isPrivate);
+    document.getElementById('openContent').classList.toggle('hidden', isPrivate);
+    document.getElementById('lockedContent').classList.toggle('hidden', !isPrivate);
+    document.getElementById('acctBadge').textContent = isPrivate ? '비공개' : '공개';
+    document.getElementById('acctDemo').setAttribute('aria-pressed', isPrivate ? 'true' : 'false');
+    document.getElementById('acctState').textContent = isPrivate
+      ? '비공개 계정 — 잠금(콘텐츠 숨김)'
+      : '공개 계정 — 콘텐츠 노출';
+    // 계정 성격이 바뀌면 팔로우 상태 초기화(공개=팔로잉 / 비공개=요청됨 분기 재적용)
+    followState = 'none';
+    renderFollow();
+  }
+
+  // 더보기 바텀시트
+  function openSheet(){
+    document.getElementById('scrim').classList.add('show');
+    document.getElementById('sheet').classList.add('show');
+    document.getElementById('moreBtn').setAttribute('aria-expanded','true');
+  }
+  function closeSheet(){
+    document.getElementById('scrim').classList.remove('show');
+    document.getElementById('sheet').classList.remove('show');
+    document.getElementById('moreBtn').setAttribute('aria-expanded','false');
+  }
+
+  // 지도 컨트롤
+  function fit(){
+    var b = document.getElementById('fitBtn');
+    var on = b.getAttribute('aria-pressed') === 'true';
+    b.setAttribute('aria-pressed', on ? 'false' : 'true');
+    flash(on ? '기본 배율' : '동선 전체를 화면에 맞췄어요');
+  }
+  function zoom(dir){ flash(dir + '합니다…'); }
+  function flash(msg){
+    var t = document.getElementById('mapToast');
+    t.textContent = msg; t.classList.remove('hidden');
+    clearTimeout(window._mt);
+    window._mt = setTimeout(function(){ t.classList.add('hidden'); }, 1500);
+  }
+
+  renderFollow();
+</script>
+</body>
+</html>

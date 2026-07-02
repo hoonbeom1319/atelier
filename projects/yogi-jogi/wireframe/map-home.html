@@ -1,0 +1,206 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>지도 홈 — 요기조기 (와이어)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none !important}
+
+/* --- map-home 전용 (lo-fi: 회색/점선만) --- */
+.maparea{position:relative;margin:10px 14px;height:520px;border:1px solid #ccc;border-radius:6px;background:#e8e8e8 repeating-linear-gradient(45deg,#e8e8e8,#e8e8e8 18px,#e2e2e2 18px,#e2e2e2 36px);overflow:hidden}
+.maplabel{position:absolute;top:8px;left:50%;transform:translateX(-50%);color:#888;font-size:13px}
+.pin{position:absolute;background:#fff;border:1px solid #777;border-radius:14px;padding:3px 8px;font-size:12px;color:#333;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.pin .badge{margin-left:4px}
+.cluster{position:absolute;width:38px;height:38px;border-radius:50%;background:#555;color:#fff;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.route{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.mapctl{position:absolute;display:flex;flex-direction:column;gap:8px;right:10px;bottom:12px}
+.mapctl button{width:42px;height:42px;border:1px solid #888;background:#fff;border-radius:8px;cursor:pointer;font-size:16px}
+.zoomnote{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:#333;color:#fff;font-size:12px;padding:6px 12px;border-radius:14px}
+.empty{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.grid4 .ph{min-height:70px}
+.avatars{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.avatars a{text-decoration:none}
+.av{width:34px;height:34px;border-radius:50%;background:#ddd;border:1px solid #aaa;display:flex;align-items:center;justify-content:center;font-size:11px;color:#666}
+.sheet h2{font-size:16px;margin-bottom:2px}
+.sheet .meta{color:#777;font-size:13px;margin-bottom:8px}
+.sheet .memo{border:1px dashed #999;border-radius:8px;padding:10px;color:#555;font-size:13px;margin:8px 0}
+.sheethandle{width:40px;height:4px;border-radius:2px;background:#bbb;margin:0 auto 10px}
+.sheetbtns{display:flex;gap:8px;margin-top:10px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:7}
+.demobar{display:flex;align-items:center;gap:8px;margin:10px 14px 0;font-size:13px;color:#555}
+</style>
+</head>
+<body>
+
+<!-- 상단 앱바 -->
+<div class="appbar">
+  <a class="title" href="search.html" style="text-decoration:none;color:inherit">🔍 <span>지도</span></a>
+  <div class="icons"><a href="notifications.html">🔔</a><a href="profile-me.html">👤</a></div>
+</div>
+
+<!-- 데모 토글: 빈 지도 ↔ 핀 보기 -->
+<div class="demobar">
+  <span>데모:</span>
+  <button class="btn" id="demoToggle" aria-pressed="true" onclick="toggleDemo()">빈 지도 보기로 전환</button>
+</div>
+
+<!-- 지도 영역 -->
+<div class="maparea" id="maparea" aria-label="지도 영역">
+  <span class="maplabel ph" style="min-height:0;padding:2px 8px;border:0;background:transparent">지도 영역</span>
+
+  <!-- 채워진 상태: 핀·클러스터·동선 -->
+  <div id="mapFilled">
+    <!-- 동선 폴리라인 (점선 SVG) -->
+    <svg class="route" viewBox="0 0 360 520" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points="70,150 150,250 250,210 200,360"
+        fill="none" stroke="#666" stroke-width="2" stroke-dasharray="6 5"/>
+    </svg>
+    <span style="position:absolute;left:14px;top:300px;color:#777;font-size:11px">··· 점선 = 방문 동선</span>
+
+    <!-- POI 핀 (카운트 배지) -->
+    <button class="pin" style="top:130px;left:40px" onclick="openSheet('bluebottle')">📍 블루보틀 성수 <span class="badge">2</span></button>
+    <button class="pin" style="top:235px;left:120px" onclick="openSheet('daelim')">📍 대림창고 <span class="badge">5</span></button>
+    <button class="pin" style="top:195px;left:225px" onclick="openSheet('seoulforest')">📍 서울숲 <span class="badge">3</span></button>
+    <button class="pin" style="top:345px;left:175px" onclick="openSheet('onion')">📍 어니언 <span class="badge">1</span></button>
+
+    <!-- 클러스터 마커 (숫자 버블) -->
+    <button class="cluster" style="top:80px;left:250px" onclick="cluster()" aria-label="12개 장소 묶음, 탭하면 확대">12</button>
+  </div>
+
+  <!-- 빈 상태 -->
+  <div class="empty hidden" id="mapEmpty">
+    <div style="font-size:34px">🗺</div>
+    <div style="color:#666">첫 사진을 올려 지도를 채워보세요</div>
+    <a class="btn primary" href="upload-1-gallery.html">첫 사진 올리기</a>
+  </div>
+
+  <!-- 클러스터 확대 안내 (상태 텍스트) -->
+  <div class="zoomnote hidden" id="zoomNote">확대합니다…</div>
+
+  <!-- 현위치 버튼 -->
+  <div class="mapctl">
+    <button id="locBtn" aria-pressed="false" onclick="locate()" aria-label="현위치로 이동">📍</button>
+  </div>
+</div>
+
+<!-- 하단 탭바 (지도 탭 활성) -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a href="map-home.html" aria-current="page">🗺 지도</a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+  <a href="feed.html">📋 피드</a>
+</nav>
+
+<!-- 장소 바텀시트 (SC-08) -->
+<div class="scrim hidden" id="scrim" onclick="closeSheet()"></div>
+<div class="sheet hidden" id="placeSheet" role="dialog" aria-modal="true" aria-label="장소 상세">
+  <div class="sheethandle"></div>
+  <h2 id="sheetName">블루보틀 성수</h2>
+  <div class="meta"><span class="chip" id="sheetCat">☕ 카페</span> · 친구 3명 방문</div>
+
+  <div style="font-size:13px;color:#555">대표 사진</div>
+  <a href="post-detail.html" style="text-decoration:none;color:inherit" aria-label="대표 사진 — 게시물 보기">
+    <div class="grid4">
+      <div class="ph">사진</div><div class="ph">사진</div>
+      <div class="ph">사진</div><div class="ph">사진</div>
+    </div>
+  </a>
+
+  <div style="font-size:13px;color:#555">방문한 친구</div>
+  <div class="avatars">
+    <a href="profile-friend.html" class="av" aria-label="지민 프로필">지민</a>
+    <a href="profile-friend.html" class="av" aria-label="현우 프로필">현우</a>
+    <a href="profile-friend.html" class="av" aria-label="수아 프로필">수아</a>
+  </div>
+
+  <div class="memo" id="sheetMemo">메모: "오픈런 성공. 통창 자리 추천 🌿"</div>
+
+  <div class="sheetbtns">
+    <a class="btn primary" href="post-detail.html" style="flex:1;text-align:center">게시물 보기</a>
+    <button class="btn" onclick="closeSheet()">닫기</button>
+  </div>
+</div>
+
+<script>
+var POI = {
+  bluebottle:{name:'블루보틀 성수', cat:'☕ 카페', memo:'메모: "오픈런 성공. 통창 자리 추천 🌿"'},
+  daelim:{name:'대림창고', cat:'🖼 문화/예술', memo:'메모: "전시 + 브런치. 천장 높음."'},
+  seoulforest:{name:'서울숲', cat:'🌳 자연', memo:'메모: "벚꽃철 산책 코스."'},
+  onion:{name:'어니언 성수', cat:'🍞 베이커리', memo:'메모: "팡도르 필수."'}
+};
+
+function toggleDemo(){
+  var filled = document.getElementById('mapFilled');
+  var empty = document.getElementById('mapEmpty');
+  var btn = document.getElementById('demoToggle');
+  var nowEmpty = empty.classList.contains('hidden'); // 곧 빈 상태로 갈지
+  if(nowEmpty){
+    filled.classList.add('hidden');
+    empty.classList.remove('hidden');
+    btn.textContent = '핀 보기로 전환';
+    btn.setAttribute('aria-pressed','false');
+    closeSheet();
+  } else {
+    filled.classList.remove('hidden');
+    empty.classList.add('hidden');
+    btn.textContent = '빈 지도 보기로 전환';
+    btn.setAttribute('aria-pressed','true');
+  }
+}
+
+function openSheet(id){
+  var p = POI[id];
+  document.getElementById('sheetName').textContent = p.name;
+  document.getElementById('sheetCat').textContent = p.cat;
+  document.getElementById('sheetMemo').textContent = p.memo;
+  document.getElementById('placeSheet').classList.remove('hidden');
+  document.getElementById('scrim').classList.remove('hidden');
+}
+function closeSheet(){
+  document.getElementById('placeSheet').classList.add('hidden');
+  document.getElementById('scrim').classList.add('hidden');
+}
+
+function cluster(){
+  var n = document.getElementById('zoomNote');
+  n.classList.remove('hidden');
+  n.textContent = '확대합니다…';
+  clearTimeout(window._zt);
+  window._zt = setTimeout(function(){ n.classList.add('hidden'); }, 1600);
+}
+
+function locate(){
+  var b = document.getElementById('locBtn');
+  var on = b.getAttribute('aria-pressed') === 'true';
+  b.setAttribute('aria-pressed', on ? 'false' : 'true');
+  var n = document.getElementById('zoomNote');
+  n.classList.remove('hidden');
+  n.textContent = on ? '현위치 해제' : '현위치로 이동 중…';
+  clearTimeout(window._lt);
+  window._lt = setTimeout(function(){ n.classList.add('hidden'); }, 1600);
+}
+</script>
+</body>
+</html>

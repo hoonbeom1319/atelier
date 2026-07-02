@@ -1,0 +1,161 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>온보딩 — 요기조기 (와이어)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- 풀스크린: 탭바 없음. 상단에 진행 표시 + 건너뛰기만 -->
+<div class="appbar">
+  <span class="title">요기조기 시작하기</span>
+  <div class="icons">
+    <a href="follow-seed.html" id="skipLink" aria-label="온보딩 건너뛰기">건너뛰기</a>
+  </div>
+</div>
+
+<!-- 스텝 진행 표시: 도트 인디케이터 -->
+<div style="display:flex;justify-content:center;gap:8px;margin:16px 0 4px" aria-label="진행 단계">
+  <span class="dot" data-dot="1" style="width:9px;height:9px;border-radius:50%;background:#333;display:inline-block"></span>
+  <span class="dot" data-dot="2" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block"></span>
+  <span class="dot" data-dot="3" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block"></span>
+  <span class="dot" data-dot="4" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block"></span>
+  <span class="dot" data-dot="5" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block"></span>
+</div>
+<div style="text-align:center;color:#888;font-size:13px;margin-bottom:6px"><span id="stepNum">1</span> / 5</div>
+
+<!-- ===== 스텝 1~3: 가치소개 캐러셀 ===== -->
+<div class="step" data-step="1">
+  <div class="ph" style="margin:10px 14px;min-height:300px">일러스트 — 지도 위 핀들</div>
+  <div class="box" style="text-align:center;border-style:none">
+    <h2 style="font-size:20px;margin-bottom:8px">지도 중심으로 추억을 쌓다</h2>
+    <p>사진을 찍은 <b>장소</b>로 자동 묶여, 내 발자취가 지도 위에 그려져요.</p>
+  </div>
+</div>
+
+<div class="step hidden" data-step="2">
+  <div class="ph" style="margin:10px 14px;min-height:300px">일러스트 — 사진 자동 분류</div>
+  <div class="box" style="text-align:center;border-style:none">
+    <h2 style="font-size:20px;margin-bottom:8px">올리면 알아서 장소별로</h2>
+    <p>여러 장을 한 번에 올려도 <b>장소(POI)별로 자동 분류</b>돼요. 손이 덜 가요.</p>
+  </div>
+</div>
+
+<div class="step hidden" data-step="3">
+  <div class="ph" style="margin:10px 14px;min-height:300px">일러스트 — 친구의 장소 발견</div>
+  <div class="box" style="text-align:center;border-style:none">
+    <h2 style="font-size:20px;margin-bottom:8px">친구가 다녀간 곳을 발견</h2>
+    <p>팔로우한 친구들이 다녀간 <b>장소와 동선</b>을 지도에서 둘러보세요.</p>
+  </div>
+</div>
+
+<!-- ===== 스텝 4: 위치 권한 프라이밍 ===== -->
+<div class="step hidden" data-step="4">
+  <div class="ph" style="margin:10px 14px;min-height:200px">아이콘 — 📍 위치</div>
+  <div class="box" style="text-align:center;border-style:none">
+    <h2 style="font-size:20px;margin-bottom:8px">위치를 켜면 더 정확해요</h2>
+    <p>사진의 위치 정보로 <b>장소를 자동 추정</b>하고, 현 위치 주변을 지도에서 바로 볼 수 있어요.</p>
+  </div>
+  <div style="margin:10px 14px">
+    <button class="btn primary" id="locAllow" style="width:100%;margin-bottom:8px">위치 허용</button>
+    <button class="btn" id="locLater" style="width:100%">나중에</button>
+  </div>
+  <!-- 거부 폴백 안내(토글) -->
+  <div class="box hidden" id="locFallback" style="border-color:#888;background:#fafafa">
+    위치 없이도 괜찮아요 — <b>수동으로 장소를 지정</b>할 수 있어요. 설정에서 언제든 다시 켤 수 있습니다.
+  </div>
+</div>
+
+<!-- ===== 스텝 5: 사진 권한 프라이밍 ===== -->
+<div class="step hidden" data-step="5">
+  <div class="ph" style="margin:10px 14px;min-height:200px">아이콘 — 🖼 사진</div>
+  <div class="box" style="text-align:center;border-style:none">
+    <h2 style="font-size:20px;margin-bottom:8px">사진 접근을 허용해 주세요</h2>
+    <p>갤러리에서 사진을 골라 올리려면 사진 접근이 필요해요. <b>전체 또는 일부만</b> 선택할 수 있어요.</p>
+  </div>
+  <div style="margin:10px 14px">
+    <button class="btn primary" id="photoAllow" style="width:100%;margin-bottom:8px">사진 허용</button>
+    <button class="btn" id="photoLater" style="width:100%">나중에</button>
+  </div>
+  <!-- 일부 허용 / 거부 폴백 안내(토글) -->
+  <div class="box hidden" id="photoFallback" style="border-color:#888;background:#fafafa">
+    <b>일부 사진만 허용</b>해도 돼요 — 선택한 사진만 보여요. 더 올리려면 업로드 화면에서 사진을 추가로 선택할 수 있어요.
+  </div>
+</div>
+
+<!-- ===== 하단 내비: 다음 / 완료 ===== -->
+<div style="position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:1px solid #ccc;padding:12px 14px;z-index:6">
+  <button class="btn primary" id="nextBtn" style="width:100%">다음</button>
+  <a class="btn hidden" id="doneBtn" href="follow-seed.html" style="width:100%;text-align:center;box-sizing:border-box">시작하기</a>
+</div>
+
+<script>
+(function(){
+  var cur=1, total=5;
+  var steps=[].slice.call(document.querySelectorAll('.step'));
+  var dots=[].slice.call(document.querySelectorAll('.dot'));
+  var stepNum=document.getElementById('stepNum');
+  var nextBtn=document.getElementById('nextBtn');
+  var doneBtn=document.getElementById('doneBtn');
+
+  function render(){
+    steps.forEach(function(s){ s.classList.toggle('hidden', +s.dataset.step!==cur); });
+    dots.forEach(function(d){ d.style.background = (+d.dataset.dot<=cur)? '#333':'#ccc'; });
+    stepNum.textContent=cur;
+    // 마지막 스텝이면 '다음' 숨기고 '시작하기' 노출
+    if(cur===total){ nextBtn.classList.add('hidden'); doneBtn.classList.remove('hidden'); }
+    else { nextBtn.classList.remove('hidden'); doneBtn.classList.add('hidden'); }
+  }
+
+  nextBtn.addEventListener('click', function(){
+    if(cur<total){ cur++; render(); }
+  });
+
+  // 위치 권한
+  document.getElementById('locAllow').addEventListener('click', function(){
+    document.getElementById('locFallback').classList.add('hidden');
+    cur=5; render();
+  });
+  document.getElementById('locLater').addEventListener('click', function(){
+    // 폴백 안내 토글 표시 후 진행 가능(다음 버튼으로 넘어감)
+    document.getElementById('locFallback').classList.remove('hidden');
+  });
+
+  // 사진 권한
+  document.getElementById('photoAllow').addEventListener('click', function(){
+    window.location.href='follow-seed.html';
+  });
+  document.getElementById('photoLater').addEventListener('click', function(){
+    document.getElementById('photoFallback').classList.remove('hidden');
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

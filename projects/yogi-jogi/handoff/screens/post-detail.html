@@ -1,0 +1,498 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>게시물 — 요기조기</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  width:var(--app-width);min-height:844px;margin:0 auto;position:relative;
+  font-family:var(--font-sans);color:var(--color-text);background:var(--color-bg);
+  padding-bottom:calc(var(--tabbar-h) + 8px);
+  -webkit-font-smoothing:antialiased;
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ─────────────────── 앱바 : ← 뒤로 + 작성자 ─────────────────── */
+.appbar{
+  position:sticky;top:0;z-index:var(--z-appbar);height:56px;
+  display:flex;align-items:center;gap:6px;
+  padding:0 6px 0 4px;background:var(--color-surface);
+  box-shadow:0 1px 0 var(--color-border);
+}
+.backbtn{
+  width:40px;height:40px;flex:none;border:0;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--color-text);text-decoration:none;
+  border-radius:var(--radius-full);transition:background .12s ease, transform .12s ease;
+}
+.backbtn:hover{background:var(--color-surface-alt)}
+.backbtn:active{transform:scale(.9)}
+.backbtn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.author{
+  display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--color-text);
+  min-width:0;flex:1;padding:4px 4px;border-radius:var(--radius-sm);
+  transition:background .12s ease;
+}
+.author:hover{background:var(--color-surface-alt)}
+.author:active{opacity:.65}
+.avatar{
+  width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-on-dark);
+  background:linear-gradient(150deg,#e8c9a0,#8a5a30);
+  box-shadow:inset 0 0 0 2px var(--color-surface), 0 0 0 1px var(--color-border);
+}
+.author .meta{display:flex;flex-direction:column;min-width:0;line-height:1.2}
+.author .name{font-size:var(--fs-sm);font-weight:var(--fw-semibold);letter-spacing:-.01em;color:var(--color-text)}
+.author .when{font-size:var(--fs-xs);font-weight:var(--fw-body);color:var(--color-text-muted);letter-spacing:.02em}
+.morebtn{
+  width:40px;height:40px;flex:none;border:0;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--color-text-secondary);
+  font-size:20px;line-height:1;border-radius:var(--radius-full);transition:background .12s ease;
+}
+.morebtn:hover{background:var(--color-surface-alt)}
+
+/* ─────────────────── 지도 히어로 (그 포스트 동선) ─────────────────── */
+.maphero{
+  position:relative;display:block;width:100%;aspect-ratio:4/3;overflow:hidden;
+  background:var(--color-map-canvas);text-decoration:none;color:inherit;
+  border-bottom:1px solid var(--color-border);
+}
+.maphero .mapbase{position:absolute;inset:0;width:100%;height:100%}
+.map-vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 40%, transparent 60%, rgba(0,0,0,.06));}
+.route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.route-cap{stroke:rgba(16,16,18,.86)}
+.route-ink{stroke:var(--color-primary)}
+.pin{
+  position:absolute;transform:translate(-50%,-100%);pointer-events:none;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.28));
+}
+.pin .drop{
+  width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  background:var(--color-primary);display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 0 0 2px rgba(16,16,18,.86);
+}
+.pin .drop b{transform:rotate(45deg);color:var(--color-on-dark);font-size:12px;font-weight:var(--fw-semibold);line-height:1}
+.map-label{
+  position:absolute;top:12px;left:12px;z-index:3;display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,0,0,.72);color:#fff;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+  letter-spacing:.02em;padding:5px 11px;border-radius:var(--radius-full);
+}
+.map-label svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.map-cue{
+  position:absolute;right:12px;bottom:12px;z-index:3;display:inline-flex;align-items:center;gap:5px;
+  background:rgba(16,16,18,.86);color:var(--color-text);font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+  padding:6px 11px;border-radius:var(--radius-full);box-shadow:var(--shadow-1);transition:transform .12s ease;
+}
+.map-cue svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.maphero:active .map-cue{transform:scale(.97)}
+
+/* ─────────────────── 컬러 사진 캐러셀 (풀폭) ─────────────────── */
+.carousel{position:relative;width:100%;aspect-ratio:1/1;background:var(--color-surface-sunken);overflow:hidden}
+.frame{
+  position:absolute;inset:0;transition:background-image .28s ease;
+  background-size:cover;background-position:center;
+}
+.frame::after{ /* 사진 질감/깊이 오버레이 */
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(130% 90% at 22% 10%, rgba(255,255,255,.35), transparent 46%),
+    radial-gradient(120% 120% at 82% 96%, rgba(0,0,0,.22), transparent 55%),
+    repeating-linear-gradient(118deg, rgba(0,0,0,.035) 0 10px, transparent 10px 24px);
+  mix-blend-mode:soft-light;opacity:.9;
+}
+.count-badge{
+  position:absolute;top:12px;right:12px;z-index:3;
+  font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:#fff;
+  background:rgba(0,0,0,.6);padding:3px 10px;border-radius:var(--radius-full);
+}
+.cbtn{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(16,16,18,.86);color:var(--color-text);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-1);transition:transform .12s ease, opacity .12s ease;
+}
+.cbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.cbtn:hover{opacity:.9}
+.cbtn:active{transform:translateY(-50%) scale(.85)}
+.cbtn.prev{left:10px}.cbtn.next{right:10px}
+.dots{position:absolute;bottom:12px;left:0;right:0;z-index:3;display:flex;justify-content:center;gap:5px}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);transition:all .15s ease}
+.dots i.on{background:#fff;width:7px;height:7px}
+
+/* ─────────────────── 액션 행 ─────────────────── */
+.actions{display:flex;align-items:center;padding:9px var(--space-3) 0}
+.act{
+  width:44px;height:44px;margin-left:-10px;border:0;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--color-text);text-decoration:none;
+}
+.act svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s cubic-bezier(.2,.9,.3,1.4)}
+.act.like.liked svg{fill:var(--color-like);stroke:var(--color-like)}
+.act.pop svg{transform:scale(1.32)}
+.act.bookmark{margin-left:auto;margin-right:-10px}
+.act.bookmark.saved svg{fill:var(--color-text);stroke:var(--color-text)}
+.act[aria-disabled="true"]{cursor:not-allowed}
+.act[aria-disabled="true"] svg{stroke:var(--color-text-muted);opacity:.55}
+.comment-wrap{position:relative;display:flex;align-items:center}
+.soon{
+  position:absolute;left:24px;bottom:1px;z-index:2;
+  font-size:9px;font-weight:var(--fw-semibold);letter-spacing:.02em;
+  color:var(--color-text-muted);background:var(--color-surface-sunken);
+  border:1px solid var(--color-border);border-radius:var(--radius-full);padding:1px 5px;white-space:nowrap;
+}
+
+.likes{padding:5px var(--space-3) 0;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--color-text)}
+
+/* ─────────────────── 메모(캡션) ─────────────────── */
+.caption{padding:6px var(--space-3) 0;font-size:var(--fs-body);line-height:var(--lh-body);color:var(--color-text)}
+.caption .who{font-weight:var(--fw-semibold);margin-right:5px}
+
+.tags{padding:8px var(--space-3) 0;display:flex;flex-wrap:wrap;gap:5px 8px}
+.tag{font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--color-text-secondary);text-decoration:none}
+.tag:active{opacity:.6}
+
+/* ─────────────────── 방문한 장소 (POI 칩 → map-home) ─────────────────── */
+.section{padding:var(--space-6) var(--space-3) 0}
+.section-h{
+  font-size:var(--fs-xs);font-weight:var(--fw-semibold);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-text-muted);margin-bottom:var(--space-3);
+}
+.poi-list{display:flex;flex-direction:column;gap:var(--space-2)}
+.poi{
+  display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--color-text);
+  padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--radius-md);
+  background:var(--color-surface);transition:background .12s ease, transform .1s ease;
+}
+.poi:hover{background:var(--color-surface-alt)}
+.poi:active{transform:scale(.99)}
+.poi .num{
+  width:26px;height:26px;flex:none;border-radius:50% 50% 50% 2px;transform:rotate(-45deg);
+  background:var(--color-primary);display:flex;align-items:center;justify-content:center;
+}
+.poi .num b{transform:rotate(45deg);color:var(--color-on-dark);font-size:12px;font-weight:var(--fw-semibold)}
+.poi .info{display:flex;flex-direction:column;min-width:0;line-height:1.3;flex:1}
+.poi .place{font-size:var(--fs-body);font-weight:var(--fw-semibold);letter-spacing:-.01em}
+.poi .sub{font-size:var(--fs-sm);color:var(--color-text-muted)}
+.poi .sub .cat{color:var(--color-text-secondary);font-weight:var(--fw-medium)}
+.poi .chev{flex:none;color:var(--color-text-muted)}
+.poi .chev svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─────────────────── 댓글 (P1 · 다음 단계) ─────────────────── */
+.comments{
+  margin:var(--space-6) var(--space-3) 0;padding:var(--space-4);
+  border:1px dashed var(--color-border-strong);border-radius:var(--radius-md);
+  background:var(--color-surface-alt);text-align:center;
+}
+.comments .badge{
+  display:inline-block;font-size:var(--fs-xs);font-weight:var(--fw-semibold);letter-spacing:.02em;
+  color:var(--color-text-secondary);background:var(--color-surface);
+  border:1px solid var(--color-border);border-radius:var(--radius-full);padding:3px 10px;margin-bottom:8px;
+}
+.comments p{font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--color-text-muted)}
+.comment-box{
+  display:flex;align-items:center;gap:9px;margin:var(--space-3) var(--space-3) 0;
+  padding:8px 8px 8px 14px;border:1px solid var(--color-border);border-radius:var(--radius-full);
+  background:var(--color-surface);opacity:.7;
+}
+.comment-box input{
+  flex:1;border:0;background:transparent;font-family:inherit;font-size:var(--fs-sm);color:var(--color-text-muted);
+}
+.comment-box .send{
+  border:0;background:transparent;font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+  color:var(--color-text-muted);cursor:not-allowed;padding:6px 8px;
+}
+.foot-space{height:var(--space-8)}
+
+/* 토스트 */
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabbar-h) + 18px);
+  background:var(--color-text);color:var(--color-on-dark);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+  padding:9px 16px;border-radius:var(--radius-full);box-shadow:var(--shadow-3);z-index:var(--z-toast);
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.toast.show{opacity:1}
+
+/* ─────────────────── 하단 탭바 + FAB ─────────────────── */
+.tabbar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:var(--app-width);
+  height:var(--tabbar-h);display:flex;align-items:stretch;z-index:var(--z-tabbar);
+  background:var(--color-surface);box-shadow:0 -1px 0 var(--color-border);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar .tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  text-decoration:none;color:var(--color-text-muted);font-size:var(--fs-xs);font-weight:var(--fw-medium);
+  transition:color .12s ease;
+}
+.tabbar .tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tabbar .tab:active{color:var(--color-text)}
+.tabbar .fab{position:relative;flex:0 0 84px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.tabbar .fab .knob{
+  width:52px;height:52px;border-radius:18px;background:var(--color-primary);color:var(--color-on-primary);
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-2);
+  transition:transform .14s cubic-bezier(.2,.8,.3,1), background .12s ease;
+}
+.tabbar .fab .knob svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round}
+.tabbar .fab:hover .knob{background:var(--color-primary-hover)}
+.tabbar .fab:active .knob{transform:scale(.92)}
+</style>
+</head>
+<body>
+
+<!-- ─────────── 앱바 : ← 뒤로 + 작성자 → profile-friend ─────────── -->
+<header class="appbar">
+  <a class="backbtn" href="feed.html" aria-label="뒤로">
+    <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+  </a>
+  <a class="author" href="profile-friend.html">
+    <span class="avatar" aria-hidden="true">여</span>
+    <span class="meta">
+      <span class="name">kim_yeogi</span>
+      <span class="when">성수동 · 3시간 전</span>
+    </span>
+  </a>
+  <button class="morebtn" type="button" aria-label="더 보기" onclick="toast('신고·숨기기·공유 [범위 밖]')">⋯</button>
+</header>
+
+<main>
+
+  <!-- ─────────── 지도 히어로 : 이 포스트의 동선 (검정 핀·라인) ─────────── -->
+  <a class="maphero" href="map-home.html" aria-label="성수 나들이 동선 지도 — 장소 상세 보기">
+    <svg class="mapbase" viewBox="0 0 390 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <!-- 물(중랑천 힌트) -->
+      <path d="M-20,252 C60,236 120,272 200,250 C286,226 340,266 410,244 L410,320 L-20,320 Z" fill="#1a2028"/>
+      <path d="M-20,252 C60,236 120,272 200,250 C286,226 340,266 410,244" fill="none" stroke="#1a2028" stroke-width="2"/>
+      <!-- 공원(서울숲 힌트) -->
+      <path d="M232,40 Q322,30 340,104 Q350,166 286,182 Q214,192 208,116 Q204,54 232,40 Z" fill="#172317"/>
+      <g fill="#1a241a"><circle cx="256" cy="80" r="6"/><circle cx="296" cy="108" r="7"/><circle cx="248" cy="128" r="5"/><circle cx="312" cy="72" r="5"/><circle cx="284" cy="150" r="6"/><circle cx="272" cy="104" r="4"/></g>
+      <!-- 블록(건물 footprint) -->
+      <g fill="#242429">
+        <rect x="20" y="44" width="42" height="34" rx="3"/><rect x="74" y="50" width="30" height="28" rx="3"/>
+        <rect x="22" y="120" width="36" height="44" rx="3"/><rect x="70" y="128" width="42" height="30" rx="3"/>
+        <rect x="26" y="210" width="38" height="38" rx="3"/><rect x="80" y="204" width="32" height="48" rx="3"/>
+        <rect x="150" y="60" width="34" height="40" rx="3"/><rect x="156" y="196" width="42" height="34" rx="3"/>
+        <rect x="130" y="130" width="30" height="34" rx="3"/><rect x="300" y="210" width="40" height="42" rx="3"/>
+        <rect x="112" y="240" width="34" height="30" rx="3"/>
+      </g>
+      <!-- 도로 케이싱 -->
+      <g stroke="#2a2a30" fill="none" stroke-linecap="round">
+        <path d="M-10,110 H400" stroke-width="16"/><path d="M-10,236 H400" stroke-width="14"/>
+        <path d="M128,-10 V310" stroke-width="15"/><path d="M244,-10 V310" stroke-width="13"/>
+        <path d="M-14,6 L404,196" stroke-width="12"/>
+      </g>
+      <!-- 도로 표면 -->
+      <g stroke="#34343c" fill="none" stroke-linecap="round">
+        <path d="M-10,110 H400" stroke-width="10.5"/><path d="M-10,236 H400" stroke-width="9"/>
+        <path d="M128,-10 V310" stroke-width="10"/><path d="M244,-10 V310" stroke-width="8"/>
+        <path d="M-14,6 L404,196" stroke-width="7.5"/>
+      </g>
+      <!-- 골목 -->
+      <g stroke="#2e2e34" fill="none" stroke-width="4" stroke-linecap="round">
+        <path d="M64,-10 V310"/><path d="M186,-10 V310"/><path d="M320,-10 V310"/>
+        <path d="M-10,58 H400"/><path d="M-10,174 H400"/><path d="M-10,282 H400"/>
+      </g>
+    </svg>
+    <div class="map-vignette" aria-hidden="true"></div>
+
+    <!-- 동선 폴리라인 (촬영 순) -->
+    <svg class="route" viewBox="0 0 390 300" preserveAspectRatio="none" aria-hidden="true">
+      <polyline class="route-cap" points="72,112 150,88 214,150 300,214" fill="none"
+        stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+      <polyline class="route-ink" points="72,112 150,88 214,150 300,214" fill="none"
+        stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- 검정 티어드롭 핀 (번호 · 장식) -->
+    <span class="pin" style="left:72px;top:112px" aria-hidden="true"><span class="drop"><b>1</b></span></span>
+    <span class="pin" style="left:214px;top:150px" aria-hidden="true"><span class="drop"><b>2</b></span></span>
+    <span class="pin" style="left:300px;top:214px" aria-hidden="true"><span class="drop"><b>3</b></span></span>
+
+    <span class="map-label">
+      <svg viewBox="0 0 24 24"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+      성수 나들이 · 3곳 · 1.4km
+    </span>
+    <span class="map-cue">
+      지도로 보기
+      <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+    </span>
+  </a>
+
+  <!-- ─────────── 컬러 사진 캐러셀 (풀폭 · 도트) ─────────── -->
+  <section class="carousel" data-count="4" data-idx="0" aria-roledescription="캐러셀" aria-label="이 게시물 사진">
+    <div class="frame" id="frame" role="img" aria-label="사진 1 / 4 · 통창 카페 자리"></div>
+    <span class="count-badge" id="counter">1/4</span>
+    <button class="cbtn prev" id="prev" type="button" aria-label="이전 사진"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="cbtn next" id="next" type="button" aria-label="다음 사진"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <div class="dots" id="dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+    <span class="sr-only" id="live" aria-live="polite">사진 1 / 4</span>
+  </section>
+
+  <!-- ─────────── 액션 행 : 좋아요(레드) · 댓글[다음 단계] · 저장 ─────────── -->
+  <div class="actions">
+    <button class="act like liked" id="like" type="button" aria-pressed="true" aria-label="좋아요" data-base="327">
+      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9.3-9.1C1.1 7.8 2.6 5 5.6 5c2 0 3.3 1.2 4.4 2.6C11.1 6.2 12.4 5 14.4 5c3 0 4.5 2.8 2.9 5.9C19 15.4 12 20 12 20z"/></svg>
+    </button>
+    <span class="comment-wrap">
+      <button class="act" type="button" aria-disabled="true" aria-label="댓글 (다음 단계에서 제공)"
+              onclick="toast('댓글은 다음 단계에서 제공됩니다')">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8 8 0 0 1-11.5 7.2L4 20l1.3-5A8 8 0 1 1 21 11.5z"/></svg>
+      </button>
+      <span class="soon" aria-hidden="true">다음 단계</span>
+    </span>
+    <button class="act" type="button" aria-label="공유" onclick="toast('링크가 복사됐어요')">
+      <svg viewBox="0 0 24 24"><path d="M22 3 11 14M22 3l-7 18-4-7-7-4 18-7z"/></svg>
+    </button>
+    <button class="act bookmark" id="save" type="button" aria-pressed="false" aria-label="저장">
+      <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+    </button>
+  </div>
+
+  <div class="likes"><span id="likeCount">328</span>명이 좋아합니다</div>
+
+  <!-- ─────────── 메모 ─────────── -->
+  <div class="caption">
+    <span class="who">kim_yeogi</span>주말 오후, 성수 골목부터 서울숲까지 천천히 걸었어요. 블루보틀 통창 자리에서 라떼 한 잔 하고, 서울숲 잔디밭 지나 대림창고 전시까지. 햇살 길게 드는 3시쯤이 딱 좋더라고요.
+  </div>
+
+  <!-- ─────────── 태그 ─────────── -->
+  <div class="tags">
+    <a class="tag" href="search.html">#성수나들이</a>
+    <a class="tag" href="search.html">#창가자리</a>
+    <a class="tag" href="search.html">#서울숲산책</a>
+    <a class="tag" href="search.html">#라떼맛집</a>
+  </div>
+
+  <!-- ─────────── 방문한 장소 (POI 칩 → map-home) ─────────── -->
+  <section class="section">
+    <h2 class="section-h">이 동선의 장소 3곳</h2>
+    <div class="poi-list">
+      <a class="poi" href="map-home.html">
+        <span class="num" aria-hidden="true"><b>1</b></span>
+        <span class="info">
+          <span class="place">블루보틀 성수</span>
+          <span class="sub"><span class="cat">카페</span> · 성동구 성수이로7길 26</span>
+        </span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="poi" href="map-home.html">
+        <span class="num" aria-hidden="true"><b>2</b></span>
+        <span class="info">
+          <span class="place">서울숲</span>
+          <span class="sub"><span class="cat">공원</span> · 성동구 뚝섬로 273</span>
+        </span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="poi" href="map-home.html">
+        <span class="num" aria-hidden="true"><b>3</b></span>
+        <span class="info">
+          <span class="place">대림창고 갤러리</span>
+          <span class="sub"><span class="cat">문화·전시</span> · 성동구 성수이로 78</span>
+        </span>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ─────────── 댓글 (P1 · 다음 단계 비활성) ─────────── -->
+  <section class="comments" aria-label="댓글">
+    <span class="badge">다음 단계</span>
+    <p>댓글은 다음 업데이트에서 열려요. 지금은 좋아요로 마음을 남겨보세요.</p>
+  </section>
+  <div class="comment-box" aria-hidden="true">
+    <input type="text" placeholder="댓글 달기…" disabled tabindex="-1">
+    <button class="send" type="button" disabled tabindex="-1">게시</button>
+  </div>
+
+  <div class="foot-space"></div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ─────────── 하단 탭바 + 중앙 FAB ─────────── -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a class="tab" href="feed.html">
+    <svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg>홈
+  </a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">
+    <span class="knob"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+  </a>
+  <a class="tab" href="profile-me.html">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>프로필
+  </a>
+</nav>
+
+<script>
+(function(){
+  /* 컬러 실사 장면(캐러셀) — 콘텐츠 이미지라 그레이 아닌 컬러 그라데로 '사진'처럼.
+     성수 나들이: 카페 통창 → 라떼 → 서울숲 초록 → 대림창고 벽돌 */
+  var SCENES = [
+    {bg:'linear-gradient(150deg,#f2dcb6 0%,#d79a5e 52%,#8f5a2c 100%)', alt:'통창 카페 자리'},
+    {bg:'linear-gradient(158deg,#282016 0%,#cf9f6c 55%,#8c6236 100%)', alt:'라떼 한 잔'},
+    {bg:'linear-gradient(140deg,#c3d9a4 0%,#7fae5f 52%,#3d6d34 100%)', alt:'서울숲 잔디밭'},
+    {bg:'linear-gradient(150deg,#d0b78e 0%,#9a6f48 52%,#5a3a24 100%)', alt:'대림창고 전시장'}
+  ];
+  var car = document.querySelector('.carousel');
+  var frame = document.getElementById('frame');
+  var counter = document.getElementById('counter');
+  var live = document.getElementById('live');
+  var dots = document.getElementById('dots').querySelectorAll('i');
+  var count = parseInt(car.getAttribute('data-count'),10) || SCENES.length;
+
+  function render(){
+    var idx = parseInt(car.getAttribute('data-idx'),10) || 0;
+    var s = SCENES[idx];
+    frame.style.backgroundImage = s.bg;
+    frame.setAttribute('aria-label', '사진 ' + (idx+1) + ' / ' + count + ' · ' + s.alt);
+    counter.textContent = (idx+1) + '/' + count;
+    live.textContent = '사진 ' + (idx+1) + ' / ' + count;
+    dots.forEach(function(d,i){ d.classList.toggle('on', i===idx); });
+  }
+  document.getElementById('prev').addEventListener('click', function(){
+    var idx = (parseInt(car.getAttribute('data-idx'),10) - 1 + count) % count;
+    car.setAttribute('data-idx', idx); render();
+  });
+  document.getElementById('next').addEventListener('click', function(){
+    var idx = (parseInt(car.getAttribute('data-idx'),10) + 1) % count;
+    car.setAttribute('data-idx', idx); render();
+  });
+  render();
+
+  /* 좋아요 하트 (레드 채움 토글 + 카운트 ±1 + 바운스) */
+  var like = document.getElementById('like');
+  var likeCount = document.getElementById('likeCount');
+  var base = parseInt(like.getAttribute('data-base'),10) || 0;
+  function fmt(n){ return n.toLocaleString('en-US'); }
+  like.addEventListener('click', function(){
+    var liked = like.getAttribute('aria-pressed') !== 'true';
+    like.setAttribute('aria-pressed', liked ? 'true':'false');
+    like.classList.toggle('liked', liked);
+    like.classList.add('pop');
+    setTimeout(function(){ like.classList.remove('pop'); }, 200);
+    likeCount.textContent = fmt(base + (liked ? 1 : 0));
+  });
+
+  /* 저장(북마크) 토글 */
+  var save = document.getElementById('save');
+  save.addEventListener('click', function(){
+    var on = save.getAttribute('aria-pressed') !== 'true';
+    save.setAttribute('aria-pressed', on ? 'true':'false');
+    save.classList.toggle('saved', on);
+    save.setAttribute('aria-label', on ? '저장됨':'저장');
+    save.classList.add('pop'); setTimeout(function(){ save.classList.remove('pop'); }, 200);
+  });
+
+  /* 토스트 */
+  window.toast = function(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(window._tt); window._tt = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  };
+})();
+</script>
+</body>
+</html>

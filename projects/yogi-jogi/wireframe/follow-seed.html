@@ -1,0 +1,156 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>요기조기 — 팔로우 시드 (SC-06)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- 풀스크린 (탭바 없음) -->
+<header style="padding:24px 14px 8px">
+  <h1 class="title" style="font-size:22px">팔로우할 만한 사람·장소</h1>
+  <p style="color:#666;font-size:14px;margin-top:6px">관심 있는 친구와 장소를 팔로우하면 지도와 피드가 채워져요.</p>
+</header>
+
+<!-- 데모 토글: 빈 추천 보기 -->
+<div class="seg" role="tablist" aria-label="데모 보기 전환">
+  <button id="seg-list" role="tab" aria-selected="true" onclick="showList()">추천 목록</button>
+  <button id="seg-empty" role="tab" aria-selected="false" onclick="showEmpty()">데모: 빈 추천 보기</button>
+</div>
+
+<!-- 채움 상태: 추천 리스트 -->
+<section id="list-state">
+  <p style="margin:6px 14px;color:#666;font-size:13px"><span id="follow-count" class="badge">0</span> 명 팔로우 선택됨</p>
+
+  <ul id="rec-list" style="list-style:none">
+    <!-- row 1 -->
+    <li style="display:flex;align-items:center;gap:12px;margin:10px 14px">
+      <div class="ph" style="width:52px;height:52px;min-height:52px;border-radius:50%">아바타</div>
+      <div style="flex:1">
+        <div style="font-weight:600">김여행</div>
+        <div style="color:#777;font-size:12px">성수동 카페 23곳 기록</div>
+      </div>
+      <button class="btn follow-btn" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </li>
+    <!-- row 2 -->
+    <li style="display:flex;align-items:center;gap:12px;margin:10px 14px">
+      <div class="ph" style="width:52px;height:52px;min-height:52px;border-radius:50%">아바타</div>
+      <div style="flex:1">
+        <div style="font-weight:600">블루보틀 성수 <span class="chip">장소</span></div>
+        <div style="color:#777;font-size:12px">방문 친구 12명</div>
+      </div>
+      <button class="btn follow-btn" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </li>
+    <!-- row 3 -->
+    <li style="display:flex;align-items:center;gap:12px;margin:10px 14px">
+      <div class="ph" style="width:52px;height:52px;min-height:52px;border-radius:50%">아바타</div>
+      <div style="flex:1">
+        <div style="font-weight:600">박맛집</div>
+        <div style="color:#777;font-size:12px">을지로 노포 기록 중</div>
+      </div>
+      <button class="btn follow-btn" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </li>
+    <!-- row 4 -->
+    <li style="display:flex;align-items:center;gap:12px;margin:10px 14px">
+      <div class="ph" style="width:52px;height:52px;min-height:52px;border-radius:50%">아바타</div>
+      <div style="flex:1">
+        <div style="font-weight:600">서울숲 일대 <span class="chip">장소</span></div>
+        <div style="color:#777;font-size:12px">방문 친구 31명</div>
+      </div>
+      <button class="btn follow-btn" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </li>
+    <!-- row 5 -->
+    <li style="display:flex;align-items:center;gap:12px;margin:10px 14px">
+      <div class="ph" style="width:52px;height:52px;min-height:52px;border-radius:50%">아바타</div>
+      <div style="flex:1">
+        <div style="font-weight:600">이산책</div>
+        <div style="color:#777;font-size:12px">한강 동선 공유</div>
+      </div>
+      <button class="btn follow-btn" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </li>
+    <!-- row 6 -->
+    <li style="display:flex;align-items:center;gap:12px;margin:10px 14px">
+      <div class="ph" style="width:52px;height:52px;min-height:52px;border-radius:50%">아바타</div>
+      <div style="flex:1">
+        <div style="font-weight:600">최탐방</div>
+        <div style="color:#777;font-size:12px">전시·미술관 위주</div>
+      </div>
+      <button class="btn follow-btn" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </li>
+  </ul>
+</section>
+
+<!-- 빈 상태 -->
+<section id="empty-state" class="hidden">
+  <div class="box" style="text-align:center;padding:40px 18px">
+    <div class="ph" style="width:64px;height:64px;min-height:64px;border-radius:50%;margin:0 auto 14px">🔍</div>
+    <p style="font-weight:600;margin-bottom:6px">아직 추천이 없어요</p>
+    <p style="color:#777;font-size:13px">검색에서 친구를 찾아보세요</p>
+  </div>
+</section>
+
+<!-- CTA -->
+<div style="margin:18px 14px 8px">
+  <a class="btn primary" href="map-home.html" style="display:block;text-align:center" id="cta-start">시작하기</a>
+  <a class="btn" href="map-home.html" style="display:block;text-align:center;margin-top:10px;border:none;background:none;color:#666">건너뛰기</a>
+</div>
+
+<script>
+function toggleFollow(btn){
+  var on = btn.getAttribute('aria-pressed') === 'true';
+  if(on){
+    btn.setAttribute('aria-pressed','false');
+    btn.textContent='팔로우';
+    btn.classList.remove('primary');
+  } else {
+    btn.setAttribute('aria-pressed','true');
+    btn.textContent='팔로잉';
+    btn.classList.add('primary');
+  }
+  updateCount();
+}
+function updateCount(){
+  var n = document.querySelectorAll('#rec-list .follow-btn[aria-pressed="true"]').length;
+  document.getElementById('follow-count').textContent = n;
+}
+function showList(){
+  document.getElementById('list-state').classList.remove('hidden');
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('seg-list').setAttribute('aria-selected','true');
+  document.getElementById('seg-empty').setAttribute('aria-selected','false');
+}
+function showEmpty(){
+  document.getElementById('list-state').classList.add('hidden');
+  document.getElementById('empty-state').classList.remove('hidden');
+  document.getElementById('seg-list').setAttribute('aria-selected','false');
+  document.getElementById('seg-empty').setAttribute('aria-selected','true');
+}
+</script>
+
+</body>
+</html>

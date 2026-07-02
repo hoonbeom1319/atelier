@@ -1,0 +1,217 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>요기조기 — 검색 (SC-15)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* 화면 전용 lo-fi 보조 */
+.searchbar{margin:10px 14px;display:flex;gap:8px}
+.searchbar input{flex:1;font:inherit;border:1px solid #999;border-radius:8px;padding:10px 12px;background:#fafafa}
+.poi-card{display:flex;gap:10px;border:1px dashed #999;border-radius:8px;padding:10px;margin:10px 14px;text-decoration:none;color:inherit}
+.poi-card .ph{width:84px;min-width:84px;min-height:64px}
+.poi-meta{display:flex;flex-direction:column;justify-content:center;gap:4px}
+.poi-meta b{font-size:15px}
+.poi-meta small{color:#777;font-size:12px}
+.person-row{display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;padding:10px 14px}
+.person-row .ava{width:44px;height:44px;border-radius:50%;background:#e8e8e8;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px}
+.person-row a.name{flex:1;text-decoration:none;color:inherit;font-weight:600}
+.person-row a.name small{display:block;color:#888;font-weight:400;font-size:12px}
+.follow-btn{font:inherit;border:1px solid #333;background:#333;color:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;min-width:78px}
+.follow-btn[aria-pressed="true"]{background:#fff;color:#333}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:10px 14px}
+.grid a{text-decoration:none}
+.grid .ph{min-height:108px}
+.sec-label{margin:14px 14px 0;font-size:13px;color:#777;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- 상단 앱바 (검색 화면이지만 일관 위해 셸 앱바 유지; 좌측은 뒤로/제목) -->
+<div class="appbar">
+  <span class="title">🔍 검색</span>
+  <div class="icons"><a href="notifications.html">🔔</a><a href="profile-me.html">👤</a></div>
+</div>
+
+<!-- 검색 입력 -->
+<div class="searchbar">
+  <input id="q" type="search" placeholder="장소·사람·태그 검색" aria-label="검색어 입력" oninput="onInput(this.value)">
+  <button class="btn hidden" id="clearBtn" type="button" onclick="clearQ()">지우기</button>
+</div>
+
+<!-- 세그먼트: 장소 | 사람 | 태그 (기본 장소) -->
+<div class="seg" role="tablist" aria-label="검색 범주">
+  <button role="tab" aria-selected="true"  data-panel="place"  onclick="selectSeg(this)">장소</button>
+  <button role="tab" aria-selected="false" data-panel="people" onclick="selectSeg(this)">사람</button>
+  <button role="tab" aria-selected="false" data-panel="tag"    onclick="selectSeg(this)">태그</button>
+</div>
+
+<!-- 데모 컨트롤: 빈검색 ↔ 결과 토글 -->
+<div class="box" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+  <span style="font-size:13px">데모: 검색어 입력 여부</span>
+  <button class="btn" type="button" id="emptyToggle" onclick="toggleEmpty()">빈 상태 보기</button>
+</div>
+
+<!-- ===== 빈검색 상태: 인기/근처 장소 그리드 (빈약 방지) ===== -->
+<section id="emptyState">
+  <div class="sec-label">인기 · 근처 장소</div>
+  <div class="grid">
+    <a class="poi-card" href="map-home.html" style="margin:0;flex-direction:column;gap:6px">
+      <div class="ph">사진</div><div class="poi-meta"><b>블루보틀 성수</b><small>근처 · 방문 128</small></div>
+    </a>
+    <a class="poi-card" href="map-home.html" style="margin:0;flex-direction:column;gap:6px">
+      <div class="ph">사진</div><div class="poi-meta"><b>망원 한강공원</b><small>인기 · 방문 92</small></div>
+    </a>
+    <a class="poi-card" href="map-home.html" style="margin:0;flex-direction:column;gap:6px">
+      <div class="ph">사진</div><div class="poi-meta"><b>국립현대미술관</b><small>인기 · 방문 77</small></div>
+    </a>
+    <a class="poi-card" href="map-home.html" style="margin:0;flex-direction:column;gap:6px">
+      <div class="ph">사진</div><div class="poi-meta"><b>연남동 골목</b><small>근처 · 방문 64</small></div>
+    </a>
+  </div>
+  <div class="sec-label">인기 태그</div>
+  <div style="margin:6px 11px">
+    <span class="chip">#성수카페</span><span class="chip">#한강뷰</span><span class="chip">#전시</span><span class="chip">#노포</span><span class="chip">#야경</span>
+  </div>
+</section>
+
+<!-- ===== 결과 상태 (검색어 있음): 패널 3종 토글 ===== -->
+<section id="resultState" class="hidden">
+
+  <!-- 장소 패널 -->
+  <div id="panel-place" class="result-panel">
+    <a class="poi-card" href="map-home.html">
+      <div class="ph">사진</div>
+      <div class="poi-meta"><b>블루보틀 성수</b><small>카페 · 방문자 128명</small></div>
+    </a>
+    <a class="poi-card" href="map-home.html">
+      <div class="ph">사진</div>
+      <div class="poi-meta"><b>대림창고 갤러리</b><small>전시/카페 · 방문자 86명</small></div>
+    </a>
+    <a class="poi-card" href="map-home.html">
+      <div class="ph">사진</div>
+      <div class="poi-meta"><b>성수연방</b><small>복합문화 · 방문자 54명</small></div>
+    </a>
+  </div>
+
+  <!-- 사람 패널 -->
+  <div id="panel-people" class="result-panel hidden">
+    <div class="person-row">
+      <div class="ava">사진</div>
+      <a class="name" href="profile-friend.html">여행하는도윤<small>@doyoon · 게시물 42</small></a>
+      <button class="follow-btn" type="button" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </div>
+    <div class="person-row">
+      <div class="ava">사진</div>
+      <a class="name" href="profile-friend.html">성수러버<small>@seongsu · 게시물 31</small></a>
+      <button class="follow-btn" type="button" aria-pressed="false" onclick="toggleFollow(this)">팔로우</button>
+    </div>
+    <div class="person-row">
+      <div class="ava">사진</div>
+      <a class="name" href="profile-friend.html">카페투어지나<small>@jina · 게시물 67</small></a>
+      <button class="follow-btn" type="button" aria-pressed="true" onclick="toggleFollow(this)">팔로잉</button>
+    </div>
+  </div>
+
+  <!-- 태그 패널: 사진 그리드 -->
+  <div id="panel-tag" class="result-panel hidden">
+    <div class="sec-label" style="margin-top:4px">#성수카페 · 사진 1.2k</div>
+    <div class="grid">
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+      <a href="post-detail.html"><div class="ph">사진</div></a>
+    </div>
+  </div>
+
+</section>
+
+<!-- 하단 탭바 (검색은 앱바 진입이라 활성 탭 없음 — 일관 위해 노출) -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a href="map-home.html">🗺 지도</a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+  <a href="feed.html">📋 피드</a>
+</nav>
+
+<script>
+// 현재 선택 패널 추적
+var currentPanel = 'place';
+
+function selectSeg(btn){
+  var tabs = document.querySelectorAll('.seg [role="tab"]');
+  tabs.forEach(function(t){ t.setAttribute('aria-selected','false'); });
+  btn.setAttribute('aria-selected','true');
+  currentPanel = btn.getAttribute('data-panel');
+  showPanel(currentPanel);
+}
+
+function showPanel(name){
+  // 결과 상태에서만 패널 토글 — 유형/리스트가 실제로 바뀜
+  document.querySelectorAll('#resultState .result-panel').forEach(function(p){
+    p.classList.add('hidden');
+  });
+  var el = document.getElementById('panel-' + name);
+  if(el){ el.classList.remove('hidden'); }
+}
+
+function toggleFollow(btn){
+  var on = btn.getAttribute('aria-pressed') === 'true';
+  btn.setAttribute('aria-pressed', on ? 'false' : 'true');
+  btn.textContent = on ? '팔로우' : '팔로잉';
+}
+
+// 빈검색 ↔ 결과 전환
+function setEmpty(isEmpty){
+  document.getElementById('emptyState').classList.toggle('hidden', !isEmpty);
+  document.getElementById('resultState').classList.toggle('hidden', isEmpty);
+  document.getElementById('emptyToggle').textContent = isEmpty ? '결과 보기' : '빈 상태 보기';
+  if(!isEmpty){ showPanel(currentPanel); }
+}
+function toggleEmpty(){
+  var nowEmpty = !document.getElementById('emptyState').classList.contains('hidden');
+  setEmpty(!nowEmpty);
+}
+function onInput(v){
+  // 입력 있으면 결과, 비면 인기/근처. 지우기 버튼은 입력 있을 때만 노출.
+  var empty = v.trim().length === 0;
+  setEmpty(empty);
+  document.getElementById('clearBtn').classList.toggle('hidden', empty);
+}
+function clearQ(){
+  document.getElementById('q').value = '';
+  setEmpty(true);
+  document.getElementById('clearBtn').classList.add('hidden');
+}
+
+// 초기: 입력 비었으므로 빈검색(인기/근처) 노출
+setEmpty(true);
+</script>
+</body>
+</html>

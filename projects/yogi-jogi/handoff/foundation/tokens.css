@@ -1,0 +1,104 @@
+/* @dsCard group="Foundation" */
+/* 요기조기 디자인 토큰 — 표준 2단. (4차: 다크모드 전용 — 배경 검정 인스타 다크)
+   ① primitive: 값 램프. ② semantic: 역할명(컴포넌트는 이것만).
+   톤: **다크모드** — 순검정 배경(#000) + 근검정 카드, 흰 텍스트/액션(primary=흰색), 다크 헤어라인.
+        사진·썸네일은 컬러 실사 유지(다크 위에서 더 살아난다). 레드는 좋아요·미열람만.
+   액션(primary)이 흰색이라 검정 위에서 보인다 — 핀·동선도 흰색으로 뒤집힌다(다크 지도 위 가시성). */
+
+:root {
+  /* ───────────────────────── ① PRIMITIVE ───────────────────────── */
+
+  /* 무채색 램프 (다크 기준) */
+  --gray-0:   #ffffff;
+  --gray-50:  #f5f5f5;
+  --gray-100: #d6d6d8;
+  --gray-200: #9a9aa0;
+  --gray-300: #6e6e74;
+  --gray-400: #4a4a4e;
+  --gray-500: #343436;
+  --gray-600: #262628;
+  --gray-700: #1c1c1e;
+  --gray-800: #121213;
+  --gray-900: #000000;
+
+
+  /* 레드 액센트(다크에서 밝게) */
+  --red-500: #ff3b4e;    /* 좋아요·미열람 닷 */
+  --red-600: #ff5b6b;   /* 다크 배경 위 위험 텍스트(AA) */
+
+  /* 그림자 (다크는 그림자보다 보더/틴트로 깊이) */
+  --shadow-1: 0 1px 2px rgba(0,0,0,.5);
+  --shadow-2: 0 2px 10px rgba(0,0,0,.55);
+  --shadow-3: 0 10px 30px rgba(0,0,0,.6);
+
+  /* 둥글기 */
+  --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-full: 999px;
+
+  /* 간격 */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+
+  /* 타이포 */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', 'Helvetica Neue', 'Malgun Gothic', sans-serif;
+  --fs-display: 26px; --lh-display: 32px; --fw-display: 700;
+  --fs-h1: 21px; --lh-h1: 27px; --fw-h1: 700;
+  --fs-h2: 17px; --lh-h2: 23px; --fw-h2: 600;
+  --fs-body: 15px; --lh-body: 21px; --fw-body: 400;
+  --fs-sm: 13px; --lh-sm: 18px;
+  --fs-xs: 11px; --lh-xs: 15px;
+  --fw-medium: 500; --fw-semibold: 600;
+
+  --z-appbar: 50; --z-tabbar: 60; --z-scrim: 70; --z-sheet: 80; --z-toast: 90;
+  --app-width: 390px; --tabbar-h: 56px; --appbar-h: 48px; --touch-min: 44px;
+
+
+  /* ───────────────────────── ② SEMANTIC (다크) ───────────────────────── */
+
+  /* 표면 — 순검정 배경 + 근검정 카드 */
+  --color-bg:            #000000;
+  --color-surface:       #121213;   /* 카드·시트·앱바 */
+  --color-surface-alt:   #1c1c1e;   /* 입력칸·보조 면 */
+  --color-surface-sunken: #262628;
+  --color-overlay:       rgba(0,0,0,.66);
+  --color-map-canvas:    #191a1c;   /* 다크 지도 캔버스 */
+
+  /* 텍스트 (밝게) */
+  --color-text:          #f5f5f5;
+  --color-text-secondary: #c9c9cf;
+  --color-text-muted:    #9a9aa0;   /* 다크 면 위 캡션 — AA */
+  --color-on-primary:    #0a0a0a;   /* 흰 버튼 위 검정 글씨 */
+  --color-on-dark:       #f5f5f5;
+
+  /* 라인 (다크 헤어라인) */
+  --color-border:        #2c2c2f;
+  --color-border-strong: #3c3c40;
+  --color-divider:       #202023;
+
+  /* 브랜드/액션 — 흰색(검정 위 가시) */
+  --color-primary:       #ffffff;
+  --color-primary-hover: #e2e2e2;
+  --color-primary-tint:  #202024;   /* 옅은 강조 배경(다크) */
+  --color-focus-ring:    #ffffff;
+
+  /* 상태 */
+  --color-danger:        var(--red-600);   /* 로그아웃 등 위험 텍스트(다크 AA) */
+  --color-on-danger:     #0a0a0a;           /* 밝은 레드 위 검정 */
+  --color-unread:        var(--red-500);
+  --color-like:          var(--red-500);
+  --color-badge-estimate: #c9c9cf;          /* 추정 배지 — 밝은 회색 */
+  --color-badge-confirm:  #f5f5f5;          /* 확정 — 흰색 */
+  --color-info:          #c9c9cf;
+
+  /* 카테고리 핀(다크) — 흰색 핀 + 검정 글리프(다크 지도 위 가시) */
+  --color-pin-food:      #ffffff;
+  --color-pin-cafe:      #ffffff;
+  --color-pin-culture:   #ffffff;
+  --color-pin-nature:    #ffffff;
+  --color-pin-shopping:  #ffffff;
+  --color-pin-etc:       #ffffff;
+
+  /* 공개범위 의미색(다크) */
+  --color-scope-public:    #f5f5f5;
+  --color-scope-followers: #c9c9cf;
+  --color-scope-private:   #8a8a90;
+}

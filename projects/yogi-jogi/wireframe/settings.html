@@ -1,0 +1,134 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>설정 — 요기조기 와이어</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* settings-local wire helpers (lo-fi only) */
+.sec-label{margin:18px 14px 4px;font-size:12px;font-weight:700;color:#888;letter-spacing:.04em}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid #eee}
+.row .k{font-size:14px;color:#222}
+.row .v{font-size:13px;color:#777}
+.radio-row{display:flex;flex-direction:column;gap:8px;margin:8px 14px}
+.radio-row label{display:flex;align-items:center;gap:10px;border:1px dashed #aaa;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:14px}
+.radio-row label[data-active="true"]{border-style:solid;border-color:#333;background:#f0f0f0;font-weight:700}
+.sw{font:inherit;border:1px solid #888;background:#eee;border-radius:18px;padding:6px 10px;cursor:pointer;min-width:78px;text-align:center}
+.sw[aria-pressed="true"]{background:#333;color:#fff;border-color:#333}
+.note{margin:0 14px 8px;font-size:12px;color:#777;border:1px dotted #bbb;border-radius:6px;padding:8px 10px}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <a class="title" href="profile-me.html" style="text-decoration:none;color:inherit">← <span>설정</span></a>
+  <div class="icons"><a href="notifications.html">🔔</a><a href="profile-me.html">👤</a></div>
+</div>
+
+<!-- 계정 -->
+<div class="sec-label">계정</div>
+<div class="row"><span class="k">이메일</span><span class="v">user@yogijogi.app</span></div>
+<div class="row"><span class="k">핸들</span><span class="v">@yogi_user</span></div>
+
+<!-- 공개범위 기본값 (라디오, 기본 팔로워) -->
+<div class="sec-label">공개범위 기본값</div>
+<div class="box" style="margin:0 14px 4px;border:none;padding:0 0 0 14px;color:#777;font-size:12px">새 게시물의 기본 공개 범위입니다.</div>
+<div class="radio-row" role="radiogroup" aria-label="공개범위 기본값">
+  <label data-active="false"><input type="radio" name="scope" value="public" onclick="pickScope(this,'공개')"> 공개 <span class="v">— 누구나 볼 수 있음</span></label>
+  <label data-active="true"><input type="radio" name="scope" value="followers" checked onclick="pickScope(this,'팔로워')"> 팔로워 <span class="v">— 맞팔/팔로워만</span></label>
+  <label data-active="false"><input type="radio" name="scope" value="private" onclick="pickScope(this,'비공개')"> 비공개 <span class="v">— 나만 보기</span></label>
+</div>
+<div class="note" id="scopeNote">현재 기본값: <b>팔로워</b></div>
+
+<!-- 동선 공개 여부 (스위치) -->
+<div class="sec-label">프라이버시</div>
+<div class="row">
+  <div><div class="k">동선 공개</div><div class="v" id="routeDesc">지도에 방문 동선 폴리라인 표시</div></div>
+  <button class="sw" id="routeSw" aria-pressed="true" onclick="toggleRoute()">켜짐</button>
+</div>
+
+<!-- 권한 재설정 -->
+<div class="sec-label">권한 재설정</div>
+<div class="row">
+  <div class="k">위치 권한</div>
+  <button class="btn" onclick="reqPerm('locNote')">재요청</button>
+</div>
+<div class="note hidden" id="locNote">위치 권한 재요청 안내를 표시했습니다. (실 OS 권한창은 <span class="oos">[범위 밖]</span>)</div>
+<div class="row">
+  <div class="k">사진 권한</div>
+  <button class="btn" onclick="reqPerm('photoNote')">재요청</button>
+</div>
+<div class="note hidden" id="photoNote">사진 권한 재요청 안내를 표시했습니다. (실 OS 권한창은 <span class="oos">[범위 밖]</span>)</div>
+
+<!-- 알림 설정 -->
+<div class="sec-label">알림</div>
+<div class="row">
+  <div><div class="k">푸시 알림</div><div class="v" id="pushDesc">좋아요·팔로우·장소 액티비티</div></div>
+  <button class="sw" id="pushSw" aria-pressed="true" onclick="togglePush()">켜짐</button>
+</div>
+
+<!-- 로그아웃 -->
+<div style="margin:22px 14px 16px">
+  <a class="btn" href="auth.html" style="display:block;text-align:center;color:#a00;border-color:#a00">로그아웃</a>
+</div>
+
+<!-- 하단 탭바 (설정은 탭이 아님 → aria-current 없음) -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a href="map-home.html">🗺 지도</a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+  <a href="feed.html">📋 피드</a>
+</nav>
+
+<script>
+function pickScope(input, label){
+  document.querySelectorAll('.radio-row label').forEach(function(l){
+    l.setAttribute('data-active', l.contains(input) ? 'true' : 'false');
+  });
+  document.getElementById('scopeNote').innerHTML = '현재 기본값: <b>'+label+'</b>';
+}
+function toggleRoute(){
+  var b=document.getElementById('routeSw');
+  var on=b.getAttribute('aria-pressed')!=='true';
+  b.setAttribute('aria-pressed', on);
+  b.textContent = on ? '켜짐' : '꺼짐';
+  document.getElementById('routeDesc').textContent = on
+    ? '지도에 방문 동선 폴리라인 표시'
+    : '동선 숨김 — 핀만 표시';
+}
+function togglePush(){
+  var b=document.getElementById('pushSw');
+  var on=b.getAttribute('aria-pressed')!=='true';
+  b.setAttribute('aria-pressed', on);
+  b.textContent = on ? '켜짐' : '꺼짐';
+  document.getElementById('pushDesc').textContent = on
+    ? '좋아요·팔로우·장소 액티비티'
+    : '모든 푸시 알림 꺼짐';
+}
+function reqPerm(id){
+  document.getElementById(id).classList.remove('hidden');
+}
+</script>
+</body>
+</html>

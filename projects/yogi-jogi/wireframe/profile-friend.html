@@ -1,0 +1,173 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>친구 프로필 — 요기조기 와이어</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* screen-local helpers (lo-fi: 색 없음, 회색만) */
+.phead{display:flex;align-items:center;gap:14px;padding:14px}
+.avatar{width:72px;height:72px;border-radius:50%;flex:none;min-height:0}
+.counts{display:flex;justify-content:space-around;text-align:center;padding:4px 14px 0}
+.counts b{display:block;font-size:17px}
+.counts span{font-size:12px;color:#777}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:10px 14px}
+.grid a{aspect-ratio:1/1;min-height:0}
+.demo{margin:14px;border-top:1px dashed #ccc;padding-top:10px}
+</style>
+</head>
+<body>
+
+<!-- 상단 앱바 (← 뒤로 / 제목 / 알림·내프로필) -->
+<div class="appbar">
+  <a class="title" href="feed.html" style="text-decoration:none;color:inherit">← <span>프로필</span></a>
+  <div class="icons"><a href="notifications.html">🔔</a><a href="profile-me.html">👤</a></div>
+</div>
+
+<!-- 헤더 -->
+<div class="phead">
+  <div class="ph avatar">사진</div>
+  <div>
+    <div style="font-weight:700;font-size:18px">미라 <span class="badge" id="acctBadge">공개</span></div>
+    <div style="color:#777;font-size:13px;margin-top:3px">성수동 카페 탐험가 ☕ · 동선 기록 중</div>
+  </div>
+</div>
+
+<!-- 카운트 3종 -->
+<div class="counts">
+  <div><b>48</b><span>게시물</span></div>
+  <div><b>1,204</b><span>팔로워</span></div>
+  <div><b>312</b><span>팔로잉</span></div>
+</div>
+
+<!-- 팔로우 버튼 -->
+<div style="display:flex;gap:8px;margin:14px">
+  <button class="btn primary" id="followBtn" style="flex:1" aria-pressed="false" onclick="cycleFollow()">팔로우</button>
+  <span class="oos" style="display:flex;align-items:center">메시지 [범위 밖]</span>
+</div>
+
+<!-- 그리드/지도 토글 -->
+<div class="seg" id="viewSeg" role="tablist" aria-label="보기 전환">
+  <button role="tab" aria-selected="true" onclick="setView('grid')">▦ 그리드</button>
+  <button role="tab" aria-selected="false" onclick="setView('map')">🗺 지도</button>
+</div>
+
+<!-- 콘텐츠: 공개 상태 (그리드 / 지도뷰) -->
+<div id="openContent">
+  <div id="gridView" class="grid">
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+    <a class="ph" href="post-detail.html">사진</a>
+  </div>
+  <div id="mapView" class="box hidden">
+    <div class="ph" style="min-height:300px">지도 영역 — 미라님의 방문 핀 · 동선</div>
+  </div>
+</div>
+
+<!-- 콘텐츠: 비공개 잠금 상태 -->
+<div id="lockedContent" class="box hidden" style="text-align:center;padding:40px 18px">
+  <div style="font-size:34px">🔒</div>
+  <div style="font-weight:700;margin-top:8px">비공개 계정입니다</div>
+  <div style="color:#777;font-size:13px;margin-top:6px">팔로우 요청 후 볼 수 있어요</div>
+</div>
+
+<!-- 데모 토글: 공개 ↔ 비공개 계정 -->
+<div class="demo">
+  <button class="btn" id="acctDemo" onclick="toggleAccount()">데모: 공개 ↔ 비공개 계정</button>
+  <div style="color:#aaa;font-size:11px;margin-top:6px">현재: <span id="acctState">공개 계정 — 콘텐츠 노출</span></div>
+</div>
+
+<!-- 하단 탭바 -->
+<nav class="tabbar" aria-label="주요 내비게이션">
+  <a href="map-home.html">🗺 지도</a>
+  <a class="fab" href="upload-1-gallery.html" aria-label="새 게시물 업로드">＋</a>
+  <a href="feed.html">📋 피드</a>
+</nav>
+
+<script>
+var isPrivate = false;       // 계정 공개/비공개
+var followState = 'none';    // none → following(공개) | requested(비공개)
+
+function renderFollow(){
+  var b = document.getElementById('followBtn');
+  if(followState === 'none'){
+    b.textContent = '팔로우';
+    b.className = 'btn primary';
+    b.setAttribute('aria-pressed','false');
+  } else if(followState === 'following'){
+    b.textContent = '팔로잉';
+    b.className = 'btn';
+    b.setAttribute('aria-pressed','true');
+  } else { // requested
+    b.textContent = '요청됨';
+    b.className = 'btn';
+    b.setAttribute('aria-pressed','true');
+  }
+}
+
+// ① 팔로우 버튼 → 상태 순환 (공개: 팔로우→팔로잉 / 비공개: 팔로우→요청됨), 다시 누르면 해제
+function cycleFollow(){
+  if(followState === 'none'){
+    followState = isPrivate ? 'requested' : 'following';
+  } else {
+    followState = 'none';
+  }
+  renderFollow();
+}
+
+// [그리드|지도] 토글 (잠금 상태에선 콘텐츠 자체가 숨겨져 안 보임)
+function setView(v){
+  var tabs = document.querySelectorAll('#viewSeg button');
+  tabs[0].setAttribute('aria-selected', v==='grid');
+  tabs[1].setAttribute('aria-selected', v==='map');
+  document.getElementById('gridView').classList.toggle('hidden', v!=='grid');
+  document.getElementById('mapView').classList.toggle('hidden', v!=='map');
+}
+
+// ② 데모: 공개 ↔ 비공개 계정 → 잠금↔콘텐츠 전환
+function toggleAccount(){
+  isPrivate = !isPrivate;
+  document.getElementById('openContent').classList.toggle('hidden', isPrivate);
+  document.getElementById('viewSeg').classList.toggle('hidden', isPrivate);
+  document.getElementById('lockedContent').classList.toggle('hidden', !isPrivate);
+  document.getElementById('acctBadge').textContent = isPrivate ? '비공개' : '공개';
+  document.getElementById('acctState').textContent = isPrivate
+    ? '비공개 계정 — 잠금(콘텐츠 숨김)'
+    : '공개 계정 — 콘텐츠 노출';
+  // 계정 성격이 바뀌면 팔로우 상태 초기화(공개=팔로잉, 비공개=요청됨 분기 재적용)
+  followState = 'none';
+  renderFollow();
+}
+
+renderFollow();
+</script>
+</body>
+</html>

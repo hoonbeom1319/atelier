@@ -1,0 +1,329 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>auth — 요기조기</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--color-bg)}
+  body{
+    width:var(--app-width);min-height:844px;margin:0 auto;
+    font-family:var(--font-sans);color:var(--color-text);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    display:flex;flex-direction:column;
+    padding:0 26px;
+  }
+
+  /* ── 워드마크 / 브랜드 ─────────────────────────── */
+  .brand{
+    text-align:center;
+    padding:76px 0 30px;
+  }
+  .brand .wordmark{
+    font-size:44px;line-height:1;
+    font-weight:700;letter-spacing:-1.2px;
+    color:var(--color-text);
+    font-style:italic;
+    display:inline-block;
+  }
+  .brand .wordmark .dot{color:var(--color-like);font-style:normal}
+  .brand .tag{
+    margin-top:14px;
+    font-size:var(--fs-sm);line-height:var(--lh-sm);font-weight:var(--fw-medium);
+    color:var(--color-text-muted);letter-spacing:.2px;
+  }
+
+  /* ── 소셜(우선, 이메일 폼 위) ──────────────────── */
+  .social{display:flex;flex-direction:column;gap:var(--space-2);margin-top:6px}
+  .sbtn{
+    position:relative;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    width:100%;min-height:50px;
+    border-radius:var(--radius-sm);
+    font-size:var(--fs-body);font-weight:var(--fw-semibold);
+    text-decoration:none;cursor:pointer;
+    border:1px solid transparent;
+    transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  }
+  .sbtn:active{transform:scale(.985)}
+  .sbtn .ico{position:absolute;left:16px;display:flex;width:20px;height:20px;align-items:center;justify-content:center}
+  /* 예외 색: 카카오 노랑 */
+  .sbtn.kakao{background:#FEE500;color:#191600}
+  .sbtn.kakao:hover{box-shadow:var(--shadow-1)}
+  /* 예외 색: 구글 브랜드 — 흰 버튼 + 헤어라인 + 컬러 로고 */
+  .sbtn.google{background:var(--color-surface);color:var(--gray-800);border-color:var(--color-border)}
+  .sbtn.google:hover{background:var(--color-surface-alt)}
+  /* 이메일 = 모노 검정 */
+  .sbtn.email{background:var(--color-primary);color:var(--color-on-primary)}
+  .sbtn.email:hover{background:var(--color-primary-hover)}
+
+  /* ── 구분선 ───────────────────────────────────── */
+  .divider{
+    display:flex;align-items:center;gap:14px;
+    margin:22px 2px 18px;
+    color:var(--color-text-muted);
+    font-size:var(--fs-xs);line-height:var(--lh-xs);font-weight:var(--fw-semibold);
+    letter-spacing:1px;text-transform:uppercase;
+  }
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--color-border)}
+
+  /* ── 이메일 폼 (플로팅 라벨) ───────────────────── */
+  .form-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin:0 2px 14px;
+  }
+  #formTitle{font-size:var(--fs-h1);line-height:var(--lh-h1);font-weight:var(--fw-h1);letter-spacing:-.3px}
+  .form-head .hint{font-size:var(--fs-xs);color:var(--color-text-muted);font-weight:var(--fw-medium)}
+
+  .field{position:relative;margin-bottom:var(--space-2)}
+  .field input{
+    width:100%;height:56px;
+    padding:22px 14px 8px;
+    font-size:var(--fs-body);font-family:inherit;color:var(--color-text);
+    background:var(--color-surface-alt);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-sm);
+    outline:none;
+    transition:border-color .14s ease, background .14s ease, box-shadow .14s ease;
+  }
+  .field input::placeholder{color:transparent}
+  .field label{
+    position:absolute;left:15px;top:17px;
+    font-size:var(--fs-body);color:var(--color-text-muted);
+    pointer-events:none;
+    transition:transform .14s ease, color .14s ease;
+    transform-origin:left top;
+  }
+  .field input:focus{
+    border-color:var(--color-border-strong);
+    background:var(--color-surface);
+    box-shadow:0 0 0 3px rgba(0,0,0,.05);
+  }
+  .field input:focus+label,
+  .field input:not(:placeholder-shown)+label{
+    transform:translateY(-12px) scale(.72);
+    color:var(--color-text-muted);
+  }
+  .field input:focus+label{color:var(--color-text-secondary)}
+  /* 에러 상태 */
+  .field.invalid input{border-color:var(--red-500);background:#201618}
+  .field.invalid input:focus{box-shadow:0 0 0 3px rgba(237,73,86,.14)}
+
+  .pw-wrap .reveal{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    border:0;background:none;cursor:pointer;
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+    color:var(--color-text-secondary);
+    padding:8px 10px;border-radius:var(--radius-xs);
+  }
+  .pw-wrap .reveal:hover{color:var(--color-text)}
+
+  .err{
+    display:none;
+    align-items:center;gap:6px;
+    margin:2px 4px 8px;
+    color:var(--red-700);
+    font-size:var(--fs-xs);line-height:var(--lh-xs);font-weight:var(--fw-medium);
+  }
+  .err.show{display:flex}
+  .err::before{content:"!";display:inline-flex;width:14px;height:14px;flex:0 0 14px;align-items:center;justify-content:center;background:var(--red-500);color:#fff;border-radius:50%;font-size:10px;font-weight:700}
+
+  .forgot{text-align:right;margin:2px 2px 14px}
+  .forgot a{font-size:var(--fs-xs);color:var(--color-text-secondary);text-decoration:none;font-weight:var(--fw-medium)}
+  .forgot a:hover{color:var(--color-text)}
+
+  #primaryCta{
+    width:100%;height:50px;
+    border:0;border-radius:var(--radius-sm);
+    background:var(--color-primary);color:var(--color-on-primary);
+    font-size:var(--fs-body);font-weight:var(--fw-semibold);font-family:inherit;
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease;
+    box-shadow:var(--shadow-1);
+  }
+  #primaryCta:hover{background:var(--color-primary-hover)}
+  #primaryCta:active{transform:scale(.985)}
+
+  /* ── 하단 토글 ───────────────────────────────── */
+  .spacer{flex:1;min-height:24px}
+  .toggle-row{
+    margin:26px 0 30px;
+    padding-top:20px;
+    border-top:1px solid var(--color-divider);
+    text-align:center;
+    font-size:var(--fs-sm);line-height:var(--lh-sm);
+    color:var(--color-text-muted);
+  }
+  #toggleBtn{
+    border:0;background:none;font-family:inherit;
+    font-size:var(--fs-sm);font-weight:var(--fw-semibold);
+    color:var(--color-text);cursor:pointer;padding:2px 2px;margin-left:2px;
+    border-bottom:1.5px solid var(--color-text);
+    transition:opacity .12s ease;
+  }
+  #toggleBtn:hover{opacity:.6}
+
+  /* signup 모드에서만 나타나는 닉네임 필드 */
+  #nameField{display:none;animation:slideDown .2s ease}
+  body.signup #nameField{display:block}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="wordmark">요기조기<span class="dot">.</span></div>
+    <div class="tag">다녀온 장소를 지도에 모으는 사진 SNS</div>
+  </div>
+
+  <!-- 소셜 우선: 이메일 폼 위 -->
+  <nav class="social" aria-label="소셜 로그인">
+    <a class="sbtn kakao" href="onboarding.html">
+      <span class="ico" aria-hidden="true">
+        <svg width="19" height="19" viewBox="0 0 24 24"><path fill="#191600" d="M12 3C6.9 3 2.8 6.2 2.8 10.2c0 2.5 1.7 4.7 4.2 6-.2.6-.7 2.6-.8 3-.1.5.2.5.4.4.2-.1 2.7-1.8 3.7-2.5.5.1 1.1.1 1.7.1 5.1 0 9.2-3.2 9.2-7.2S17.1 3 12 3z"/></svg>
+      </span>
+      카카오로 시작하기
+    </a>
+    <a class="sbtn google" href="onboarding.html">
+      <span class="ico" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.2-4.8 3.2-7.9z"/><path fill="#34A853" d="M12 23c2.9 0 5.4-1 7.2-2.6l-3.6-2.7c-1 .7-2.2 1.1-3.6 1.1-2.8 0-5.1-1.9-6-4.4H2.3v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M6 14.4a6.6 6.6 0 0 1 0-4.2V7.4H2.3a11 11 0 0 0 0 9.8L6 14.4z"/><path fill="#EA4335" d="M12 5.5c1.6 0 3 .5 4.1 1.6l3.1-3.1A11 11 0 0 0 12 1 11 11 0 0 0 2.3 7.4L6 10.2c.9-2.6 3.2-4.7 6-4.7z"/></svg>
+      </span>
+      구글로 시작하기
+    </a>
+    <a class="sbtn email" href="onboarding.html">
+      <span class="ico" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6" stroke-linecap="round"/></svg>
+      </span>
+      이메일로 시작하기
+    </a>
+  </nav>
+
+  <div class="divider">또는 이메일로 직접</div>
+
+  <!-- 이메일 폼 -->
+  <form id="emailForm" novalidate>
+    <div class="form-head">
+      <h2 id="formTitle">로그인</h2>
+      <span class="hint">1분이면 충분해요</span>
+    </div>
+
+    <div class="field" id="nameField">
+      <input id="name" type="text" placeholder="닉네임" autocomplete="nickname">
+      <label for="name">닉네임</label>
+    </div>
+
+    <div class="field">
+      <input id="email" type="email" placeholder="이메일" autocomplete="email" aria-describedby="emailErr">
+      <label for="email">이메일</label>
+    </div>
+    <p id="emailErr" class="err" role="alert">이메일을 입력하세요</p>
+
+    <div class="field pw-wrap">
+      <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password" aria-describedby="pwErr">
+      <label for="pw">비밀번호</label>
+      <button type="button" class="reveal" id="revealBtn" aria-pressed="false" aria-label="비밀번호 표시">표시</button>
+    </div>
+    <p id="pwErr" class="err" role="alert">비밀번호를 입력하세요</p>
+
+    <div class="forgot"><a href="onboarding.html">비밀번호를 잊으셨나요?</a></div>
+
+    <button id="primaryCta" type="submit">로그인</button>
+  </form>
+
+  <div class="spacer"></div>
+
+  <div class="toggle-row">
+    <span id="toggleText">계정이 없으신가요?</span>
+    <button id="toggleBtn" type="button" aria-pressed="false">회원가입</button>
+  </div>
+
+<script>
+(function(){
+  var mode = 'login'; // login | signup
+  var title = document.getElementById('formTitle');
+  var cta = document.getElementById('primaryCta');
+  var toggleText = document.getElementById('toggleText');
+  var toggleBtn = document.getElementById('toggleBtn');
+  var email = document.getElementById('email');
+  var pw = document.getElementById('pw');
+  var emailErr = document.getElementById('emailErr');
+  var pwErr = document.getElementById('pwErr');
+  var emailField = email.closest('.field');
+  var pwField = pw.closest('.field');
+
+  // ① 로그인 ↔ 회원가입 토글
+  toggleBtn.addEventListener('click', function(){
+    clearErr();
+    if(mode === 'login'){
+      mode = 'signup';
+      document.body.classList.add('signup');
+      title.textContent = '회원가입';
+      cta.textContent = '회원가입';
+      toggleText.textContent = '이미 계정이 있으신가요?';
+      toggleBtn.textContent = '로그인';
+      toggleBtn.setAttribute('aria-pressed','true');
+    } else {
+      mode = 'login';
+      document.body.classList.remove('signup');
+      title.textContent = '로그인';
+      cta.textContent = '로그인';
+      toggleText.textContent = '계정이 없으신가요?';
+      toggleBtn.textContent = '회원가입';
+      toggleBtn.setAttribute('aria-pressed','false');
+    }
+  });
+
+  // 비밀번호 표시 토글
+  var revealBtn = document.getElementById('revealBtn');
+  revealBtn.addEventListener('click', function(){
+    var showing = pw.getAttribute('type') === 'text';
+    pw.setAttribute('type', showing ? 'password' : 'text');
+    revealBtn.textContent = showing ? '표시' : '숨김';
+    revealBtn.setAttribute('aria-pressed', showing ? 'false' : 'true');
+  });
+
+  function clearErr(){
+    emailErr.classList.remove('show'); emailField.classList.remove('invalid');
+    pwErr.classList.remove('show'); pwField.classList.remove('invalid');
+  }
+
+  // ②③ 인라인 검증 → 통과 시 더미 인증 → onboarding
+  document.getElementById('emailForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    clearErr();
+    var v = email.value.trim();
+    if(v === ''){
+      emailErr.textContent = '이메일을 입력하세요';
+      emailErr.classList.add('show'); emailField.classList.add('invalid'); email.focus();
+      return;
+    }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){
+      emailErr.textContent = '이메일 형식이 올바르지 않습니다';
+      emailErr.classList.add('show'); emailField.classList.add('invalid'); email.focus();
+      return;
+    }
+    if(pw.value.trim() === ''){
+      pwErr.textContent = '비밀번호를 입력하세요';
+      pwErr.classList.add('show'); pwField.classList.add('invalid'); pw.focus();
+      return;
+    }
+    if(mode === 'signup' && pw.value.trim().length < 6){
+      pwErr.textContent = '비밀번호는 6자 이상이어야 합니다';
+      pwErr.classList.add('show'); pwField.classList.add('invalid'); pw.focus();
+      return;
+    }
+    // 더미 인증 통과
+    window.location.href = 'onboarding.html';
+  });
+
+  // 입력 시 해당 에러 즉시 해제(상태 실재)
+  email.addEventListener('input', function(){ emailErr.classList.remove('show'); emailField.classList.remove('invalid'); });
+  pw.addEventListener('input', function(){ pwErr.classList.remove('show'); pwField.classList.remove('invalid'); });
+})();
+</script>
+
+</body>
+</html>

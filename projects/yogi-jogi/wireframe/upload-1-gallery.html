@@ -1,0 +1,194 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>업로드1 갤러리 — 요기조기 와이어</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* 화면 전용 (lo-fi 회색만) */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px}
+.cell{position:relative;cursor:pointer;border:0;padding:0;background:transparent}
+.cell .ph{min-height:120px;border-radius:0;width:100%}
+.cell .num{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:2px solid #555;background:#fff;color:#555;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.cell[aria-pressed="true"] .num{background:#333;color:#fff;border-color:#333}
+.cell[aria-pressed="true"] .ph{outline:3px solid #333;outline-offset:-3px;color:#444}
+.selbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #ddd;font-size:13px;color:#555}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;z-index:9}
+.hdrbtn{background:transparent;border:0;font:inherit;cursor:pointer;color:#222;padding:6px 8px;font-size:15px}
+.hdrbtn.next{font-weight:700;border:1px solid #888;border-radius:8px;background:#f3f3f3}
+.hdrbtn.next:disabled{color:#aaa;border-color:#ddd;background:#fafafa;cursor:not-allowed}
+</style>
+</head>
+<body>
+
+<!-- 업로드 풀스크린 헤더: [✕ 닫기] · "새 게시물" · [다음] — 탭바 없음 -->
+<div class="appbar">
+  <a class="hdrbtn" href="map-home.html" aria-label="업로드 닫기" style="text-decoration:none">✕ 닫기</a>
+  <span class="title">새 게시물</span>
+  <button class="hdrbtn next" id="nextBtn" onclick="goNext()" aria-disabled="true" disabled>다음</button>
+</div>
+
+<!-- 선택 카운트 바 -->
+<div class="selbar">
+  <span id="count">0장 선택</span>
+  <button class="btn" style="padding:5px 10px;font-size:12px" onclick="toggleDemo()" id="demoToggle" aria-pressed="false">데모: 빈 갤러리/권한 거부 보기</button>
+</div>
+
+<!-- 채움 상태: 갤러리 그리드 -->
+<div id="galleryState">
+  <div class="grid" id="grid" role="list" aria-label="갤러리 사진">
+    <!-- 셀은 JS로 생성 -->
+  </div>
+</div>
+
+<!-- 빈/권한거부 상태 -->
+<div id="emptyState" class="hidden">
+  <div class="box" style="text-align:center;margin-top:60px">
+    <div class="ph" style="min-height:90px;margin-bottom:12px">권한/사진 없음</div>
+    <p style="margin-bottom:6px;font-weight:700;color:#333">사진에 접근할 수 없어요</p>
+    <p style="font-size:13px;margin-bottom:14px">갤러리가 비어 있거나 사진 권한이 거부되었습니다. 권한을 허용하면 사진을 선택할 수 있어요.</p>
+    <button class="btn primary" onclick="requestPerm()">권한 다시 요청</button>
+    <p id="permMsg" class="hidden" style="font-size:12px;color:#555;margin-top:10px">권한 요청을 다시 보냈습니다(데모). 갤러리로 돌아갑니다…</p>
+  </div>
+</div>
+
+<!-- 토스트 (최대 30장) -->
+<div id="toast" class="toast hidden" role="status">최대 30장까지 선택할 수 있어요</div>
+
+<!-- 0장에서 [다음] 눌렀을 때 안내 -->
+<div id="zeroMsg" class="toast hidden" role="status">사진을 1장 이상 선택해 주세요</div>
+
+<script>
+var MAX = 30;
+var order = []; // 선택 순서 보관 (셀 인덱스 배열)
+
+// 그리드 셀 생성 (18장 더미)
+(function buildGrid(){
+  var g = document.getElementById('grid');
+  for(var i=1;i<=18;i++){
+    var b = document.createElement('button');
+    b.className = 'cell';
+    b.setAttribute('role','listitem');
+    b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-label','사진 '+i+' 선택');
+    b.dataset.idx = i;
+    b.onclick = (function(idx, btn){ return function(){ toggleCell(idx, btn); }; })(i, b);
+    b.innerHTML = '<div class="ph">사진'+i+'</div><span class="num hidden"></span>';
+    g.appendChild(b);
+  }
+})();
+
+function toggleCell(idx, btn){
+  var pos = order.indexOf(idx);
+  if(pos === -1){
+    // 선택 시도
+    if(order.length >= MAX){ showToast('toast'); return; }
+    order.push(idx);
+    btn.setAttribute('aria-pressed','true');
+  } else {
+    // 해제
+    order.splice(pos,1);
+    btn.setAttribute('aria-pressed','false');
+  }
+  renumber();
+  updateCount();
+}
+
+// 모든 선택 셀의 순번 배지를 현재 순서대로 다시 매김
+function renumber(){
+  var cells = document.querySelectorAll('#grid .cell');
+  cells.forEach(function(c){
+    var idx = parseInt(c.dataset.idx,10);
+    var pos = order.indexOf(idx);
+    var num = c.querySelector('.num');
+    if(pos === -1){
+      num.classList.add('hidden');
+      num.textContent = '';
+    } else {
+      num.classList.remove('hidden');
+      num.textContent = (pos+1);
+    }
+  });
+}
+
+function updateCount(){
+  document.getElementById('count').textContent = order.length + '장 선택';
+  var nb = document.getElementById('nextBtn');
+  if(order.length > 0){
+    nb.disabled = false;
+    nb.setAttribute('aria-disabled','false');
+  } else {
+    nb.disabled = true;
+    nb.setAttribute('aria-disabled','true');
+  }
+}
+
+function goNext(){
+  if(order.length === 0){ showToast('zeroMsg'); return; }
+  window.location.href = 'upload-2-classify.html';
+}
+
+var toastTimer;
+function showToast(id){
+  var t = document.getElementById(id);
+  t.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.add('hidden'); }, 1800);
+}
+
+// 데모: 빈 갤러리/권한 거부 ↔ 채움 토글
+function toggleDemo(){
+  var gal = document.getElementById('galleryState');
+  var emp = document.getElementById('emptyState');
+  var tg = document.getElementById('demoToggle');
+  var isEmpty = !emp.classList.contains('hidden');
+  if(isEmpty){
+    emp.classList.add('hidden');
+    gal.classList.remove('hidden');
+    tg.setAttribute('aria-pressed','false');
+    tg.textContent = '데모: 빈 갤러리/권한 거부 보기';
+  } else {
+    gal.classList.add('hidden');
+    emp.classList.remove('hidden');
+    tg.setAttribute('aria-pressed','true');
+    tg.textContent = '데모: 갤러리 보기';
+    document.getElementById('permMsg').classList.add('hidden');
+  }
+}
+
+function requestPerm(){
+  document.getElementById('permMsg').classList.remove('hidden');
+  setTimeout(function(){
+    // 권한 허용된 셈 — 갤러리로 복귀
+    document.getElementById('emptyState').classList.add('hidden');
+    document.getElementById('galleryState').classList.remove('hidden');
+    var tg = document.getElementById('demoToggle');
+    tg.setAttribute('aria-pressed','false');
+    tg.textContent = '데모: 빈 갤러리/권한 거부 보기';
+  }, 1000);
+}
+</script>
+</body>
+</html>

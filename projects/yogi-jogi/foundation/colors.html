@@ -1,0 +1,63 @@
+<!-- @dsCard group="Foundation" -->
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요기조기 — 컬러</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+body{font-family:var(--font-sans);background:var(--color-bg);color:var(--color-text);margin:0;padding:24px;max-width:760px;margin:0 auto}
+h1{font-size:var(--fs-h1)}h2{font-size:var(--fs-h2);margin-top:32px;border-bottom:1px solid var(--color-border);padding-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.sw{width:120px;border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-surface);box-shadow:var(--shadow-1)}
+.chip{height:56px}.lbl{padding:6px 8px;font-size:var(--fs-xs);line-height:1.4}
+.lbl b{display:block;font-size:var(--fs-sm)}
+.pair{display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);margin:6px 0}
+.dot{width:20px;height:20px;border-radius:50%;border:1px solid var(--color-border)}
+.note{color:var(--color-text-muted);font-size:var(--fs-sm)}
+</style></head><body>
+<h1>컬러 — 지도앱 톤</h1>
+<p class="note">컴포넌트는 <b>semantic 역할 토큰만</b> 쓴다. 아래 primitive는 값일 뿐. 모든 텍스트 대비 WCAG AA 통과(게이트 green).</p>
+
+<h2>Semantic — 표면 / 텍스트</h2>
+<div class="row">
+  <div class="sw"><div class="chip" style="background:var(--color-bg)"></div><div class="lbl"><b>--color-bg</b>앱 배경</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-surface)"></div><div class="lbl"><b>--color-surface</b>카드·시트</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-surface-alt)"></div><div class="lbl"><b>--color-surface-alt</b>입력칸</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-text)"></div><div class="lbl" style="color:var(--color-on-dark)"><b>--color-text</b>본문</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-text-secondary)"></div><div class="lbl" style="color:#fff"><b>--color-text-secondary</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-text-muted)"></div><div class="lbl" style="color:#fff"><b>--color-text-muted</b>보조</div></div>
+</div>
+
+<h2>Semantic — 브랜드 / 액션 / 상태</h2>
+<div class="row">
+  <div class="sw"><div class="chip" style="background:var(--color-primary)"></div><div class="lbl" style="color:var(--color-on-primary)"><b>--color-primary</b>주 액션·FAB</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-primary-hover)"></div><div class="lbl" style="color:#fff"><b>--color-primary-hover</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-primary-tint)"></div><div class="lbl"><b>--color-primary-tint</b>옅은 강조</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-danger)"></div><div class="lbl" style="color:#fff"><b>--color-danger</b>좋아요·삭제</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-unread)"></div><div class="lbl" style="color:#fff"><b>--color-unread</b>레드닷</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-badge-estimate)"></div><div class="lbl" style="color:#fff"><b>--color-badge-estimate</b>추정</div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-badge-confirm)"></div><div class="lbl" style="color:#fff"><b>--color-badge-confirm</b>확정</div></div>
+</div>
+
+<h2>카테고리 핀 팔레트 (지도 마커)</h2>
+<p class="note">POI 카테고리 구분색. 흰 글씨/아이콘 대비 AA. 컴포넌트는 <code>--color-pin-*</code>만 참조.</p>
+<div class="row">
+  <div class="sw"><div class="chip" style="background:var(--color-pin-food);color:#fff;display:flex;align-items:center;justify-content:center">🍜 음식</div><div class="lbl"><b>--color-pin-food</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-pin-cafe);color:#fff;display:flex;align-items:center;justify-content:center">☕ 카페</div><div class="lbl"><b>--color-pin-cafe</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-pin-culture);color:#fff;display:flex;align-items:center;justify-content:center">🖼 문화</div><div class="lbl"><b>--color-pin-culture</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-pin-nature);color:#fff;display:flex;align-items:center;justify-content:center">🌳 자연</div><div class="lbl"><b>--color-pin-nature</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-pin-shopping);color:#fff;display:flex;align-items:center;justify-content:center">🛍 쇼핑</div><div class="lbl"><b>--color-pin-shopping</b></div></div>
+  <div class="sw"><div class="chip" style="background:var(--color-pin-etc);color:#fff;display:flex;align-items:center;justify-content:center">📍 기타</div><div class="lbl"><b>--color-pin-etc</b></div></div>
+</div>
+
+<h2>공개범위 의미색</h2>
+<div class="pair"><span class="dot" style="background:var(--color-scope-public)"></span> 공개 <span class="note">--color-scope-public</span></div>
+<div class="pair"><span class="dot" style="background:var(--color-scope-followers)"></span> 팔로워 <span class="note">--color-scope-followers (기본값, A8)</span></div>
+<div class="pair"><span class="dot" style="background:var(--color-scope-private)"></span> 비공개 <span class="note">--color-scope-private</span></div>
+
+<h2>그림자 (elevation)</h2>
+<div class="row">
+  <div class="sw" style="box-shadow:var(--shadow-1)"><div class="chip" style="background:var(--color-surface)"></div><div class="lbl"><b>--shadow-1</b>카드</div></div>
+  <div class="sw" style="box-shadow:var(--shadow-2)"><div class="chip" style="background:var(--color-surface)"></div><div class="lbl"><b>--shadow-2</b>시트·앱바</div></div>
+  <div class="sw" style="box-shadow:var(--shadow-3)"><div class="chip" style="background:var(--color-surface)"></div><div class="lbl"><b>--shadow-3</b>FAB·모달</div></div>
+</div>
+</body></html>

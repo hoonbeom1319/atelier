@@ -1,0 +1,357 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>팔로우 시드 — 요기조기 (SC-06)</title>
+<style>
+  @import url("../foundation/tokens.css");
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{ -webkit-tap-highlight-color:transparent }
+
+  body{
+    width:var(--app-width); min-height:844px; margin:0 auto;
+    background:var(--color-bg); color:var(--color-text);
+    font-family:var(--font-sans); position:relative;
+    padding-bottom:120px; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none}
+  button{font-family:inherit; cursor:pointer; border:0; background:none; color:inherit}
+  :focus-visible{ outline:2px solid var(--color-focus-ring); outline-offset:2px; border-radius:var(--radius-xs) }
+  .hidden{ display:none !important }
+
+  /* ───────────── 슬림 앱바 (진행표시 + 건너뛰기) ───────────── */
+  .appbar{
+    height:var(--appbar-h); display:flex; align-items:center; gap:var(--space-3);
+    padding:0 var(--space-4); position:sticky; top:0; z-index:var(--z-appbar);
+    background:rgba(16,16,18,.86); backdrop-filter:saturate(1.3) blur(12px);
+    border-bottom:1px solid var(--color-border);
+  }
+  .steps{ display:flex; gap:6px; align-items:center }
+  .steps i{ width:22px; height:4px; border-radius:var(--radius-full); background:var(--color-border); display:block }
+  .steps i.on{ background:var(--color-primary); width:28px }
+  .appbar .spacer{ flex:1 }
+  .skip-top{ font-size:var(--fs-sm); font-weight:var(--fw-semibold); color:var(--color-text-secondary);
+    padding:8px 6px; border-radius:var(--radius-sm) }
+  .skip-top:active{ background:var(--color-surface-alt) }
+
+  /* ───────────── 헤더 ───────────── */
+  .head{ padding:var(--space-6) var(--space-4) var(--space-4) }
+  .head h1{ font-size:var(--fs-display); line-height:var(--lh-display); font-weight:var(--fw-display);
+    letter-spacing:-.6px }
+  .head p{ margin-top:var(--space-2); font-size:var(--fs-body); line-height:var(--lh-body);
+    color:var(--color-text-secondary); max-width:33ch }
+
+  /* ───────────── 요즘 뜨는 동네 칩 (가로 스크롤) ───────────── */
+  .trend{ margin-top:var(--space-5) }
+  .trend .lbl{ display:flex; align-items:center; gap:6px; padding:0 var(--space-4) var(--space-3);
+    font-size:var(--fs-sm); font-weight:var(--fw-semibold); color:var(--color-text) }
+  .trend .lbl .dot{ width:7px; height:7px; border-radius:50%; background:var(--color-unread) }
+  .chiprow{ display:flex; gap:var(--space-2); overflow-x:auto; padding:0 var(--space-4) 2px;
+    scrollbar-width:none }
+  .chiprow::-webkit-scrollbar{ display:none }
+  .nchip{ flex:none; display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 14px 0 8px;
+    border:1px solid var(--color-border); border-radius:var(--radius-full);
+    background:var(--color-surface); font-size:var(--fs-sm); font-weight:var(--fw-semibold);
+    color:var(--color-text); transition:transform .12s, border-color .12s, background .12s }
+  .nchip:active{ transform:scale(.96); border-color:var(--color-border-strong); background:var(--color-surface-alt) }
+  .nchip .thumb{ width:24px; height:24px; border-radius:50%; flex:none;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06) }
+  .nchip small{ font-size:var(--fs-xs); font-weight:400; color:var(--color-text-muted) }
+
+  /* ───────────── 세그먼트 (데모 전환) — 검정 언더라인 위계 ───────────── */
+  .seg{
+    display:flex; padding:0 var(--space-4); gap:var(--space-6); margin-top:var(--space-6);
+    border-bottom:1px solid var(--color-border); position:sticky; top:var(--appbar-h);
+    background:var(--color-surface); z-index:40;
+  }
+  .seg [role="tab"]{
+    appearance:none; padding:var(--space-3) 2px 10px; font-size:var(--fs-sm); font-weight:var(--fw-semibold);
+    color:var(--color-text-muted); position:relative; letter-spacing:-.2px;
+  }
+  .seg [role="tab"][aria-selected="true"]{ color:var(--color-text) }
+  .seg [role="tab"][aria-selected="true"]::after{
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px;
+    background:var(--color-primary); border-radius:2px 2px 0 0;
+  }
+
+  /* ───────────── 선택 카운트 바 ───────────── */
+  .countbar{ display:flex; align-items:center; gap:var(--space-2);
+    padding:var(--space-4) var(--space-4) var(--space-2) }
+  .countbar .badge{ min-width:22px; height:22px; padding:0 7px; border-radius:var(--radius-full);
+    background:var(--color-primary); color:var(--color-on-primary); font-size:var(--fs-xs);
+    font-weight:700; display:inline-flex; align-items:center; justify-content:center;
+    transition:transform .18s cubic-bezier(.34,1.56,.64,1) }
+  .countbar .badge.bump{ transform:scale(1.28) }
+  .countbar .txt{ font-size:var(--fs-sm); color:var(--color-text-secondary) }
+  .countbar .txt b{ color:var(--color-text); font-weight:var(--fw-semibold) }
+
+  /* ───────────── 추천 행 ───────────── */
+  ul#rec-list{ list-style:none }
+  .rec{ display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4);
+    border-top:1px solid var(--color-divider) }
+  .rec:first-child{ border-top:0 }
+  /* 컬러 아바타/썸네일 */
+  .ava{ width:52px; height:52px; flex:none; border-radius:50%; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:var(--fs-h2); font-weight:700;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); text-shadow:0 1px 2px rgba(0,0,0,.25) }
+  .ava.place{ border-radius:var(--radius-md); font-size:0 }
+  .ava .kind{ position:absolute; bottom:-3px; right:-3px; width:20px; height:20px; border-radius:50%;
+    background:var(--color-surface); border:1.5px solid var(--color-surface);
+    display:flex; align-items:center; justify-content:center }
+  .ava .kind span{ width:16px; height:16px; border-radius:50%; background:var(--color-primary);
+    color:#fff; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700 }
+  .rec .meta{ flex:1; min-width:0 }
+  .rec .nm{ display:flex; align-items:center; gap:6px; font-size:var(--fs-body); font-weight:var(--fw-semibold);
+    color:var(--color-text); line-height:1.25 }
+  .rec .nm .tag{ font-size:var(--fs-xs); font-weight:600; color:var(--color-text-muted);
+    border:1px solid var(--color-border); border-radius:var(--radius-xs); padding:1px 5px; line-height:1.3 }
+  .rec .bio{ margin-top:3px; font-size:var(--fs-sm); line-height:var(--lh-sm); color:var(--color-text-muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+  .rec .bio b{ color:var(--color-text-secondary); font-weight:var(--fw-semibold) }
+
+  /* 팔로우 토글: 검정 fill ↔ 팔로잉 아웃라인 */
+  .follow-btn{ flex:none; height:34px; min-width:74px; padding:0 14px; border-radius:var(--radius-sm);
+    background:var(--color-primary); color:var(--color-on-primary); font-size:var(--fs-sm);
+    font-weight:700; letter-spacing:-.2px; transition:transform .12s, background .15s, color .15s }
+  .follow-btn:active{ transform:scale(.95) }
+  .follow-btn[aria-pressed="true"]{ background:var(--color-surface); color:var(--color-text);
+    box-shadow:inset 0 0 0 1px var(--color-border-strong) }
+
+  /* ───────────── 빈 추천 상태 ───────────── */
+  #empty-state{ padding:56px var(--space-6) 32px; text-align:center }
+  .empty-ic{ width:76px; height:76px; margin:0 auto var(--space-5); border-radius:50%;
+    background:var(--color-surface-alt); border:1px solid var(--color-border);
+    display:flex; align-items:center; justify-content:center }
+  .empty-ic svg{ width:34px; height:34px; color:var(--color-text-muted) }
+  #empty-state h2{ font-size:var(--fs-h2); font-weight:var(--fw-h2); color:var(--color-text) }
+  #empty-state p{ margin-top:var(--space-2); font-size:var(--fs-sm); line-height:var(--lh-sm);
+    color:var(--color-text-muted) }
+  .empty-cta{ display:inline-flex; align-items:center; gap:6px; margin-top:var(--space-5);
+    height:40px; padding:0 18px; border-radius:var(--radius-sm);
+    box-shadow:inset 0 0 0 1px var(--color-border-strong); font-size:var(--fs-sm); font-weight:700;
+    color:var(--color-text) }
+  .empty-cta:active{ background:var(--color-surface-alt); transform:scale(.98) }
+  .empty-cta svg{ width:16px; height:16px }
+
+  /* ───────────── 하단 고정 CTA (플로팅) ───────────── */
+  .footer{ position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:var(--app-width);
+    padding:var(--space-3) var(--space-4) var(--space-5);
+    background:linear-gradient(to top, var(--color-surface) 62%, rgba(255,255,255,0));
+    z-index:var(--z-tabbar) }
+  .btn-start{ display:flex; align-items:center; justify-content:center; height:50px; border-radius:var(--radius-md);
+    background:var(--color-primary); color:var(--color-on-primary); font-size:var(--fs-h2);
+    font-weight:700; letter-spacing:-.3px; box-shadow:var(--shadow-2); transition:transform .12s }
+  .btn-start:active{ transform:scale(.985); background:var(--color-primary-hover) }
+  .btn-skip{ display:block; text-align:center; margin-top:var(--space-2); padding:10px;
+    font-size:var(--fs-sm); font-weight:var(--fw-semibold); color:var(--color-text-muted) }
+  .btn-skip:active{ color:var(--color-text) }
+
+  /* 토스트 */
+  .toast{ position:fixed; left:50%; bottom:118px; transform:translateX(-50%) translateY(8px);
+    background:var(--color-text); color:var(--color-on-dark); font-size:var(--fs-sm); font-weight:var(--fw-semibold);
+    padding:10px 16px; border-radius:var(--radius-full); box-shadow:var(--shadow-3);
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:var(--z-toast) }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0) }
+</style>
+</head>
+<body>
+
+  <!-- 슬림 앱바: 온보딩 마지막 단계 진행표시 + 상단 건너뛰기 -->
+  <div class="appbar">
+    <div class="steps" role="img" aria-label="온보딩 3단계 중 3단계">
+      <i class="on"></i><i class="on"></i><i class="on"></i>
+    </div>
+    <span class="spacer"></span>
+    <a class="skip-top" href="feed.html" id="skip-top">건너뛰기</a>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="head">
+    <h1>팔로우할 사람과 장소</h1>
+    <p>관심 있는 친구와 장소를 팔로우하면 지도와 피드가 바로 채워져요.</p>
+  </header>
+
+  <!-- 요즘 뜨는 동네 → search.html -->
+  <nav class="trend" aria-label="요즘 뜨는 동네">
+    <div class="lbl"><span class="dot"></span>요즘 뜨는 동네</div>
+    <div class="chiprow">
+      <a class="nchip" href="search.html">
+        <span class="thumb" style="background:linear-gradient(135deg,#e8c9a0,#c98a5a)"></span>
+        성수동 <small>1.2천</small>
+      </a>
+      <a class="nchip" href="search.html">
+        <span class="thumb" style="background:linear-gradient(135deg,#a8c98a,#5a8a4a)"></span>
+        서울숲 <small>860</small>
+      </a>
+      <a class="nchip" href="search.html">
+        <span class="thumb" style="background:linear-gradient(135deg,#d8b48a,#8a6a3a)"></span>
+        을지로 <small>740</small>
+      </a>
+      <a class="nchip" href="search.html">
+        <span class="thumb" style="background:linear-gradient(135deg,#3a4a6a,#c98a5a)"></span>
+        한강진 <small>520</small>
+      </a>
+      <a class="nchip" href="search.html">
+        <span class="thumb" style="background:linear-gradient(135deg,#c98ab4,#7a4a8a)"></span>
+        연남동 <small>430</small>
+      </a>
+    </div>
+  </nav>
+
+  <!-- 데모 전환 세그먼트 -->
+  <div class="seg" role="tablist" aria-label="데모 보기 전환">
+    <button id="seg-list" role="tab" aria-selected="true" aria-controls="list-state" onclick="showList()">추천 목록</button>
+    <button id="seg-empty" role="tab" aria-selected="false" aria-controls="empty-state" onclick="showEmpty()">데모: 빈 추천</button>
+  </div>
+
+  <!-- 채움 상태 -->
+  <section id="list-state">
+    <div class="countbar">
+      <span id="follow-count" class="badge">0</span>
+      <span class="txt"><b>0</b>명 팔로우 선택됨 · 3명 이상 추천해요</span>
+    </div>
+
+    <ul id="rec-list">
+      <li class="rec">
+        <div class="ava" style="background:linear-gradient(135deg,#e8c9a0,#c98a5a)" aria-hidden="true">여
+          <span class="kind"><span>@</span></span>
+        </div>
+        <div class="meta">
+          <div class="nm">김여행</div>
+          <div class="bio">성수동 카페 <b>23곳</b> 기록 · 친구 <b>8명</b>과 겹침</div>
+        </div>
+        <button class="follow-btn" aria-pressed="false" aria-label="김여행 팔로우" onclick="toggleFollow(this,'김여행')">팔로우</button>
+      </li>
+
+      <li class="rec">
+        <div class="ava place" style="background:linear-gradient(150deg,#e8c9a0,#8a5a2a)" aria-hidden="true">
+          <span class="kind"><span>◎</span></span>
+        </div>
+        <div class="meta">
+          <div class="nm">블루보틀 성수 <span class="tag">장소</span></div>
+          <div class="bio">방문한 친구 <b>12명</b> · 저장 <b>340</b></div>
+        </div>
+        <button class="follow-btn" aria-pressed="false" aria-label="블루보틀 성수 팔로우" onclick="toggleFollow(this,'블루보틀 성수')">팔로우</button>
+      </li>
+
+      <li class="rec">
+        <div class="ava" style="background:linear-gradient(135deg,#c98ab4,#7a4a8a)" aria-hidden="true">맛
+          <span class="kind"><span>@</span></span>
+        </div>
+        <div class="meta">
+          <div class="nm">박맛집</div>
+          <div class="bio">을지로 노포 <b>17곳</b> 기록 중 · 팔로워 <b>2.1천</b></div>
+        </div>
+        <button class="follow-btn" aria-pressed="false" aria-label="박맛집 팔로우" onclick="toggleFollow(this,'박맛집')">팔로우</button>
+      </li>
+
+      <li class="rec">
+        <div class="ava place" style="background:linear-gradient(150deg,#a8c98a,#4a7a3a)" aria-hidden="true">
+          <span class="kind"><span>◎</span></span>
+        </div>
+        <div class="meta">
+          <div class="nm">서울숲 일대 <span class="tag">장소</span></div>
+          <div class="bio">방문한 친구 <b>31명</b> · 산책 코스 <b>9개</b></div>
+        </div>
+        <button class="follow-btn" aria-pressed="false" aria-label="서울숲 일대 팔로우" onclick="toggleFollow(this,'서울숲 일대')">팔로우</button>
+      </li>
+
+      <li class="rec">
+        <div class="ava" style="background:linear-gradient(135deg,#3a4a6a,#c98a5a)" aria-hidden="true">산
+          <span class="kind"><span>@</span></span>
+        </div>
+        <div class="meta">
+          <div class="nm">이산책</div>
+          <div class="bio">한강 야경 동선 공유 · 친구 <b>5명</b>과 겹침</div>
+        </div>
+        <button class="follow-btn" aria-pressed="false" aria-label="이산책 팔로우" onclick="toggleFollow(this,'이산책')">팔로우</button>
+      </li>
+
+      <li class="rec">
+        <div class="ava" style="background:linear-gradient(135deg,#8ab4c9,#3a6a8a)" aria-hidden="true">탐
+          <span class="kind"><span>@</span></span>
+        </div>
+        <div class="meta">
+          <div class="nm">최탐방</div>
+          <div class="bio">전시·미술관 위주 기록 · 팔로워 <b>980</b></div>
+        </div>
+        <button class="follow-btn" aria-pressed="false" aria-label="최탐방 팔로우" onclick="toggleFollow(this,'최탐방')">팔로우</button>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 빈 추천 상태 (데모) -->
+  <section id="empty-state" class="hidden" aria-label="빈 추천">
+    <div class="empty-ic" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path>
+      </svg>
+    </div>
+    <h2>아직 추천이 없어요</h2>
+    <p>연락처나 관심 동네를 검색해<br>팔로우할 친구·장소를 찾아보세요.</p>
+    <a class="empty-cta" href="search.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path>
+      </svg>
+      검색에서 찾기
+    </a>
+  </section>
+
+  <!-- 하단 CTA -->
+  <div class="footer">
+    <a class="btn-start" href="feed.html" id="cta-start">시작하기</a>
+    <a class="btn-skip" href="feed.html" id="cta-skip">나중에 할게요</a>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  var toastTimer;
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1400);
+  }
+
+  function toggleFollow(btn, name){
+    var on = btn.getAttribute('aria-pressed') === 'true';
+    if(on){
+      btn.setAttribute('aria-pressed','false');
+      btn.textContent = '팔로우';
+    } else {
+      btn.setAttribute('aria-pressed','true');
+      btn.textContent = '팔로잉';
+      toast(name + ' 팔로우 완료');
+    }
+    updateCount();
+  }
+
+  function updateCount(){
+    var n = document.querySelectorAll('#rec-list .follow-btn[aria-pressed="true"]').length;
+    var badge = document.getElementById('follow-count');
+    badge.textContent = n;
+    document.querySelector('.countbar .txt b').textContent = n;
+    badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump');
+  }
+
+  function showList(){
+    document.getElementById('list-state').classList.remove('hidden');
+    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('seg-list').setAttribute('aria-selected','true');
+    document.getElementById('seg-empty').setAttribute('aria-selected','false');
+  }
+  function showEmpty(){
+    document.getElementById('list-state').classList.add('hidden');
+    document.getElementById('empty-state').classList.remove('hidden');
+    document.getElementById('seg-list').setAttribute('aria-selected','false');
+    document.getElementById('seg-empty').setAttribute('aria-selected','true');
+  }
+</script>
+
+</body>
+</html>

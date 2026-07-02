@@ -1,0 +1,171 @@
+<!-- @dsCard group="Wireframe" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>업로드3 · 위치 직접 지정 (와이어)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',sans-serif}
+body{width:390px;min-height:844px;margin:0 auto;background:#fff;color:#222;position:relative;padding-bottom:72px}
+.appbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.title{font-weight:700;font-size:17px}
+.icons a{margin-left:10px;text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:5px 8px}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;height:64px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #ccc;background:#fff;z-index:6}
+.tabbar a{text-decoration:none;color:#555;font-size:13px;border:1px dashed #bbb;border-radius:6px;padding:7px 14px}
+.tabbar a.fab{background:#222;color:#fff;border-style:solid;font-size:22px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;padding:0}
+.tabbar a[aria-current="page"]{font-weight:700;border-style:solid;color:#111;background:#eee}
+.box{border:1px dashed #999;border-radius:8px;padding:12px;margin:10px 14px;color:#555}
+.ph{background:#e8e8e8;border:1px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#888;min-height:60px}
+.btn{font:inherit;border:1px solid #888;background:#f3f3f3;border-radius:8px;padding:10px 14px;cursor:pointer;display:inline-block;text-decoration:none;color:#222}
+.btn.primary{background:#333;color:#fff;border-color:#333}
+.seg{display:flex;border:1px solid #999;border-radius:8px;overflow:hidden;margin:10px 14px}
+.seg button{flex:1;border:0;border-right:1px solid #ccc;background:#fff;padding:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#333;color:#fff;font-weight:700}
+.oos{color:#aaa;font-size:12px;border:1px dotted #bbb;border-radius:5px;padding:2px 6px}
+.chip{display:inline-block;border:1px solid #999;border-radius:14px;padding:4px 10px;margin:3px;font-size:13px}
+.badge{display:inline-block;background:#333;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:390px;background:#fff;border-top:2px solid #888;border-radius:14px 14px 0 0;padding:14px;box-shadow:0 -2px 8px rgba(0,0,0,.15);z-index:8}
+.hidden{display:none}
+/* 화면 전용 보조 (lo-fi 회색만) */
+.uphead{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #ccc;position:sticky;top:0;background:#fff;z-index:5}
+.uphead .back{text-decoration:none;color:#444;font-size:13px;border:1px solid #bbb;border-radius:6px;padding:6px 10px}
+.steps{font-size:12px;color:#888;text-align:center;padding:6px 0;border-bottom:1px solid #eee}
+.field{margin:10px 14px;display:flex;gap:8px}
+.field input{flex:1;font:inherit;border:1px solid #999;border-radius:8px;padding:10px}
+.thumbrow{display:flex;gap:6px;margin:8px 14px;overflow-x:auto}
+.thumbrow .ph{min-width:64px;width:64px;height:64px;min-height:64px;font-size:11px}
+.cand{border:1px solid #bbb;border-radius:8px;padding:10px;margin:6px 0;cursor:pointer;background:#fff;width:100%;text-align:left;font:inherit}
+.cand[aria-selected="true"]{border-color:#333;border-width:2px;background:#eee;font-weight:700}
+.cand small{display:block;color:#888;font-weight:400}
+.label{font-weight:700}
+.sub{font-size:12px;color:#888}
+</style>
+</head>
+<body>
+
+<!-- 업로드 풀스크린 헤더: 탭바 없음 -->
+<div class="uphead">
+  <a class="back" href="upload-2-classify.html" aria-label="뒤로 분류 화면으로">← 뒤로</a>
+  <span class="title">위치 직접 지정</span>
+  <a class="btn primary" href="upload-4-meta.html" aria-label="다음 메타 입력으로">다음</a>
+</div>
+<div class="steps">업로드 3 / 4 · 미분류 사진 위치 지정</div>
+
+<!-- 위치 없는 사진 묶음 -->
+<div class="box">
+  <div class="label" id="groupLabel">위치 없는 사진 <span class="badge">3장</span></div>
+  <div class="sub" id="groupAssigned">아직 장소가 지정되지 않았습니다.</div>
+  <div class="thumbrow" aria-label="미분류 사진 묶음 썸네일">
+    <div class="ph">사진</div>
+    <div class="ph">사진</div>
+    <div class="ph">사진</div>
+  </div>
+</div>
+
+<!-- 지도 핀 드래그 영역 -->
+<div style="margin:10px 14px">
+  <div class="ph" style="min-height:160px" aria-label="지도 영역">지도 — 핀을 드래그</div>
+  <div class="sub" id="pinLabel" style="margin-top:6px">📍 좌표 미설정 · 주소 미설정</div>
+  <button class="btn" type="button" onclick="dragPin()" aria-label="지도 핀 드래그">핀 드래그(이동)</button>
+</div>
+
+<!-- 장소 검색 입력 -->
+<div class="field">
+  <input id="searchInput" type="text" placeholder="장소 검색 (예: 블루보틀 성수)"
+         onfocus="openSheet()" oninput="openSheet()" aria-label="장소 검색">
+  <button class="btn" type="button" onclick="openSheet()" aria-label="검색">검색</button>
+</div>
+
+<!-- 최근 장소 칩 -->
+<div style="margin:4px 14px">
+  <div class="sub">최근 장소</div>
+  <button class="chip" type="button" onclick="pickRecent('성수연방')">성수연방</button>
+  <button class="chip" type="button" onclick="pickRecent('서울숲')">서울숲</button>
+  <button class="chip" type="button" onclick="pickRecent('대림창고')">대림창고</button>
+</div>
+
+<!-- 일괄 지정 -->
+<div style="margin:14px">
+  <button class="btn primary" type="button" style="width:100%" onclick="openSheet()" aria-label="일괄 지정">일괄 지정 — 후보에서 선택</button>
+</div>
+
+<!-- 후보 POI 선택 시트 (SC-13) -->
+<div id="candSheet" class="sheet hidden" role="dialog" aria-label="후보 장소 선택" aria-modal="true">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <strong>후보 장소</strong>
+    <button class="btn" type="button" onclick="closeSheet()" aria-label="시트 닫기">닫기</button>
+  </div>
+  <div id="candList">
+    <button class="cand" type="button" aria-selected="true" onclick="pickCand(this,'블루보틀 성수')">
+      블루보틀 성수<small>서울 성동구 아차산로 · 가장 가까움 · 38m</small></button>
+    <button class="cand" type="button" aria-selected="false" onclick="pickCand(this,'카페 어니언 성수')">
+      카페 어니언 성수<small>서울 성동구 아차산로9길 · 120m</small></button>
+    <button class="cand" type="button" aria-selected="false" onclick="pickCand(this,'성수연방')">
+      성수연방<small>서울 성동구 성수이로14길 · 210m</small></button>
+  </div>
+
+  <!-- 직접 입력 폴백 -->
+  <div style="border-top:1px solid #eee;margin-top:10px;padding-top:10px">
+    <button id="manualToggle" class="btn" type="button" onclick="showManual()" aria-label="직접 입력">후보에 없어요 · 직접 입력</button>
+    <div id="manualBox" class="hidden" style="margin-top:8px">
+      <div class="field" style="margin:0 0 8px">
+        <input id="manualInput" type="text" placeholder="새 장소명 입력" aria-label="신규 장소명">
+        <button class="btn primary" type="button" onclick="applyManual()" aria-label="신규 장소 지정">지정</button>
+      </div>
+      <div class="sub">지도에 없는 장소를 직접 등록합니다.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openSheet(){ document.getElementById('candSheet').classList.remove('hidden'); }
+function closeSheet(){ document.getElementById('candSheet').classList.add('hidden'); }
+
+function assign(name){
+  document.getElementById('groupLabel').innerHTML =
+    '묶음 장소: <span class="badge">'+name+'</span>';
+  document.getElementById('groupAssigned').textContent = '“'+name+'” (으)로 지정됨 · 사진 3장';
+}
+
+// 상태① 후보 탭 → 묶음 라벨 변경 + 시트 닫힘
+function pickCand(el,name){
+  document.querySelectorAll('#candList .cand').forEach(function(c){ c.setAttribute('aria-selected','false'); });
+  el.setAttribute('aria-selected','true');
+  assign(name);
+  closeSheet();
+}
+
+// 최근 칩 → 즉시 지정
+function pickRecent(name){ assign(name); }
+
+// 상태② 핀 "드래그" → 좌표/주소 라벨 변경
+var pinStep = 0;
+var pinSamples = [
+  '📍 37.5446, 127.0560 · 서울 성동구 성수동2가 277',
+  '📍 37.5471, 127.0473 · 서울 성동구 왕십리로 83',
+  '📍 37.5430, 127.0440 · 서울 성동구 서울숲2길 32'
+];
+function dragPin(){
+  pinStep = (pinStep+1) % pinSamples.length;
+  document.getElementById('pinLabel').textContent = pinSamples[pinStep];
+}
+
+// 상태③ [직접 입력] → 텍스트 입력으로 신규 장소명 지정
+function showManual(){
+  document.getElementById('manualBox').classList.remove('hidden');
+  document.getElementById('manualToggle').classList.add('hidden');
+  document.getElementById('manualInput').focus();
+}
+function applyManual(){
+  var v = document.getElementById('manualInput').value.trim() || '새 장소(미입력)';
+  assign(v);
+  closeSheet();
+  // 폴백 UI 초기화
+  document.getElementById('manualBox').classList.add('hidden');
+  document.getElementById('manualToggle').classList.remove('hidden');
+}
+</script>
+
+</body>
+</html>

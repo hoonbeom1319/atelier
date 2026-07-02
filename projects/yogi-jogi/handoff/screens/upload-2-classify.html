@@ -1,0 +1,795 @@
+<!-- @dsCard group="Screens" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390,initial-scale=1">
+<title>장소별 정리 · 자동분류 + 미분류 배정 (SC-11·12·13)</title>
+<link rel="stylesheet" href="../foundation/tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--gray-100)}
+body{
+  width:var(--app-width);min-height:844px;margin:0 auto;position:relative;
+  background:var(--color-bg);color:var(--color-text);
+  font-family:var(--font-sans);-webkit-font-smoothing:antialiased;
+  padding-bottom:150px;
+}
+
+/* ───── 앱바 ───── */
+.appbar{
+  position:sticky;top:0;z-index:var(--z-appbar);height:var(--appbar-h);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);
+  padding:0 var(--space-2) 0 var(--space-1);
+  background:color-mix(in srgb,var(--color-surface) 88%, transparent);
+  backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--color-border);
+}
+.iconbtn{
+  width:var(--touch-min);height:40px;display:flex;align-items:center;justify-content:center;
+  background:none;border:0;color:var(--color-text);cursor:pointer;border-radius:var(--radius-sm);
+  text-decoration:none;
+}
+.iconbtn:active{background:var(--color-surface-sunken)}
+.iconbtn svg{width:24px;height:24px}
+.appbar .title{font-size:var(--fs-h2);font-weight:var(--fw-h2);letter-spacing:-.2px}
+.next-link{
+  font-size:var(--fs-body);font-weight:var(--fw-semibold);color:var(--color-primary);
+  text-decoration:none;padding:8px var(--space-3);border-radius:var(--radius-sm);
+}
+.next-link:active{background:var(--color-surface-sunken)}
+
+/* ───── 진행 스텝 ───── */
+.progress{padding:var(--space-3) var(--space-4) var(--space-2)}
+.progress .prow{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-2)}
+.progress .step{font-size:var(--fs-xs);font-weight:var(--fw-semibold);letter-spacing:.06em;color:var(--color-text-muted);text-transform:uppercase}
+.progress .stepname{font-size:var(--fs-xs);color:var(--color-text-muted)}
+.track{height:3px;border-radius:var(--radius-full);background:var(--color-surface-sunken);overflow:hidden}
+.track .fill{height:100%;width:50%;background:var(--color-primary);border-radius:var(--radius-full)}
+
+/* ───── 요약 헤더 ───── */
+.summary{padding:var(--space-2) var(--space-4) 0}
+.summary h1{font-size:var(--fs-h1);line-height:var(--lh-h1);font-weight:var(--fw-h1);letter-spacing:-.4px}
+.summary p{margin-top:var(--space-1);font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--color-text-muted)}
+.summary p b{color:var(--color-text);font-weight:var(--fw-semibold)}
+
+/* ───── 섹션 라벨 ───── */
+.seclabel{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-6) var(--space-4) var(--space-2);
+}
+.seclabel h2{font-size:var(--fs-sm);font-weight:var(--fw-semibold);letter-spacing:.02em;color:var(--color-text-secondary)}
+.seclabel .n{font-size:var(--fs-xs);color:var(--color-text-muted)}
+
+/* ───── POI 카드 ───── */
+.poicard{
+  margin:0 var(--space-4) var(--space-3);
+  background:var(--color-surface);border:1px solid var(--color-border);
+  border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-1);
+}
+.poicard .head{display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-3) var(--space-3) var(--space-2)}
+.poicard .pin{
+  flex:none;width:34px;height:34px;border-radius:var(--radius-full);
+  background:var(--color-primary);color:var(--color-on-primary);
+  display:flex;align-items:center;justify-content:center;
+}
+.poicard .pin svg{width:18px;height:18px}
+.poicard .meta{flex:1;min-width:0}
+.poicard .name{font-size:var(--fs-body);font-weight:var(--fw-semibold);letter-spacing:-.2px;line-height:1.25}
+.poicard .cat{margin-top:2px;font-size:var(--fs-xs);color:var(--color-text-muted);display:flex;align-items:center;gap:6px}
+.poicard .cat .dot{width:3px;height:3px;border-radius:50%;background:var(--color-border-strong)}
+
+/* 추정/확정 pill */
+.pill{
+  flex:none;font:inherit;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+  border-radius:var(--radius-full);padding:5px 11px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;line-height:1;white-space:nowrap;
+}
+.pill svg{width:12px;height:12px}
+.pill.est{background:var(--color-surface);color:var(--color-badge-estimate);border:1px solid var(--color-border-strong)}
+.pill.est:active{background:var(--color-surface-sunken)}
+.pill.fix{background:var(--color-primary);color:var(--color-on-primary);border:1px solid var(--color-primary);cursor:default}
+
+/* 썸네일 행 */
+.thumbs{display:flex;gap:var(--space-2);padding:2px var(--space-3) var(--space-3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.thumbs::-webkit-scrollbar{display:none}
+.thumb{position:relative;flex:none;width:80px;height:80px;border-radius:var(--radius-sm);overflow:hidden}
+.photo{width:100%;height:100%;background-size:cover;background-position:center;position:relative}
+.photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.14));mix-blend-mode:overlay}
+.thumb .dots{
+  position:absolute;top:4px;right:4px;width:24px;height:24px;border:0;cursor:pointer;
+  border-radius:var(--radius-full);background:rgba(0,0,0,.42);color:#fff;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px);
+}
+.thumb .dots svg{width:16px;height:16px}
+
+/* 사진 장면 그라데이션 (실사 뉘앙스) */
+.sc-cafe1{background-image:radial-gradient(120% 90% at 20% 10%,rgba(255,240,214,.55),transparent),linear-gradient(150deg,#efd0a3 0%,#d49b63 55%,#a86a3c 100%)}
+.sc-cafe2{background-image:radial-gradient(90% 80% at 75% 20%,rgba(255,250,240,.5),transparent),linear-gradient(135deg,#e8c9a0 0%,#c98a5a 60%,#7a4f2e 100%)}
+.sc-cafe3{background-image:linear-gradient(160deg,#f2ddbb 0%,#d9a86e 45%,#b07540 100%)}
+.sc-park1{background-image:radial-gradient(100% 80% at 30% 15%,rgba(230,255,210,.5),transparent),linear-gradient(150deg,#b6d492 0%,#7cae5a 55%,#4a7a3a 100%)}
+.sc-park2{background-image:linear-gradient(140deg,#c6dfa2 0%,#87b85f 50%,#568a3e 100%)}
+.sc-gal1{background-image:radial-gradient(90% 90% at 70% 20%,rgba(255,244,230,.4),transparent),linear-gradient(150deg,#d8c1a6 0%,#a98a6b 55%,#6e5238 100%)}
+.sc-night1{background-image:radial-gradient(80% 70% at 65% 80%,rgba(240,160,90,.55),transparent),linear-gradient(160deg,#33436a 0%,#5a5470 45%,#c98a5a 100%)}
+.sc-street1{background-image:radial-gradient(90% 80% at 20% 20%,rgba(255,250,235,.45),transparent),linear-gradient(155deg,#c9b8d6 0%,#8f9bc4 50%,#5f6f9a 100%)}
+.sc-food1{background-image:radial-gradient(90% 80% at 40% 25%,rgba(255,235,210,.5),transparent),linear-gradient(150deg,#e8a87c 0%,#c96b4a 55%,#8a3f2e 100%)}
+.sc-food2{background-image:linear-gradient(145deg,#f0c9a0 0%,#d98a5f 50%,#a55638 100%)}
+.sc-drink1{background-image:radial-gradient(80% 70% at 60% 30%,rgba(255,245,220,.45),transparent),linear-gradient(150deg,#e6d4a8 0%,#c9a15f 55%,#96703a 100%)}
+
+/* ───── 미분류 카드 ───── */
+.misccard{
+  margin:0 var(--space-4) var(--space-3);
+  background:var(--color-surface);border:1px dashed var(--color-border-strong);
+  border-radius:var(--radius-md);overflow:hidden;
+}
+.misccard .head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3)}
+.misccard .qm{
+  flex:none;width:34px;height:34px;border-radius:var(--radius-full);
+  background:var(--color-surface-sunken);color:var(--color-text-secondary);
+  display:flex;align-items:center;justify-content:center;font-weight:var(--fw-h1);font-size:18px;
+}
+.misccard .name{font-size:var(--fs-body);font-weight:var(--fw-semibold)}
+.misccard .cat{margin-top:2px;font-size:var(--fs-xs);color:var(--color-text-muted)}
+.misccard .cbadge{
+  margin-left:auto;flex:none;font-size:var(--fs-xs);font-weight:var(--fw-semibold);
+  background:var(--color-surface-sunken);color:var(--color-text-secondary);
+  border-radius:var(--radius-full);padding:4px 10px;
+}
+.hint{padding:0 var(--space-3) var(--space-2);font-size:var(--fs-xs);color:var(--color-text-muted)}
+.hint b{color:var(--color-text);font-weight:var(--fw-semibold)}
+/* 선택 가능한 미분류 썸네일 (버튼) */
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2);padding:0 var(--space-3) var(--space-3)}
+.mthumb{
+  position:relative;padding:0;border:0;background:none;cursor:pointer;
+  aspect-ratio:1/1;border-radius:var(--radius-sm);overflow:hidden;
+}
+.mthumb .photo{border-radius:var(--radius-sm)}
+.mthumb .check{
+  position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:var(--radius-full);
+  background:rgba(16,16,18,.86);border:1.5px solid #fff;box-shadow:var(--shadow-1);
+  display:flex;align-items:center;justify-content:center;transition:transform .12s ease;z-index:2;
+}
+.mthumb .check svg{width:13px;height:13px;color:var(--color-primary);opacity:0}
+.mthumb[aria-pressed="true"]{outline:2.5px solid var(--color-primary);outline-offset:-2.5px}
+.mthumb[aria-pressed="true"] .photo::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.28);z-index:1}
+.mthumb[aria-pressed="true"] .check{background:var(--color-primary);border-color:var(--color-primary);transform:scale(1.05)}
+.mthumb[aria-pressed="true"] .check svg{color:var(--color-on-primary);opacity:1}
+.misc-empty{padding:var(--space-6) var(--space-3);text-align:center;color:var(--color-text-muted);font-size:var(--fs-sm)}
+
+/* ───── 하단 다음 CTA (인플로우) ───── */
+.foot{padding:var(--space-4) var(--space-4) var(--space-8)}
+.foot .cta{
+  display:flex;align-items:center;justify-content:center;gap:var(--space-2);
+  width:100%;height:50px;border-radius:var(--radius-md);text-decoration:none;
+  background:var(--color-primary);color:var(--color-on-primary);
+  font-size:var(--fs-body);font-weight:var(--fw-semibold);
+}
+.foot .cta:active{background:var(--color-primary-hover)}
+.foot .cta svg{width:18px;height:18px}
+.foot .helper{margin-top:var(--space-3);text-align:center;font-size:var(--fs-xs);color:var(--color-text-muted)}
+
+/* ───── 장소 지정 바 (.assignbar) ───── */
+.assignbar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:var(--app-width);
+  z-index:var(--z-tabbar);visibility:hidden;
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-3) var(--space-4) calc(var(--space-4) + 4px);
+  background:var(--color-surface);border-top:1px solid var(--color-border);
+  box-shadow:0 -4px 16px rgba(0,0,0,.08);
+}
+.assignbar .abclear{
+  font:inherit;font-size:var(--fs-sm);color:var(--color-text-muted);
+  background:none;border:0;cursor:pointer;padding:8px 4px;text-decoration:underline;text-underline-offset:2px;flex:none;
+}
+.assignbar .abinfo{flex:1;min-width:0}
+.assignbar .abcount{font-size:var(--fs-body);font-weight:var(--fw-semibold);line-height:1.2}
+.assignbar .absub{font-size:var(--fs-xs);color:var(--color-text-muted);margin-top:2px}
+.assignbar .abgo{
+  font:inherit;font-size:var(--fs-body);font-weight:var(--fw-semibold);
+  background:var(--color-primary);color:var(--color-on-primary);border:0;cursor:pointer;
+  height:46px;padding:0 var(--space-5);border-radius:var(--radius-md);
+  display:inline-flex;align-items:center;gap:6px;flex:none;
+}
+.assignbar .abgo:active{background:var(--color-primary-hover)}
+.assignbar .abgo svg{width:16px;height:16px}
+
+/* ───── 시트 & scrim ───── */
+.scrim{
+  position:fixed;inset:0;background:var(--color-overlay);z-index:var(--z-scrim);
+  opacity:0;pointer-events:none;visibility:hidden;transition:opacity .2s ease;
+}
+.scrim.open{opacity:1;pointer-events:auto;visibility:visible}
+.sheet{
+  position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);visibility:hidden;width:var(--app-width);
+  z-index:var(--z-sheet);background:var(--color-surface);
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;box-shadow:var(--shadow-3);
+  transition:transform .26s cubic-bezier(.2,.8,.2,1);
+  max-height:88vh;display:flex;flex-direction:column;
+}
+.sheet.open{transform:translate(-50%,0);visibility:visible}
+.grabber{width:38px;height:4px;border-radius:var(--radius-full);background:var(--color-border-strong);margin:var(--space-2) auto var(--space-1)}
+.sheet .shead{padding:var(--space-2) var(--space-4) var(--space-3);border-bottom:1px solid var(--color-divider)}
+.sheet .shead h3{font-size:var(--fs-h2);font-weight:var(--fw-h2);letter-spacing:-.2px}
+.sheet .shead p{margin-top:2px;font-size:var(--fs-sm);color:var(--color-text-muted)}
+.sheet .sbody{overflow-y:auto;padding:var(--space-3) 0 var(--space-4)}
+
+/* 검색 입력 */
+.search{margin:0 var(--space-4) var(--space-3);position:relative}
+.search input{
+  width:100%;height:44px;border-radius:var(--radius-sm);border:1px solid var(--color-border);
+  background:var(--color-surface-alt);padding:0 var(--space-3) 0 40px;font:inherit;font-size:var(--fs-body);color:var(--color-text);
+}
+.search input:focus{outline:2px solid var(--color-focus-ring);outline-offset:-1px;background:var(--color-surface)}
+.search .sicon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--color-text-muted);pointer-events:none}
+.search .sicon svg{width:20px;height:20px}
+
+/* 검색 결과 리스트 (카카오맵식) */
+.results{list-style:none}
+.results li[role="option"]{
+  display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);
+  cursor:pointer;border-top:1px solid var(--color-divider);
+}
+.results li[role="option"]:first-child{border-top:0}
+.results li[role="option"]:hover,.results li[role="option"]:focus{background:var(--color-surface-alt);outline:none}
+.results li[role="option"][aria-selected="true"]{background:var(--color-primary-tint)}
+.results .rpin{
+  flex:none;width:32px;height:32px;border-radius:var(--radius-sm);
+  background:var(--color-surface-sunken);color:var(--color-text-secondary);
+  display:flex;align-items:center;justify-content:center;
+}
+.results .rpin svg{width:17px;height:17px}
+.results .rmeta{flex:1;min-width:0}
+.results .rname{font-size:var(--fs-body);font-weight:var(--fw-semibold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.results .rname .rcat{font-weight:var(--fw-body);font-size:var(--fs-xs);color:var(--color-text-muted);margin-left:6px}
+.results .raddr{margin-top:2px;font-size:var(--fs-xs);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.results .rdist{flex:none;font-size:var(--fs-xs);color:var(--color-text-muted);font-variant-numeric:tabular-nums}
+.noresult{padding:var(--space-6) var(--space-4);text-align:center;color:var(--color-text-muted);font-size:var(--fs-sm)}
+
+/* 직접 핀 찍기 */
+.pinblock{margin:var(--space-2) var(--space-4) 0;border-top:1px solid var(--color-divider);padding-top:var(--space-3)}
+.pin-toggle{
+  width:100%;display:flex;align-items:center;gap:var(--space-3);font:inherit;
+  background:var(--color-surface-alt);border:1px solid var(--color-border);border-radius:var(--radius-sm);
+  padding:var(--space-3);cursor:pointer;color:var(--color-text);text-align:left;
+}
+.pin-toggle .pt-ic{flex:none;width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-surface);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center}
+.pin-toggle .pt-ic svg{width:18px;height:18px}
+.pin-toggle .pt-t{flex:1}
+.pin-toggle .pt-t b{display:block;font-size:var(--fs-sm);font-weight:var(--fw-semibold)}
+.pin-toggle .pt-t span{font-size:var(--fs-xs);color:var(--color-text-muted)}
+.pin-toggle .pt-arrow{color:var(--color-text-muted);transition:transform .2s ease;display:flex}
+.pin-toggle .pt-arrow svg{width:18px;height:18px}
+.pin-toggle[aria-expanded="true"] .pt-arrow{transform:rotate(90deg)}
+.minimap-wrap{max-height:0;overflow:hidden;transition:max-height .28s ease}
+.minimap-wrap.open{max-height:460px}
+.minimap{
+  position:relative;margin-top:var(--space-3);height:180px;border-radius:var(--radius-md);
+  overflow:hidden;border:1px solid var(--color-border);cursor:crosshair;
+}
+.minimap svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.map-pin{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);z-index:2;pointer-events:none;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));
+}
+.map-pin svg{width:34px;height:34px;position:static}
+.pinname{margin-top:var(--space-3)}
+.pinname label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--color-text-secondary);margin-bottom:6px}
+.pinname input{width:100%;height:44px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-alt);padding:0 var(--space-3);font:inherit;font-size:var(--fs-body);color:var(--color-text)}
+.pinname input:focus{outline:2px solid var(--color-focus-ring);outline-offset:-1px;background:var(--color-surface)}
+.pinconfirm{
+  margin-top:var(--space-3);width:100%;height:48px;border-radius:var(--radius-md);
+  background:var(--color-primary);color:var(--color-on-primary);border:0;font:inherit;
+  font-size:var(--fs-body);font-weight:var(--fw-semibold);cursor:pointer;
+}
+.pinconfirm:active{background:var(--color-primary-hover)}
+
+/* 사진 메뉴 시트 */
+.menu-list{padding:var(--space-1) 0}
+.menu-list button{
+  display:flex;align-items:center;gap:var(--space-3);width:100%;text-align:left;
+  background:none;border:0;padding:var(--space-3) var(--space-4);font:inherit;font-size:var(--fs-body);
+  color:var(--color-text);cursor:pointer;
+}
+.menu-list button:active{background:var(--color-surface-alt)}
+.menu-list button svg{width:20px;height:20px;color:var(--color-text-secondary);flex:none}
+.menu-list button.danger{color:var(--color-danger)}
+.menu-list button.danger svg{color:var(--color-danger)}
+
+/* 확인 시트 지도 */
+.confirm-map{position:relative;margin:0 var(--space-4);height:150px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border)}
+.confirm-map svg{position:absolute;inset:0;width:100%;height:100%}
+.confirm-name{margin:var(--space-3) var(--space-4) 0;font-size:var(--fs-body);font-weight:var(--fw-semibold);display:flex;align-items:center;gap:6px}
+.confirm-name svg{width:16px;height:16px}
+.confirm-actions{display:flex;gap:var(--space-2);padding:var(--space-4)}
+.confirm-actions button{flex:1;height:48px;border-radius:var(--radius-md);font:inherit;font-size:var(--fs-body);font-weight:var(--fw-semibold);cursor:pointer}
+.confirm-actions .ghost{background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border-strong)}
+.confirm-actions .ghost:active{background:var(--color-surface-alt)}
+.confirm-actions .solid{background:var(--color-primary);color:var(--color-on-primary);border:0}
+.confirm-actions .solid:active{background:var(--color-primary-hover)}
+
+/* 토스트 */
+.toast{
+  position:fixed;left:50%;bottom:100px;transform:translate(-50%,12px);
+  background:var(--gray-900);color:var(--color-on-dark);font-size:var(--fs-sm);font-weight:var(--fw-medium);
+  padding:11px var(--space-4);border-radius:var(--radius-full);box-shadow:var(--shadow-3);
+  z-index:var(--z-toast);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:340px;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>
+</head>
+<body>
+
+<!-- ───── 앱바 ───── -->
+<header class="appbar">
+  <a class="iconbtn" href="upload-1-gallery.html" aria-label="뒤로, 갤러리로">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+  </a>
+  <span class="title">장소별 정리</span>
+  <a class="next-link" href="upload-4-meta.html">다음</a>
+</header>
+
+<!-- ───── 진행 스텝 ───── -->
+<div class="progress">
+  <div class="prow">
+    <span class="step">업로드 2 / 4</span>
+    <span class="stepname">장소별 정리</span>
+  </div>
+  <div class="track"><div class="fill"></div></div>
+</div>
+
+<!-- ───── 요약 ───── -->
+<section class="summary">
+  <h1>12장을 4곳으로 정리했어요</h1>
+  <p>위치 정보로 자동 분류했어요. <b>추정</b>은 한 번 확인하고, <b id="miscInline">미분류 5장</b>은 아래에서 장소를 지정해 주세요.</p>
+</section>
+
+<!-- ───── 자동분류 POI ───── -->
+<div class="seclabel">
+  <h2>자동으로 찾은 장소</h2>
+  <span class="n">3곳 · 6장</span>
+</div>
+
+<div id="poiList">
+  <!-- 카드 1: 추정 -->
+  <article class="poicard" data-poi="블루보틀 성수" data-cat="카페">
+    <div class="head">
+      <span class="pin" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+      </span>
+      <div class="meta">
+        <div class="name">블루보틀 성수</div>
+        <div class="cat"><span>카페</span><span class="dot"></span><span>서울 성동구 성수동</span></div>
+      </div>
+      <button class="pill est" type="button" onclick="openConfirm(this)" aria-label="블루보틀 성수 추정 위치 확인">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 8 16 8"/></svg>
+        추정
+      </button>
+    </div>
+    <div class="thumbs">
+      <div class="thumb"><div class="photo sc-cafe1" role="img" aria-label="블루보틀 성수 라떼 사진"></div><button class="dots" type="button" onclick="openMenu(this)" aria-label="블루보틀 성수 라떼 사진 정리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button></div>
+      <div class="thumb"><div class="photo sc-cafe2" role="img" aria-label="블루보틀 성수 매장 내부 사진"></div><button class="dots" type="button" onclick="openMenu(this)" aria-label="블루보틀 성수 내부 사진 정리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button></div>
+      <div class="thumb"><div class="photo sc-cafe3" role="img" aria-label="블루보틀 성수 창가 사진"></div><button class="dots" type="button" onclick="openMenu(this)" aria-label="블루보틀 성수 창가 사진 정리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button></div>
+    </div>
+  </article>
+
+  <!-- 카드 2: 확정 -->
+  <article class="poicard" data-poi="서울숲" data-cat="공원">
+    <div class="head">
+      <span class="pin" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+      </span>
+      <div class="meta">
+        <div class="name">서울숲</div>
+        <div class="cat"><span>공원</span><span class="dot"></span><span>서울 성동구 뚝섬로</span></div>
+      </div>
+      <span class="pill fix" aria-label="서울숲 위치 확정됨">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        확정
+      </span>
+    </div>
+    <div class="thumbs">
+      <div class="thumb"><div class="photo sc-park1" role="img" aria-label="서울숲 잔디밭 사진"></div><button class="dots" type="button" onclick="openMenu(this)" aria-label="서울숲 잔디밭 사진 정리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button></div>
+      <div class="thumb"><div class="photo sc-park2" role="img" aria-label="서울숲 산책로 사진"></div><button class="dots" type="button" onclick="openMenu(this)" aria-label="서울숲 산책로 사진 정리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button></div>
+    </div>
+  </article>
+
+  <!-- 카드 3: 추정 -->
+  <article class="poicard" data-poi="대림창고 갤러리" data-cat="전시·문화">
+    <div class="head">
+      <span class="pin" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+      </span>
+      <div class="meta">
+        <div class="name">대림창고 갤러리</div>
+        <div class="cat"><span>전시·문화</span><span class="dot"></span><span>서울 성동구 성수이로</span></div>
+      </div>
+      <button class="pill est" type="button" onclick="openConfirm(this)" aria-label="대림창고 갤러리 추정 위치 확인">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 8 16 8"/></svg>
+        추정
+      </button>
+    </div>
+    <div class="thumbs">
+      <div class="thumb"><div class="photo sc-gal1" role="img" aria-label="대림창고 전시 공간 사진"></div><button class="dots" type="button" onclick="openMenu(this)" aria-label="대림창고 전시 사진 정리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button></div>
+    </div>
+  </article>
+</div>
+
+<!-- ───── 미분류 ───── -->
+<div class="seclabel">
+  <h2>미분류</h2>
+  <span class="n">탭해서 선택 · 장소 지정</span>
+</div>
+
+<section class="misccard" id="miscCard">
+  <div class="head">
+    <span class="qm" aria-hidden="true">?</span>
+    <div class="meta">
+      <div class="name">위치를 못 찾은 사진</div>
+      <div class="cat">GPS 정보가 없어요</div>
+    </div>
+    <span class="cbadge"><span id="miscCount">5</span>장</span>
+  </div>
+  <p class="hint">사진을 탭해 고른 뒤 아래 <b>장소 지정</b>으로 배정하세요. 여러 장 한꺼번에 가능해요.</p>
+  <div class="mgrid" id="miscGrid" role="group" aria-label="미분류 사진 선택">
+    <button class="mthumb" type="button" aria-pressed="false" aria-label="미분류 사진 1, 노을 진 한강 야경 선택" onclick="toggleMisc(this)">
+      <div class="photo sc-night1"></div>
+      <span class="check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+    </button>
+    <button class="mthumb" type="button" aria-pressed="false" aria-label="미분류 사진 2, 골목 카페 디저트 선택" onclick="toggleMisc(this)">
+      <div class="photo sc-food1"></div>
+      <span class="check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+    </button>
+    <button class="mthumb" type="button" aria-pressed="false" aria-label="미분류 사진 3, 성수 골목 거리 선택" onclick="toggleMisc(this)">
+      <div class="photo sc-street1"></div>
+      <span class="check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+    </button>
+    <button class="mthumb" type="button" aria-pressed="false" aria-label="미분류 사진 4, 브런치 플레이트 선택" onclick="toggleMisc(this)">
+      <div class="photo sc-food2"></div>
+      <span class="check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+    </button>
+    <button class="mthumb" type="button" aria-pressed="false" aria-label="미분류 사진 5, 커피와 페이스트리 선택" onclick="toggleMisc(this)">
+      <div class="photo sc-drink1"></div>
+      <span class="check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+    </button>
+  </div>
+  <div class="misc-empty" id="miscEmpty" hidden>미분류 사진을 모두 배정했어요.</div>
+</section>
+
+<!-- ───── 하단 다음 CTA ───── -->
+<div class="foot">
+  <a class="cta" href="upload-4-meta.html">
+    다음 · 메타 입력
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+  </a>
+  <p class="helper">미분류가 남아도 넘어갈 수 있어요 — 나중에 정리 가능</p>
+</div>
+
+<!-- ───── 장소 지정 바 ───── -->
+<div class="assignbar" id="assignbar" role="region" aria-label="선택한 사진 장소 지정">
+  <button class="abclear" type="button" onclick="clearSel()">해제</button>
+  <div class="abinfo">
+    <div class="abcount"><span id="selCount">2</span>장 선택됨</div>
+    <div class="absub">배정할 장소를 골라주세요</div>
+  </div>
+  <button class="abgo" type="button" onclick="openAssign()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Z"/><circle cx="12" cy="9" r="2.4"/></svg>
+    장소 지정
+  </button>
+</div>
+
+<!-- ───── scrim ───── -->
+<div class="scrim" id="scrim" onclick="closeAll()"></div>
+
+<!-- ───── 배정 시트 ───── -->
+<div class="sheet" id="assignSheet" role="dialog" aria-modal="true" aria-labelledby="assignTitle" aria-hidden="true">
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="shead">
+    <h3 id="assignTitle">장소 지정</h3>
+    <p><span id="assignN">2</span>장을 어디로 보낼까요?</p>
+  </div>
+  <div class="sbody">
+    <div class="search">
+      <span class="sicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <label for="placeSearch" class="sr-only">장소 검색</label>
+      <input id="placeSearch" type="text" placeholder="카카오맵에서 장소 검색" oninput="filterResults(this.value)" autocomplete="off">
+    </div>
+
+    <ul class="results" id="resultList" role="listbox" aria-label="장소 검색 결과">
+      <li role="option" aria-selected="false" tabindex="0" data-name="성수동 카페거리" data-cat="카페" onclick="assignTo(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();assignTo(this)}">
+        <span class="rpin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg></span>
+        <span class="rmeta"><span class="rname">성수동 카페거리<span class="rcat">카페</span></span><span class="raddr">서울 성동구 성수이로 88</span></span>
+        <span class="rdist">320m</span>
+      </li>
+      <li role="option" aria-selected="false" tabindex="0" data-name="언더스탠드에비뉴" data-cat="복합문화" onclick="assignTo(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();assignTo(this)}">
+        <span class="rpin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg></span>
+        <span class="rmeta"><span class="rname">언더스탠드에비뉴<span class="rcat">복합문화</span></span><span class="raddr">서울 성동구 왕십리로 63</span></span>
+        <span class="rdist">540m</span>
+      </li>
+      <li role="option" aria-selected="false" tabindex="0" data-name="성수연방" data-cat="카페·편집숍" onclick="assignTo(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();assignTo(this)}">
+        <span class="rpin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg></span>
+        <span class="rmeta"><span class="rname">성수연방<span class="rcat">카페·편집숍</span></span><span class="raddr">서울 성동구 성수이로14길 14</span></span>
+        <span class="rdist">610m</span>
+      </li>
+      <li role="option" aria-selected="false" tabindex="0" data-name="뚝섬한강공원" data-cat="공원" onclick="assignTo(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();assignTo(this)}">
+        <span class="rpin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg></span>
+        <span class="rmeta"><span class="rname">뚝섬한강공원<span class="rcat">공원</span></span><span class="raddr">서울 광진구 강변북로 139</span></span>
+        <span class="rdist">1.2km</span>
+      </li>
+    </ul>
+    <p class="noresult" id="noResult" hidden>검색 결과가 없어요. 아래에서 직접 핀을 찍어보세요.</p>
+
+    <!-- 직접 핀 찍기 -->
+    <div class="pinblock">
+      <button class="pin-toggle" type="button" id="pinToggle" aria-expanded="false" aria-controls="minimapWrap" onclick="togglePin()">
+        <span class="pt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Z"/><circle cx="12" cy="9" r="2.4"/></svg></span>
+        <span class="pt-t"><b>없는 장소 직접 핀 찍기</b><span>지도에서 위치를 짚어 새 장소로 만들어요</span></span>
+        <span class="pt-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
+      </button>
+      <div class="minimap-wrap" id="minimapWrap">
+        <div class="minimap" id="minimap" role="application" aria-label="직접 핀 지도, 탭해서 위치 지정" onclick="dropPin(event)">
+          <svg viewBox="0 0 358 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="358" height="180" fill="#2c2c32"/>
+            <rect x="14" y="18" width="150" height="60" fill="#182418"/>
+            <rect x="210" y="112" width="148" height="80" fill="#14202e"/>
+            <g stroke="#f5f5f5" stroke-width="9"><path d="M0 62 H358"/><path d="M0 128 H358"/><path d="M96 0 V180"/><path d="M262 0 V180"/></g>
+            <g stroke="#3e3e44" stroke-width="5"><path d="M0 62 H358"/><path d="M0 128 H358"/><path d="M96 0 V180"/><path d="M262 0 V180"/><path d="M0 30 H96"/><path d="M262 96 H358"/><path d="M48 62 V180"/><path d="M180 0 V128"/></g>
+            <g stroke="#242429" stroke-width="1.5" fill="none"><rect x="104" y="70" width="30" height="24"/><rect x="140" y="70" width="34" height="24"/><rect x="104" y="100" width="30" height="20"/><rect x="200" y="34" width="26" height="22"/><rect x="230" y="34" width="24" height="22"/></g>
+            <text x="55" y="52" font-family="sans-serif" font-size="8" fill="#9a9a9a">성수공원</text>
+            <text x="286" y="156" font-family="sans-serif" font-size="8" fill="#9aa3ad">중랑천</text>
+          </svg>
+          <span class="map-pin" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="#000" stroke="#fff" stroke-width="1.4"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Z"/><circle cx="12" cy="9" r="2.3" fill="#fff" stroke="none"/></svg>
+          </span>
+        </div>
+        <div class="pinname">
+          <label for="pinNameInput">장소 이름</label>
+          <input id="pinNameInput" type="text" value="성수 골목 (직접 지정)" autocomplete="off">
+        </div>
+        <button class="pinconfirm" type="button" onclick="confirmPin()">이 위치로 새 장소 만들기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── 사진 메뉴 시트 ───── -->
+<div class="sheet" id="photoMenu" role="dialog" aria-modal="true" aria-label="사진 정리 메뉴" aria-hidden="true">
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="shead"><h3>사진 정리</h3><p>이 사진을 어떻게 할까요?</p></div>
+  <div class="sbody">
+    <div class="menu-list">
+      <button type="button" onclick="act('move')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l4-4 4 4"/><path d="M9 5v10a4 4 0 0 0 4 4h6"/></svg>
+        다른 장소로 이동
+      </button>
+      <button type="button" onclick="act('merge')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-4 5 4 5"/><path d="M16 7l4 5-4 5"/><path d="M4 12h16"/></svg>
+        옆 사진과 병합
+      </button>
+      <button type="button" class="danger" onclick="act('split')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"/><path d="M12 15v6"/><circle cx="12" cy="12" r="3"/></svg>
+        묶음에서 분리 (미분류로)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ───── 추정 확인 시트 ───── -->
+<div class="sheet" id="confirmSheet" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-hidden="true">
+  <div class="grabber" aria-hidden="true"></div>
+  <div class="shead"><h3 id="confirmTitle">여기가 맞나요?</h3><p>추정한 위치예요. 확정하면 장소가 고정돼요.</p></div>
+  <div class="sbody">
+    <div class="confirm-map">
+      <svg viewBox="0 0 326 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="326" height="150" fill="#2c2c32"/>
+        <rect x="0" y="96" width="140" height="54" fill="#182418"/>
+        <rect x="240" y="0" width="86" height="70" fill="#14202e"/>
+        <g stroke="#f5f5f5" stroke-width="9"><path d="M0 54 H326"/><path d="M0 108 H326"/><path d="M110 0 V150"/><path d="M220 0 V150"/></g>
+        <g stroke="#3e3e44" stroke-width="5"><path d="M0 54 H326"/><path d="M0 108 H326"/><path d="M110 0 V150"/><path d="M220 0 V150"/><path d="M60 0 V54"/><path d="M220 76 H326"/></g>
+        <path d="M40 130 L110 108 L163 75 L220 60 L286 40" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="map-pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#000" stroke="#fff" stroke-width="1.4"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Z"/><circle cx="12" cy="9" r="2.3" fill="#fff" stroke="none"/></svg></span>
+    </div>
+    <div class="confirm-name">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+      <span id="confirmName">블루보틀 성수</span>
+    </div>
+    <div class="confirm-actions">
+      <button class="ghost" type="button" onclick="closeConfirm()">아니요, 직접</button>
+      <button class="solid" type="button" onclick="doConfirm()">네, 확정</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ───── 유틸 ───── */
+var scrim=document.getElementById('scrim');
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show');},1800);
+}
+function openSheet(id){
+  var s=document.getElementById(id);
+  s.classList.add('open');s.setAttribute('aria-hidden','false');
+  scrim.classList.add('open');
+}
+function closeAll(){
+  ['assignSheet','photoMenu','confirmSheet'].forEach(function(id){
+    var s=document.getElementById(id);s.classList.remove('open');s.setAttribute('aria-hidden','true');
+  });
+  scrim.classList.remove('open');
+}
+
+/* ───── 미분류 선택 ───── */
+function selectedMisc(){return Array.prototype.slice.call(document.querySelectorAll('.mthumb[aria-pressed="true"]'));}
+function syncAssignbar(){
+  var n=selectedMisc().length;
+  var bar=document.getElementById('assignbar');
+  document.getElementById('selCount').textContent=n;
+  bar.style.visibility=n>0?'visible':'hidden';
+}
+function toggleMisc(btn){
+  var on=btn.getAttribute('aria-pressed')==='true';
+  btn.setAttribute('aria-pressed',String(!on));
+  syncAssignbar();
+}
+function clearSel(){
+  selectedMisc().forEach(function(b){b.setAttribute('aria-pressed','false');});
+  syncAssignbar();
+}
+function refreshMiscCount(){
+  var left=document.querySelectorAll('#miscGrid .mthumb').length;
+  document.getElementById('miscCount').textContent=left;
+  document.getElementById('miscInline').textContent=left>0?('미분류 '+left+'장'):'미분류 없음';
+  var grid=document.getElementById('miscGrid'), empty=document.getElementById('miscEmpty');
+  if(left===0){grid.hidden=true;empty.hidden=false;}else{grid.hidden=false;empty.hidden=true;}
+}
+
+/* ───── 배정 시트 ───── */
+function openAssign(){
+  var n=selectedMisc().length;
+  if(!n){return;}
+  document.getElementById('assignN').textContent=n;
+  document.getElementById('placeSearch').value='';
+  filterResults('');
+  openSheet('assignSheet');
+}
+/* 선택 미분류 사진을 목적지 POI 카드 썸네일로 실제 이동 */
+function moveSelectedInto(destThumbs){
+  var sel=selectedMisc();var moved=sel.length;
+  sel.forEach(function(btn){
+    var cls=btn.querySelector('.photo').className;
+    var lbl=(btn.getAttribute('aria-label')||'사진').replace(' 선택','');
+    var wrap=document.createElement('div');wrap.className='thumb';
+    wrap.innerHTML='<div class="'+cls+'" role="img" aria-label="'+lbl+'"></div>'+
+      '<button class="dots" type="button" onclick="openMenu(this)" aria-label="'+lbl+' 정리">'+
+      '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button>';
+    destThumbs.appendChild(wrap);
+    btn.remove();
+  });
+  refreshMiscCount();syncAssignbar();
+  return moved;
+}
+function findPoiCard(name){
+  var cards=document.querySelectorAll('#poiList .poicard');
+  for(var i=0;i<cards.length;i++){if(cards[i].dataset.poi===name)return cards[i];}
+  return null;
+}
+function makePoiCard(name,cat){
+  var art=document.createElement('article');
+  art.className='poicard';art.dataset.poi=name;art.dataset.cat=cat;
+  art.innerHTML=
+    '<div class="head">'+
+      '<span class="pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg></span>'+
+      '<div class="meta"><div class="name">'+name+'</div><div class="cat"><span>'+cat+'</span><span class="dot"></span><span>방금 배정함</span></div></div>'+
+      '<span class="pill fix" aria-label="'+name+' 위치 확정됨"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>확정</span>'+
+    '</div>'+
+    '<div class="thumbs"></div>';
+  document.getElementById('poiList').appendChild(art);
+  return art;
+}
+function assignTo(li){
+  document.querySelectorAll('#resultList li[role="option"]').forEach(function(o){o.setAttribute('aria-selected','false');});
+  li.setAttribute('aria-selected','true');
+  var name=li.dataset.name,cat=li.dataset.cat;
+  var card=findPoiCard(name)||makePoiCard(name,cat);
+  var moved=moveSelectedInto(card.querySelector('.thumbs'));
+  closeAll();
+  showToast(moved+'장을 "'+name+'"(으)로 보냈어요');
+}
+
+/* ───── 검색 필터 ───── */
+function filterResults(q){
+  q=(q||'').trim();var any=false;
+  document.querySelectorAll('#resultList li[role="option"]').forEach(function(li){
+    var hit=q===''||li.dataset.name.indexOf(q)>-1;
+    li.hidden=!hit;if(hit)any=true;
+  });
+  document.getElementById('noResult').hidden=any;
+}
+
+/* ───── 직접 핀 ───── */
+function togglePin(){
+  var t=document.getElementById('pinToggle');
+  var open=t.getAttribute('aria-expanded')==='true';
+  t.setAttribute('aria-expanded',String(!open));
+  document.getElementById('minimapWrap').classList.toggle('open',!open);
+}
+function dropPin(e){
+  var map=document.getElementById('minimap');var r=map.getBoundingClientRect();
+  var pin=map.querySelector('.map-pin');
+  var x=((e.clientX-r.left)/r.width)*100, y=((e.clientY-r.top)/r.height)*100;
+  x=Math.max(6,Math.min(94,x));y=Math.max(14,Math.min(96,y));
+  pin.style.left=x+'%';pin.style.top=y+'%';
+  showToast('핀을 옮겼어요');
+}
+function confirmPin(){
+  var name=(document.getElementById('pinNameInput').value||'').trim()||'직접 지정한 장소';
+  var card=makePoiCard(name,'직접 지정');
+  var moved=moveSelectedInto(card.querySelector('.thumbs'));
+  closeAll();
+  showToast(moved+'장을 "'+name+'"에 새로 만들었어요');
+}
+
+/* ───── 사진 메뉴 (이동/병합/분리) ───── */
+var curThumb=null;
+function openMenu(btn){curThumb=btn.closest('.thumb');openSheet('photoMenu');}
+function act(kind){
+  if(!curThumb){closeAll();return;}
+  var card=curThumb.closest('.poicard');
+  if(kind==='move'){
+    var others=Array.prototype.slice.call(document.querySelectorAll('#poiList .poicard')).filter(function(c){return c!==card;});
+    var dest=others[0];
+    if(dest){dest.querySelector('.thumbs').appendChild(curThumb);showToast('사진을 "'+dest.dataset.poi+'"(으)로 이동했어요');}
+    else{showToast('이동할 다른 장소가 없어요');}
+  }else if(kind==='merge'){
+    var sib=curThumb.previousElementSibling||curThumb.nextElementSibling;
+    if(sib){sib.remove();showToast('인접 사진과 병합했어요 (−1장)');}
+    else{showToast('병합할 인접 사진이 없어요');}
+  }else if(kind==='split'){
+    var grid=document.getElementById('miscGrid');grid.hidden=false;document.getElementById('miscEmpty').hidden=true;
+    var cls=curThumb.querySelector('.photo').className;
+    var nb=document.createElement('button');nb.type='button';nb.className='mthumb';
+    nb.setAttribute('aria-pressed','false');nb.setAttribute('aria-label','미분류 사진, 되돌림 선택');
+    nb.setAttribute('onclick','toggleMisc(this)');
+    nb.innerHTML='<div class="'+cls+'"></div><span class="check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
+    grid.appendChild(nb);curThumb.remove();refreshMiscCount();
+    showToast('묶음에서 분리해 미분류로 보냈어요');
+  }
+  closeAll();curThumb=null;
+}
+
+/* ───── 추정 확인 → 확정 ───── */
+var curPill=null;
+function openConfirm(btn){
+  curPill=btn;
+  var card=btn.closest('.poicard');
+  document.getElementById('confirmName').textContent=card.dataset.poi;
+  openSheet('confirmSheet');
+}
+function closeConfirm(){closeAll();showToast('직접 지정은 다음 단계에서 바꿀 수 있어요');curPill=null;}
+function doConfirm(){
+  if(curPill){
+    var poi=curPill.closest('.poicard').dataset.poi;
+    var span=document.createElement('span');
+    span.className='pill fix';
+    span.setAttribute('aria-label',poi+' 위치 확정됨');
+    span.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>확정';
+    curPill.replaceWith(span);
+  }
+  closeAll();showToast('장소를 확정했어요');curPill=null;
+}
+
+/* ───── 로드 시 미분류 1~2장 사전선택 ───── */
+document.addEventListener('DOMContentLoaded',function(){
+  var pre=document.querySelectorAll('#miscGrid .mthumb');
+  if(pre[0])pre[0].setAttribute('aria-pressed','true');
+  if(pre[1])pre[1].setAttribute('aria-pressed','true');
+  syncAssignbar();refreshMiscCount();
+});
+</script>
+</body>
+</html>
